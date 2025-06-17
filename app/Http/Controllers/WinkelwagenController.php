@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Bestelling;
 use Illuminate\Support\Str;
+use Mollie\Laravel\Facades\Mollie;
 
 class WinkelwagenController extends Controller
 {
@@ -100,40 +101,117 @@ class WinkelwagenController extends Controller
         $request->validate([
             'betaalmethode' => 'required|string|in:ideal,paypal,creditcard',
         ]);
-    
-        // Haal klantgegevens en winkelwagen uit de sessie
+
         $klant = session('checkout.gegevens');
         $winkelwagen = session('cart', []);
-    
-        // Bereken het totaal van de bestelling
-        $totaalprijs = collect($winkelwagen)->sum(fn($item) => $item['prijs'] * $item['aantal']);
-    
-        // Maak een nieuwe bestelling aan
-        $bestelling = Bestelling::create([
-            'transactie_id' => strtoupper(Str::random(12)),
-            'naam' => $klant['naam'],
-            'email' => $klant['email'],
-            'adres' => $klant['adres'],
-            'postcode' => $klant['postcode'],
-            'plaats' => $klant['plaats'],
-            'betaalmethode' => $request->betaalmethode,
+        $productenTotaal = collect($winkelwagen)->sum(fn($item) => $item['prijs'] * $item['aantal']);
+        $verzendkosten = $productenTotaal >= 75 ? 0 : 4.90;
+        $totaalprijs = $productenTotaal;
+
+        // Unieke ID voor bestelling
+        $bestellingUuid = (string) Str::uuid();
+
+        // Sla volledige info tijdelijk in sessie
+        session()->put("temp_bestellingen.$bestellingUuid", [
+            'klant' => $klant,
+            'cart' => $winkelwagen,
+            'verzendkosten' => $verzendkosten,
             'totaalprijs' => $totaalprijs,
+            'betaalmethode' => $request->betaalmethode,
         ]);
-    
-        // Voeg producten toe aan de tussenliggende tabel
-        $product_data = [];
-        foreach ($winkelwagen as $item) {
-            $product_data[$item['id']] = ['aantal' => $item['aantal']];
+
+        // Mollie betaling met alleen UUID in metadata
+        $payment = Mollie::api()->payments->create([
+            'amount' => [
+                'currency' => 'EUR',
+                // 'value' => number_format($totaalprijs, 2, '.', ''),
+                'value' => '0.01',
+            ],
+            'description' => 'Bestelling bij Deluxe Nailshop',
+            'redirectUrl' => route('mollie.callback', ['bestelling' => $bestellingUuid]),
+            'metadata' => [
+                'bestelling_id' => $bestellingUuid,
+            ],
+        ]);
+
+        // Bewaar Mollie payment ID + UUID in sessie (optioneel)
+        session()->put('mollie_payment_id', $payment->id);
+
+        return redirect($payment->getCheckoutUrl());
+    }
+
+    public function mollieCallback()
+    {
+        $paymentId = session('mollie_payment_id');
+        $payment = Mollie::api()->payments->get($paymentId);
+
+        if (!$payment->isPaid()) {
+            return redirect()->route('winkelwagen.index')->with('error', 'Betaling is niet gelukt.');
         }
-    
-        // Koppel producten aan de bestelling
+
+        // Haal de opgeslagen gegevens op uit de sessie
+        $bestellingId = request('bestelling');
+        $data = session("temp_bestellingen.$bestellingId");
+        if (!$data) {
+            return redirect()->route('winkelwagen.index')->with('error', 'Geen betalingsgegevens gevonden.');
+        }
+
+        $bestaan = Bestelling::where('transactie_id', $payment->id)->first();
+        if ($bestaan) {
+            return redirect()->route('winkelwagen.bedankt', ['id' => $bestaan->id]);
+        }
+
+        // Maak bestelling aan
+        $bestelling = Bestelling::create([
+            'transactie_id' => $payment->id,
+            'naam' => $data['klant']['naam'],
+            'email' => $data['klant']['email'],
+            'adres' => $data['klant']['adres'],
+            'postcode' => $data['klant']['postcode'],
+            'plaats' => $data['klant']['plaats'],
+            'betaalmethode' => 'ideal',
+            'totaalprijs' => $data['totaalprijs'],
+        ]);
+
+        // Voeg producten toe aan bestelling
+        $product_data = [];
+        foreach ($data['cart'] as $id => $item) {
+            $product_data[$id] = ['aantal' => $item['aantal']];
+        }
         $bestelling->producten()->sync($product_data);
-    
-        // Leeg de winkelwagen en checkoutgegevens
-        session()->forget(['cart', 'checkout.gegevens']);
-    
-        return redirect()->route('bestelling.bedankt', ['id' => $bestelling->id])->with('success', 'Bedankt voor je bestelling!');
-    }      
+
+        // Ruim alles op
+        session()->forget([
+            'cart',
+            'checkout.gegevens',
+            'mollie_payment_id',
+            "temp_bestellingen.$bestellingId"
+        ]);
+
+        // Redirect naar 'bedankt' pagina
+        return redirect()->route('winkelwagen.bedankt', ['id' => $bestelling->id]);
+    }
+
+    public function mollieWebhook(Request $request)
+    {
+        $payment = Mollie::api()->payments->get($request->id);
+        $bestellingId = $payment->metadata->bestelling_id;
+
+        $bestelling = Bestelling::find($bestellingId);
+        if (!$bestelling) {
+            return response()->json(['error' => 'Bestelling niet gevonden'], 404);
+        }
+
+        if ($payment->isPaid() && !$payment->hasRefunds()) {
+            $bestelling->status = 'betaald';
+        } elseif ($payment->isFailed() || $payment->isExpired()) {
+            $bestelling->status = 'mislukt';
+        }
+
+        $bestelling->save();
+
+        return response()->json(['status' => 'ok']);
+    }
 
     public function bedankt($id)
     {
@@ -141,13 +219,13 @@ class WinkelwagenController extends Controller
         $bestelling = Bestelling::findOrFail($id);
     
         // Haal klantgegevens en winkelwagen uit de sessie
-        $gegevens = session('checkout.gegevens');
-        $cart = session('cart', []);
-    
-        // Als klantgegevens niet bestaan in de sessie, geef een error of redirect
-        if (!$gegevens) {
-            return redirect()->route('winkelwagen.contact')->with('error', 'Klantgegevens niet gevonden.');
-        }
+        $gegevens = [
+            'naam' => $bestelling->naam,
+            'email' => $bestelling->email,
+            'adres' => $bestelling->adres,
+            'postcode' => $bestelling->postcode,
+            'plaats' => $bestelling->plaats,
+        ];
     
         // Haal de producten van de bestelling uit de tussenliggende tabel
         $bestellingProducten = $bestelling->producten; // Zorg ervoor dat de relatie is gedefinieerd in de Bestelling model

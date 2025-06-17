@@ -49,6 +49,17 @@
                     <input type="hidden" name="beschrijving" id="beschrijving" value="{{ old('beschrijving') }}">
                 </div>
                 <div>
+                    <label class="block text-sm font-medium mb-1">Categorie</label>
+                    <select name="category_id" required class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                        <option value="">Selecteer een categorie</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->naam }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
                     <label class="block text-sm font-medium mb-1">Prijs (€)</label>
                     <input type="number" name="prijs" required step="0.01" min="0" value="{{ old('prijs') }}" class="w-full border border-gray-300 px-4 py-2 rounded-md">
                 </div>

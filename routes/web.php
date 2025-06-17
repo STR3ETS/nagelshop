@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Models\Product;
+use App\Models\Category;
 
 use App\Http\Controllers\InlogController;
 use App\Http\Controllers\ProductenController;
@@ -10,7 +11,19 @@ use App\Http\Controllers\InstellingenController;
 use App\Http\Controllers\WinkelwagenController;
 
 Route::get('/', function () { return view('welcome'); });
-Route::get('/producten', function () { $producten = Product::all(); return view('producten', compact('producten')); });
+Route::get('/producten', function (Illuminate\Http\Request $request) {
+    $query = Product::query();
+
+    // Filteren op categorieën (optioneel)
+    if ($request->filled('categorie')) {
+        $query->whereIn('category_id', $request->categorie);
+    }
+
+    $producten = $query->get();
+    $alleCategories = Category::all();
+
+    return view('producten', compact('producten', 'alleCategories'));
+})->name('producten.index');
 
 Route::post('/winkelwagen/toevoegen/{product}', [WinkelwagenController::class, 'toevoegen'])->name('winkelwagen.toevoegen');
 Route::get('/winkelwagen', [WinkelwagenController::class, 'index'])->name('winkelwagen.index');
@@ -21,7 +34,8 @@ Route::post('/winkelwagen/contact', [WinkelwagenController::class, 'contactOpsla
 Route::get('/winkelwagen/betaling', [WinkelwagenController::class, 'toonBetaling'])->name('winkelwagen.betaling');
 Route::post('/winkelwagen/afronden', [WinkelwagenController::class, 'afronden'])->name('winkelwagen.afronden');
 Route::get('/bestelling/bedankt/{id}', [WinkelwagenController::class, 'bedankt'])->name('winkelwagen.bedankt');
-
+Route::get('/betaling/voltooid/{bestelling}', [WinkelwagenController::class, 'mollieCallback'])->name('mollie.callback');
+Route::post('/webhooks/mollie', [WinkelwagenController::class, 'mollieWebhook'])->name('mollie.webhook');
 
 // Authenticatie
 Route::get('/inloggen', [InlogController::class, 'toonFormulier'])->name('inloggen');

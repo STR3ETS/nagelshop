@@ -12,6 +12,7 @@ class Product extends Model
         'prijs',
         'voorraad',
         'foto',
+        'category_id',
     ];
 
     public function bestellingen()
@@ -19,4 +20,8 @@ class Product extends Model
         return $this->belongsToMany(Bestelling::class, 'bestelling_product')->withPivot('aantal');
     }
 
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

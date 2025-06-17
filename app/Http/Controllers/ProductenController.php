@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Category;
 
 class ProductenController extends Controller
 {
@@ -16,7 +17,8 @@ class ProductenController extends Controller
 
     public function create()
     {
-        return view('beheer.producten.aanmaken');
+        $categories = Category::all(); // Haal alle categorieën op
+        return view('beheer.producten.aanmaken', compact('categories'));
     }
 
     public function store(Request $request)
@@ -26,6 +28,7 @@ class ProductenController extends Controller
             'beschrijving' => 'nullable|string',
             'prijs' => 'required|numeric|min:0',
             'voorraad' => 'required|integer|min:0',
+            'category_id' => 'required|exists:categories,id', // ✅ toegevoegd
         ]);
 
         if ($request->hasFile('foto')) {
@@ -34,12 +37,14 @@ class ProductenController extends Controller
         }
 
         Product::create($data);
+
         return redirect()->route('beheer.producten')->with('success', 'Product toegevoegd.');
     }
 
     public function edit(Product $product)
     {
-        return view('beheer.producten.bewerken', compact('product'));
+        $categories = Category::all();
+        return view('beheer.producten.bewerken', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product)
@@ -48,6 +53,7 @@ class ProductenController extends Controller
             'naam' => 'required|string|max:255',
             'beschrijving' => 'nullable|string',
             'prijs' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id', // ✅ toevoegen!
         ]);
 
         if ($request->hasFile('foto')) {

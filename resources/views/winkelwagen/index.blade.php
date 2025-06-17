@@ -65,18 +65,22 @@
                 <h2 class="text-[18px] font-semibold mb-4">Overzicht</h2>
                 @php
                     $gratisVerzendingDrempel = 75;
-                    $totaalIncl = collect($cart)->sum(fn($i) => $i['prijs'] * $i['aantal']);
-                    $nogTeGaan = max(0, $gratisVerzendingDrempel - $totaalIncl);
-                    $voortgang = min(100, round(($totaalIncl / $gratisVerzendingDrempel) * 100));
-                    $btw = $totaalIncl * (21 / 121);
+
+                    $totaalIncl = collect($cart)->sum(fn($i) => $i['prijs'] * $i['aantal']); // bijv €120
+                    $totaalExcl = $totaalIncl / 1.21;                                         // €99.17
+                    $btw = $totaalIncl - $totaalExcl;  
+                    
                     $subtotaal = $totaalIncl - $btw;
-                    $btw = $totaalIncl * 0.21;
+
                     $verzendkosten = $totaalIncl >= $gratisVerzendingDrempel ? 0 : 4.90;
                     $totaalMetVerzending = $totaalIncl + $verzendkosten;
+
+                    $nogTeGaan = max(0, $gratisVerzendingDrempel - $totaalIncl);
+                    $voortgang = min(100, round(($totaalIncl / $gratisVerzendingDrempel) * 100));
                 @endphp
                 <div class="flex justify-between mb-2 text-[15px]">
                     <span>Subtotaal</span>
-                    <span>&euro;{{ number_format($totaalIncl, 2, ',', '.') }}</span>
+                    <span>&euro;{{ number_format($subtotaal, 2, ',', '.') }}</span>
                 </div>
                 <div class="flex justify-between mb-2 text-[15px]">
                     <span>BTW 21%</span>
@@ -115,7 +119,7 @@
                     <span>&euro;{{ number_format($totaalMetVerzending, 2, ',', '.') }}</span>
                 </div>
                 <form action="{{ route('winkelwagen.contact') }}" method="GET">
-                    <button type="submit" class="mt-5 w-full py-3 bg-black text-white rounded-md text-[15px] font-medium hover:bg-gray-900 transition">
+                    <button type="submit" class="cursor-pointer mt-5 w-full py-3 bg-black text-white rounded-md text-[15px] font-medium hover:bg-gray-900 transition">
                         Verder met bestellen
                     </button>
                 </form>

@@ -13,7 +13,7 @@
         <div class="w-full flex gap-[1rem]">
             <div class="w-2/3 flex gap-[1rem] h-fit">
                 <div class="w-full bg-white rounded-lg p-[2rem] mb-8">
-                    <h2 class="text-[18px] font-medium mb-2">Klantgegevens</h2>
+                    <h2 class="text-[18px] font-medium mb-2">Ingevulde gegevens</h2>
                     <div class="text-[15px] text-[#191919] opacity-80 space-y-1">
                         <p><strong>Naam:</strong> {{ $gegevens['naam'] }}</p>
                         <p><strong>Email:</strong> {{ $gegevens['email'] }}</p>
@@ -44,18 +44,22 @@
                 <h2 class="text-[18px] font-semibold mb-4">Overzicht</h2>
                 @php
                     $gratisVerzendingDrempel = 75;
-                    $totaalIncl = collect($cart)->sum(fn($i) => $i['prijs'] * $i['aantal']);
-                    $nogTeGaan = max(0, $gratisVerzendingDrempel - $totaalIncl);
-                    $voortgang = min(100, round(($totaalIncl / $gratisVerzendingDrempel) * 100));
-                    $btw = $totaalIncl * (21 / 121);
+
+                    $totaalIncl = collect($cart)->sum(fn($i) => $i['prijs'] * $i['aantal']); // bijv €120
+                    $totaalExcl = $totaalIncl / 1.21;                                         // €99.17
+                    $btw = $totaalIncl - $totaalExcl;  
+                    
                     $subtotaal = $totaalIncl - $btw;
-                    $btw = $totaalIncl * 0.21;
+
                     $verzendkosten = $totaalIncl >= $gratisVerzendingDrempel ? 0 : 4.90;
                     $totaalMetVerzending = $totaalIncl + $verzendkosten;
+
+                    $nogTeGaan = max(0, $gratisVerzendingDrempel - $totaalIncl);
+                    $voortgang = min(100, round(($totaalIncl / $gratisVerzendingDrempel) * 100));
                 @endphp
                 <div class="flex justify-between mb-2 text-[15px]">
                     <span>Subtotaal</span>
-                    <span>&euro;{{ number_format($totaalIncl, 2, ',', '.') }}</span>
+                    <span>&euro;{{ number_format($subtotaal, 2, ',', '.') }}</span>
                 </div>
                 <div class="flex justify-between mb-2 text-[15px]">
                     <span>BTW 21%</span>
@@ -96,7 +100,7 @@
                 <form action="{{ route('winkelwagen.afronden') }}" method="POST">
                     @csrf
                     <input type="hidden" name="betaalmethode" value="ideal">
-                    <button type="submit" class="mt-5 w-full py-3 bg-black text-white rounded-md text-[15px] font-medium hover:bg-gray-900 transition">
+                    <button type="submit" class="cursor-pointer mt-5 w-full py-3 bg-black text-white rounded-md text-[15px] font-medium hover:bg-gray-900 transition">
                         Ga naar betaling via Mollie
                     </button>
                 </form>

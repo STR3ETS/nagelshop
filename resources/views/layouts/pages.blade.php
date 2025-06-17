@@ -15,6 +15,10 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
         <script src="https://cdn.lordicon.com/lordicon.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
 
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
@@ -77,18 +81,74 @@
                                 <span class="absolute -top-2 -right-4 text-[#ff64ba] font-semibold text-[11px] rounded-full px-2 py-[1px]">{{ $aantal }}</span>
                             @endif
                         </a>
-                        <a href="/inloggen" class="flex items-center">
-                            <lord-icon
-                                src="https://cdn.lordicon.com/hrjifpbq.json"
-                                trigger="hover"
-                                colors="primary:#191919"
-                                style="width:25px;height:25px">
-                            </lord-icon>
-                        </a>
+                        @auth
+                            <a href="/beheer" class="text-sm text-[#fff] px-4 py-1 rounded-md bg-[#ff64ba] font-normal">
+                                Beheer
+                            </a>
+                        @else
+                            <a href="/inloggen" class="flex items-center">
+                                <lord-icon
+                                    src="https://cdn.lordicon.com/hrjifpbq.json"
+                                    trigger="hover"
+                                    colors="primary:#191919"
+                                    style="width:25px;height:25px">
+                                </lord-icon>
+                            </a>
+                        @endauth
                     </div>
                 </div>
             </div>
         </div>
         @yield('content')
+        <footer class="bg-[#f9f9f9] border-t border-gray-200">
+            <div class="max-w-[1100px] mx-auto px-6 py-12 flex gap-16 text-sm text-[#343434]">
+                <div class="w-1/3">
+                    <img src="{{ Vite::asset('resources/images/deluxenailshop_transp_v1.png') }}" class="max-h-[3rem] mb-4">
+                    <h4 class="text-[#ff64ba] font-semibold text-base mb-3">DeLuxe Nailshop</h4>
+                    <p class="opacity-70">Ontdek hoogwaardige nagelproducten voor thuis of in de salon. Van gelpolish tot nail art. Alles wat je nodig hebt om jouw droomnagels te creëren, vind je hier.</p>
+                </div>
+                <div class="flex justify-between gap-8 w-2/3">
+                    <div>
+                        <h4 class="text-[#ff64ba] font-semibold text-base mb-3">Navigatie</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/" class="hover:underline">Home</a></li>
+                            <li><a href="/" class="hover:underline">Producten</a></li>
+                            <li><a href="/" class="hover:underline">Onze Merken</a></li>
+                            <li><a href="/voorwaarden" class="hover:underline">Veelgestelde vragen</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-[#ff64ba] font-semibold text-base mb-3">Klantenservice</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/contact" class="hover:underline">Klantenservice</a></li>
+                            <li><a href="/" class="hover:underline">Algemene voorwaarden</a></li>
+                            <li><a href="/shop" class="hover:underline">Privacybeleid</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-[#ff64ba] font-semibold text-base mb-3">Contact</h4>
+                        <ul class="space-y-4">
+                            <div class="space-y-2">
+                                <li>Keppelseweg 412</li>
+                                <li>7009 AE Doetinchem</li>
+                            </div>
+                            <div class="space-y-2">
+                                <li>Email: <a href="mailto:info@deluxenailshop.nl" class="hover:underline">info@deluxenailshop.nl</a></li>
+                                <li>KVK: 12345678</li>
+                                <li>BTW: NL001234567B01</li>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-[1100px] mx-auto px-6 flex items-center justify-between border-t border-gray-200">
+                <div class="text-center text-xs text-gray-400 py-4">
+                    © {{ date('Y') }} DeLuxe Nailshop – Alle rechten voorbehouden
+                </div>
+                <div class="text-center text-xs text-gray-400 py-4">
+                    Gemaakt door <a href="https://www.halfmanmedia.nl" target="_blank" class="hover:underline">HalfmanMedia</a>
+                </div>
+            </div>
+        </footer>
     </body>
 </html>
