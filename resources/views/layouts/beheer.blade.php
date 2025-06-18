@@ -42,114 +42,15 @@
         @endif
     </head>
     <body class="bg-[#ff64ba10]">
-        <div class="w-full h-auto py-[0.5rem] bg-[#ff64ba]">
-            <div class="max-w-[1100px] mx-auto h-full flex items-center justify-center">
-                <p class="text-white font-regular text-sm">
-                    Verzendkosten: Nederland €5,95 | België €9,50 <span class="text-xs opacity-50 p-[0.35rem] bg-[#96366c] rounded-sm ml-4">Gratis verzending vanaf 75,-</span>
-                <p>
-            </div>
-        </div>
-        <div class="w-full h-auto py-[1rem] bg-[#fff]">
-            <div class="w-full px-[3rem] mx-auto h-full flex items-center justify-between">
-                <div class="w-2/5">
-                    <ul class="flex items-center gap-[0.5rem]">
-                        <li><a href="/" class="px-[0.75rem] py-[0.4rem] hover:bg-[#ff64ba] text-[15px] font-medium rounded-sm hover:text-white transition">Home</a></li>
-                        <li><a href="/producten" class="px-[0.75rem] py-[0.4rem] hover:bg-[#ff64ba] text-[15px] font-medium rounded-sm hover:text-white transition">Producten</a></li>
-                        <li><a href="/merken" class="px-[0.75rem] py-[0.4rem] hover:bg-[#ff64ba] text-[15px] font-medium rounded-sm hover:text-white transition">Onze Merken</a></li>
-                        <li><a href="/faq" class="px-[0.75rem] py-[0.4rem] hover:bg-[#ff64ba] text-[15px] font-medium rounded-sm hover:text-white transition">Veelgestelde Vragen</a></li>
-                        <li><a href="/klantenservice" class="px-[0.75rem] py-[0.4rem] hover:bg-[#ff64ba] text-[15px] font-medium rounded-sm hover:text-white transition">Klantenservice</a></li>
-                    </ul>
-                </div>
-                <div class="w-1/5 flex justify-center items-center">
-                    <img src="{{ Vite::asset('resources/images/deluxenailshop_transp_v1.png') }}" class="max-h-[5rem]">
-                </div>
-                <div class="w-2/5 flex justify-end items-center gap-[1rem]">
-                    <div class="flex items-center gap-[0.5rem] mr-4">
-                        <p class="text-sm opacity-50 mt-[0.2rem]">Onze klanten beoordelen ons met een 4.8/5</p>
-                        <div class="flex items-center">
-                            <img src="{{ Vite::asset('resources/images/starrating.png') }}" class="max-h-[1rem]">
-                            <img src="{{ Vite::asset('resources/images/starrating.png') }}" class="max-h-[1rem]">
-                            <img src="{{ Vite::asset('resources/images/starrating.png') }}" class="max-h-[1rem]">
-                            <img src="{{ Vite::asset('resources/images/starrating.png') }}" class="max-h-[1rem]">
-                            <img src="{{ Vite::asset('resources/images/starrating.png') }}" class="max-h-[1rem]">
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-[1rem]">
-                        <a href="{{ route('winkelwagen.index') }}" class="relative group">
-                            🛒
-                            @php $aantal = collect(session('cart'))->sum('aantal'); @endphp
-                            @if($aantal > 0)
-                                <span class="absolute -top-2 -right-4 text-[#ff64ba] font-semibold text-[11px] rounded-full px-2 py-[1px]">{{ $aantal }}</span>
-                            @endif
-                        </a>
-                        @auth
-                            <a href="/beheer" class="text-sm text-[#fff] px-4 py-1 rounded-md bg-[#ff64ba] font-normal">
-                                Beheer
-                            </a>
-                        @else
-                            <a href="/inloggen" class="flex items-center">
-                                <lord-icon
-                                    src="https://cdn.lordicon.com/hrjifpbq.json"
-                                    trigger="hover"
-                                    colors="primary:#191919"
-                                    style="width:25px;height:25px">
-                                </lord-icon>
-                            </a>
-                        @endauth
-                    </div>
-                </div>
-            </div>
-        </div>
+        <a href="/" class="text-sm text-[#191919] flex items-center gap-2 fixed left-2 top-2 opacity-60 hover:opacity-100 transition">
+            <lord-icon class="rotate-180"
+                src="https://cdn.lordicon.com/yxwmgaav.json"
+                trigger="hover"
+                colors="primary:#191919"
+                style="width:20px;height:20px">
+            </lord-icon>
+            Naar webwinkel
+        </a>
         @yield('content')
-        <footer class="bg-[#f9f9f9] border-t border-gray-200">
-            <div class="max-w-[1100px] mx-auto px-6 py-12 flex gap-16 text-sm text-[#343434]">
-                <div class="w-1/3">
-                    <img src="{{ Vite::asset('resources/images/deluxenailshop_transp_v1.png') }}" class="max-h-[3rem] mb-4">
-                    <h4 class="text-[#ff64ba] font-semibold text-base mb-3">DeLuxe Nailshop</h4>
-                    <p class="opacity-70">Ontdek hoogwaardige nagelproducten voor thuis of in de salon. Van gelpolish tot nail art. Alles wat je nodig hebt om jouw droomnagels te creëren, vind je hier.</p>
-                </div>
-                <div class="flex justify-between gap-8 w-2/3">
-                    <div>
-                        <h4 class="text-[#ff64ba] font-semibold text-base mb-3">Navigatie</h4>
-                        <ul class="space-y-2">
-                            <li><a href="/" class="hover:underline">Home</a></li>
-                            <li><a href="/" class="hover:underline">Producten</a></li>
-                            <li><a href="/" class="hover:underline">Onze Merken</a></li>
-                            <li><a href="/voorwaarden" class="hover:underline">Veelgestelde vragen</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="text-[#ff64ba] font-semibold text-base mb-3">Klantenservice</h4>
-                        <ul class="space-y-2">
-                            <li><a href="/contact" class="hover:underline">Klantenservice</a></li>
-                            <li><a href="/" class="hover:underline">Algemene voorwaarden</a></li>
-                            <li><a href="/shop" class="hover:underline">Privacybeleid</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="text-[#ff64ba] font-semibold text-base mb-3">Contact</h4>
-                        <ul class="space-y-4">
-                            <div class="space-y-2">
-                                <li>Keppelseweg 412</li>
-                                <li>7009 AE Doetinchem</li>
-                            </div>
-                            <div class="space-y-2">
-                                <li>Email: <a href="mailto:info@deluxenailshop.nl" class="hover:underline">info@deluxenailshop.nl</a></li>
-                                <li>KVK: 12345678</li>
-                                <li>BTW: NL001234567B01</li>
-                            </div>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="max-w-[1100px] mx-auto px-6 flex items-center justify-between border-t border-gray-200">
-                <div class="text-center text-xs text-gray-400 py-4">
-                    © {{ date('Y') }} DeLuxe Nailshop – Alle rechten voorbehouden
-                </div>
-                <div class="text-center text-xs text-gray-400 py-4">
-                    Gemaakt door <a href="https://www.halfmanmedia.nl" target="_blank" class="hover:underline">HalfmanMedia</a>
-                </div>
-            </div>
-        </footer>
     </body>
 </html>

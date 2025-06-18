@@ -17,6 +17,8 @@ class Bestelling extends Model
         'plaats',
         'betaalmethode',
         'totaalprijs',
+        'track_trace',
+        'status',
     ];
 
     public function producten()

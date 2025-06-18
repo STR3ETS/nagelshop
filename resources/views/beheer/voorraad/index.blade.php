@@ -1,8 +1,8 @@
-@extends('layouts.pages')
+@extends('layouts.beheer')
 
 @section('content')
 <div class="w-full h-auto">
-    <div class="py-[5rem] max-w-[1100px] mx-auto">
+    <div class="py-[1.5rem] max-w-[1100px] mx-auto">
         <div class="w-full flex items-center justify-between mb-6">
             <ul class="flex items-center gap-[2rem]">
                 <li><a href="/beheer" class="hover:text-[#ff64ba] text-[15px] font-medium">Dashboard</a></li>

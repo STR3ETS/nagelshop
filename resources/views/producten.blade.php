@@ -36,7 +36,12 @@
         <!-- Cards: producten -->
         <div class="w-3/4 grid grid-cols-3 gap-[1rem] h-fit">
             @foreach($producten as $product)
-                <div class="bg-white p-[1.5rem] rounded-lg flex flex-col h-full border-1 border-gray-100">
+                <div class="bg-white p-[1.5rem] rounded-lg flex flex-col h-full border-1 border-gray-100 relative">
+                    @if ($product->voorraad === 0)
+                        <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                            Uitverkocht
+                        </span>
+                    @endif
                     <!-- Afbeelding -->
                     <div class="w-full aspect-square overflow-hidden border border-gray-200 rounded-lg p-[1rem]">
                         <img src="{{ asset('storage/producten/' . $product->foto) }}" alt="{{ $product->naam }}" class="w-full h-full object-cover">
@@ -68,15 +73,27 @@
                             <p class="text-[#191919] opacity-80 text-[15px] mb-2">€{{ number_format($product->prijs, 2, ',', '.') }}</p>
                             <form action="{{ route('winkelwagen.toevoegen', $product) }}" method="POST" class="toevoegen-form" data-product-id="{{ $product->id }}">
                                 @csrf
-                                <button type="submit" class="cursor-pointer w-full py-[0.4rem] bg-[#ff64ba] hover:bg-[#96366c] transition rounded-md text-white text-[15px] font-medium flex items-center justify-center gap-2">
-                                    <lord-icon
-                                        src="https://cdn.lordicon.com/pbrgppbb.json"
-                                        trigger="hover"
-                                        colors="primary:#ffffff"
-                                        style="width:20px;height:20px">
-                                    </lord-icon>
-                                    Toevoegen
-                                </button>
+                                @if ($product->voorraad === 0)
+                                    <div class="cursor-not-allowed select-none w-full py-[0.4rem] bg-[#ff64ba] opacity-25 transition rounded-md text-white text-[15px] font-medium flex items-center justify-center gap-2">
+                                        <lord-icon
+                                            src="https://cdn.lordicon.com/pbrgppbb.json"
+                                            trigger="hover"
+                                            colors="primary:#ffffff"
+                                            style="width:20px;height:20px">
+                                        </lord-icon>
+                                        Toevoegen
+                                    </div>
+                                @else
+                                    <button type="submit" class="cursor-pointer w-full py-[0.4rem] bg-[#ff64ba] hover:bg-[#96366c] transition rounded-md text-white text-[15px] font-medium flex items-center justify-center gap-2">
+                                        <lord-icon
+                                            src="https://cdn.lordicon.com/pbrgppbb.json"
+                                            trigger="hover"
+                                            colors="primary:#ffffff"
+                                            style="width:20px;height:20px">
+                                        </lord-icon>
+                                        Toevoegen
+                                    </button>
+                                @endif
                             </form>
                         </div>
                     </div>

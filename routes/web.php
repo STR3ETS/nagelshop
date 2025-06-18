@@ -2,11 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 
+use Illuminate\Support\Facades\DB;
+
+use Carbon\Carbon;
+
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Bestelling;
 
 use App\Http\Controllers\InlogController;
 use App\Http\Controllers\ProductenController;
+use App\Http\Controllers\BestellingenController;
 use App\Http\Controllers\InstellingenController;
 use App\Http\Controllers\WinkelwagenController;
 
@@ -45,7 +51,34 @@ Route::post('/uitloggen', [InlogController::class, 'uitloggen'])->name('uitlogge
 
 // Beveiligd adminpaneel
 Route::middleware(['auth'])->prefix('beheer')->group(function () {
-    Route::get('/', fn() => view('beheer.dashboard'))->name('beheer.dashboard');
+    Route::get('/', function () {
+        $now = Carbon::now();
+        $data = [];
+        $labels = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $dag = $now->copy()->subDays($i);
+            $labels[] = $dag->translatedFormat('j M');
+            $data[] = Bestelling::whereDate('created_at', $dag)->count();
+        }
+
+        $omzet30Dagen = Bestelling::where('created_at', '>=', Carbon::now()->subDays(30))->sum('totaalprijs');
+        $omzet7Dagen = Bestelling::where('created_at', '>=', Carbon::now()->subDays(7))->sum('totaalprijs');
+        $productenVerkocht = DB::table('bestelling_product')
+            ->join('bestellingen', 'bestelling_product.bestelling_id', '=', 'bestellingen.id')
+            ->whereMonth('bestellingen.created_at', Carbon::now()->month)
+            ->sum('aantal');
+        $openBestellingen = Bestelling::where('status', 'open')->count();
+
+        return view('beheer.dashboard', [
+            'chartLabels' => $labels,
+            'chartData' => $data,
+            'omzet30Dagen' => $omzet30Dagen,
+            'omzet7Dagen' => $omzet7Dagen,
+            'productenVerkocht' => $productenVerkocht,
+            'openBestellingen' => $openBestellingen
+        ]);
+    })->name('beheer.dashboard');
 
     Route::get('/producten', [ProductenController::class, 'index'])->name('beheer.producten');
     Route::get('/producten/aanmaken', [ProductenController::class, 'create'])->name('producten.aanmaken');
@@ -53,6 +86,11 @@ Route::middleware(['auth'])->prefix('beheer')->group(function () {
     Route::get('/producten/{product}/bewerken', [ProductenController::class, 'edit'])->name('producten.bewerken');
     Route::put('/producten/{product}', [ProductenController::class, 'update'])->name('producten.bijwerken');
     Route::delete('/producten/{product}', [ProductenController::class, 'destroy'])->name('producten.verwijderen');
+
+    Route::get('/bestellingen', [BestellingenController::class, 'index'])->name('beheer.bestellingen');
+    Route::get('/bestellingen/{bestelling}/inzien', [BestellingenController::class, 'inzien'])->name('bestellingen.inzien');
+    Route::put('/bestellingen/{bestelling}/verzendgegevens', [BestellingenController::class, 'updateVerzendgegevens'])->name('bestellingen.verzendgegevens');
+    Route::put('/bestellingen/{bestelling}/tracktrace', [BestellingenController::class, 'updateTrackTrace'])->name('bestellingen.tracktrace');
 
     Route::get('/voorraad', [ProductenController::class, 'voorraad'])->name('beheer.voorraad');
     Route::post('/voorraad/bijwerken', [ProductenController::class, 'updateVoorraad'])->name('beheer.voorraad.bijwerken');
@@ -62,6 +100,3 @@ Route::middleware(['auth'])->prefix('beheer')->group(function () {
     Route::post('/instellingen/kortingscodes', [InstellingenController::class, 'opslaanKortingscode'])->name('instellingen.kortingscode.aanmaken');
     Route::delete('/instellingen/kortingscodes/{kortingscode}', [InstellingenController::class, 'verwijderKortingscode'])->name('instellingen.kortingscode.verwijderen');
 });
-
-
-//

@@ -149,7 +149,6 @@ class WinkelwagenController extends Controller
             return redirect()->route('winkelwagen.index')->with('error', 'Betaling is niet gelukt.');
         }
 
-        // Haal de opgeslagen gegevens op uit de sessie
         $bestellingId = request('bestelling');
         $data = session("temp_bestellingen.$bestellingId");
         if (!$data) {
@@ -161,7 +160,7 @@ class WinkelwagenController extends Controller
             return redirect()->route('winkelwagen.bedankt', ['id' => $bestaan->id]);
         }
 
-        // Maak bestelling aan
+        // Bestelling opslaan
         $bestelling = Bestelling::create([
             'transactie_id' => $payment->id,
             'naam' => $data['klant']['naam'],
@@ -173,14 +172,22 @@ class WinkelwagenController extends Controller
             'totaalprijs' => $data['totaalprijs'],
         ]);
 
-        // Voeg producten toe aan bestelling
+        // Koppel producten aan bestelling én verminder voorraad
         $product_data = [];
         foreach ($data['cart'] as $id => $item) {
             $product_data[$id] = ['aantal' => $item['aantal']];
+
+            // 📉 Verminder voorraad van het product
+            $product = Product::find($id);
+            if ($product) {
+                $product->voorraad = max(0, $product->voorraad - $item['aantal']);
+                $product->save();
+            }
         }
+
         $bestelling->producten()->sync($product_data);
 
-        // Ruim alles op
+        // 🔚 Ruim alles op
         session()->forget([
             'cart',
             'checkout.gegevens',
@@ -188,7 +195,6 @@ class WinkelwagenController extends Controller
             "temp_bestellingen.$bestellingId"
         ]);
 
-        // Redirect naar 'bedankt' pagina
         return redirect()->route('winkelwagen.bedankt', ['id' => $bestelling->id]);
     }
 

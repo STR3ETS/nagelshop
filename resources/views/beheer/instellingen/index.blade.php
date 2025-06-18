@@ -1,14 +1,14 @@
-@extends('layouts.pages')
+@extends('layouts.beheer')
 @section('content')
 <div class="w-full h-auto">
-    <div class="py-[5rem] max-w-[1100px] mx-auto">
+    <div class="py-[1.5rem] max-w-[1100px] mx-auto">
         <div class="w-full flex items-center justify-between mb-6">
             <ul class="flex items-center gap-[2rem]">
                 <li><a href="/beheer" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition">Dashboard</a></li>
                 <li><a href="/beheer/producten" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition">Producten</a></li>
                 <li><a href="/beheer/bestellingen" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition">Bestellingen</a></li>
                 <li><a href="/beheer/voorraad" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition">Voorraad</a></li>
-                <li><a href="/beheer/instellingen" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition">Instellingen</a></li>
+                <li><a href="/beheer/instellingen" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition text-[#ff64ba]">Instellingen</a></li>
             </ul>
             <form method="POST" action="{{ route('uitloggen') }}">
                 @csrf
