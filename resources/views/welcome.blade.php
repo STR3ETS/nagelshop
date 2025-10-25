@@ -18,43 +18,43 @@
         <div class="grid grid-cols-3 md:grid-cols-7 gap-4">
             <a href="/producten" class="flex flex-col items-center">
                 <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
-                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/bases-tops.webp') }}" alt="">
+                    <img class="absolute z-1" src="{{ asset('images/catogorieen-fotos/bases-tops.webp') }}" alt="">
                 </div>
                 <p class="text-[#191919] font-medium text-sm text-center mt-4">Bases & Tops</p>
             </a>
             <a href="/producten" class="flex flex-col items-center">
                 <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
-                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/french-base.webp') }}" alt="">
+                    <img class="absolute z-1" src="{{ asset('images/catogorieen-fotos/french-base.webp') }}" alt="">
                 </div>
                 <p class="text-[#191919] font-medium text-sm text-center mt-4">French Base</p>
             </a>
             <a href="/producten" class="flex flex-col items-center">
                 <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
-                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/gel.webp') }}" alt="">
+                    <img class="absolute z-1" src="{{ asset('/images/catogorieen-fotos/gel.webp') }}" alt="">
                 </div>
                 <p class="text-[#191919] font-medium text-sm text-center mt-4">Gel</p>
             </a>
             <a href="/producten" class="flex flex-col items-center">
                 <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
-                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/gel-polish.webp') }}" alt="">
+                    <img class="absolute z-1" src="{{ asset('/images/catogorieen-fotos/gel-polish.webp') }}" alt="">
                 </div>
                 <p class="text-[#191919] font-medium text-sm text-center mt-4">Gel Polish</p>
             </a>
             <a href="/producten" class="flex flex-col items-center">
                 <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
-                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/design.webp') }}" alt="">
+                    <img class="absolute z-1" src="{{ asset('/images/catogorieen-fotos/design.webp') }}" alt="">
                 </div>
                 <p class="text-[#191919] font-medium text-sm text-center mt-4">Design</p>
             </a>
             <a href="/producten" class="flex flex-col items-center">
                 <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
-                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/liquids.webp') }}" alt="">
+                    <img class="absolute z-1" src="{{ asset('/images/catogorieen-fotos/liquids.webp') }}" alt="">
                 </div>
                 <p class="text-[#191919] font-medium text-sm text-center mt-4">Liquids</p>
             </a>
             <a href="/producten" class="flex flex-col items-center">
                 <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
-                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/forms-tips.webp') }}" alt="">
+                    <img class="absolute z-1" src="{{ asset('/images/catogorieen-fotos/forms-tips.webp') }}" alt="">
                 </div>
                 <p class="text-[#191919] font-medium text-sm text-center mt-4">Forms & Tips</p>
             </a>

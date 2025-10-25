@@ -52,7 +52,7 @@
     <body class="bg-[#fbf6f5]">
         <div id="mobile-menu" class="fixed z-999 w-full h-screen bg-[#b38867] p-[1rem]">
             <div class="w-full flex items-center justify-between mb-10">
-                <img src="{{ Vite::asset('resources/images/deluxenailshop_transp_wit_v1.png') }}" class="max-h-[4rem]">
+                <img src="{{ asset('/images/deluxenailshop_transp_wit_v1.png') }}" class="max-h-[4rem]">
                 <svg id="mobile-menu-close" class="-mr-2 cursor-pointer" width="40px" height="40px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g id="Menu / Close_SM">
                     <path id="Vector" d="M16 16L12 12M12 12L8 8M12 12L16 8M12 12L8 16" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -87,7 +87,7 @@
                     </ul>
                 </div>
                 <div class="w-1/5 flex justify-center items-center">
-                    <img src="{{ Vite::asset('resources/images/deluxenailshop_transp_v1.png') }}" class="max-h-[4rem]">
+                    <img src="{{ asset('/images/deluxenailshop_transp_v1.png') }}" class="max-h-[4rem]">
                 </div>
                 <div class="w-2/5 flex justify-end items-center gap-[1rem]">
                     <div class="flex items-center gap-[1rem]">
