@@ -16,20 +16,34 @@ use App\Http\Controllers\BestellingenController;
 use App\Http\Controllers\InstellingenController;
 use App\Http\Controllers\WinkelwagenController;
 
-Route::get('/', function () { return view('welcome'); });
-Route::get('/producten', function (Illuminate\Http\Request $request) {
+Route::get('/', function (Illuminate\Http\Request $request) {
     $query = Product::query();
-
+    
     // Filteren op categorieën (optioneel)
     if ($request->filled('categorie')) {
         $query->whereIn('category_id', $request->categorie);
     }
-
+    
     $producten = $query->get();
     $alleCategories = Category::all();
-
+    
+    return view('welcome', compact('producten', 'alleCategories'));
+});
+Route::get('/producten', function (Illuminate\Http\Request $request) {
+    $query = Product::query();
+    
+    // Filteren op categorieën (optioneel)
+    if ($request->filled('categorie')) {
+        $query->whereIn('category_id', $request->categorie);
+    }
+    
+    $producten = $query->get();
+    $alleCategories = Category::all();
+    
     return view('producten', compact('producten', 'alleCategories'));
 })->name('producten.index');
+Route::get('/producten/{product}/{slug?}', [ProductenController::class, 'show'])->name('producten.show');
+Route::get('/faq', function () { return view('veelgestelde-vragen'); });
 
 Route::post('/winkelwagen/toevoegen/{product}', [WinkelwagenController::class, 'toevoegen'])->name('winkelwagen.toevoegen');
 Route::get('/winkelwagen', [WinkelwagenController::class, 'index'])->name('winkelwagen.index');
@@ -39,6 +53,8 @@ Route::get('/winkelwagen/contact', [WinkelwagenController::class, 'toonContactFo
 Route::post('/winkelwagen/contact', [WinkelwagenController::class, 'contactOpslaan'])->name('winkelwagen.contactOpslaan');
 Route::get('/winkelwagen/betaling', [WinkelwagenController::class, 'toonBetaling'])->name('winkelwagen.betaling');
 Route::post('/winkelwagen/afronden', [WinkelwagenController::class, 'afronden'])->name('winkelwagen.afronden');
+Route::post('/winkelwagen/kortingscode', [WinkelwagenController::class, 'kortingscodeToepassen'])->name('winkelwagen.kortingscode.toepassen');
+Route::post('/winkelwagen/kortingscode/verwijderen', [WinkelwagenController::class, 'kortingscodeVerwijderen'])->name('winkelwagen.kortingscode.verwijderen');
 Route::get('/bestelling/bedankt/{id}', [WinkelwagenController::class, 'bedankt'])->name('winkelwagen.bedankt');
 Route::get('/betaling/voltooid/{bestelling}', [WinkelwagenController::class, 'mollieCallback'])->name('mollie.callback');
 Route::post('/webhooks/mollie', [WinkelwagenController::class, 'mollieWebhook'])->name('mollie.webhook');

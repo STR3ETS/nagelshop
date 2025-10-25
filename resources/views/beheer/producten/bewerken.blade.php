@@ -9,11 +9,11 @@
     <div class="max-w-[1100px] mx-auto py-[1.5rem]">
         <div class="w-full flex items-center justify-between mb-6">
             <ul class="flex items-center gap-[2rem]">
-                <li><a href="/beheer" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition">Dashboard</a></li>
-                <li><a href="/beheer/producten" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition text-[#ff64ba]">Producten</a></li>
-                <li><a href="/beheer/bestellingen" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition">Bestellingen</a></li>
-                <li><a href="/beheer/voorraad" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition">Voorraad</a></li>
-                <li><a href="/beheer/instellingen" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition">Instellingen</a></li>
+                <li><a href="/beheer" class="hover:text-[#b38867] text-[15px] font-medium rounded-sm transition">Dashboard</a></li>
+                <li><a href="/beheer/producten" class="hover:text-[#b38867] text-[15px] font-medium rounded-sm transition text-[#b38867]">Producten</a></li>
+                <li><a href="/beheer/bestellingen" class="hover:text-[#b38867] text-[15px] font-medium rounded-sm transition">Bestellingen</a></li>
+                <li><a href="/beheer/voorraad" class="hover:text-[#b38867] text-[15px] font-medium rounded-sm transition">Voorraad</a></li>
+                <li><a href="/beheer/instellingen" class="hover:text-[#b38867] text-[15px] font-medium rounded-sm transition">Instellingen</a></li>
             </ul>
             <form method="POST" action="{{ route('uitloggen') }}">
                 @csrf
@@ -23,7 +23,7 @@
         <a href="/beheer/producten" class="text-[#191919] opacity-50 text-[12px] hover:underline">
             Terug naar het overzicht
         </a>
-        <h1 class="text-[#191919] text-[38px] font-semibold leading-[1.15] my-2">Product <i class="instrument-serif-font text-[#ff64ba]">bewerken</i></h1>
+        <h1 class="text-[#191919] text-[38px] font-semibold leading-[1.15] my-2">Product <i class="instrument-serif-font text-[#b38867]">bewerken</i></h1>
         <p class="text-[#191919] opacity-80 text-[15px] mb-8">
             Je bent momenteel <strong>{{ $product->naam }}</strong> aan het bewerken...
         </p>
@@ -70,7 +70,7 @@
                     <label class="block text-sm font-medium mb-1">Prijs (€)</label>
                     <input type="number" name="prijs" required step="0.01" min="0" value="{{ old('prijs', $product->prijs) }}" class="w-full border border-gray-300 px-4 py-2 rounded-md">
                 </div>
-                <button type="submit" class="bg-[#ff64ba] text-white px-6 py-2 rounded-md hover:bg-[#e652a7] transition">
+                <button type="submit" class="bg-[#b38867] text-white px-6 py-2 rounded-md hover:bg-[#e652a7] transition">
                     Wijzigingen opslaan
                 </button>
             </form>

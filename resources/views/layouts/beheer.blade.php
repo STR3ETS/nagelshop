@@ -41,7 +41,7 @@
             </style>
         @endif
     </head>
-    <body class="bg-[#ff64ba10]">
+    <body class="bg-[#fbf6f5]">
         <a href="/" class="text-sm text-[#191919] flex items-center gap-2 fixed left-2 top-2 opacity-60 hover:opacity-100 transition">
             <lord-icon class="rotate-180"
                 src="https://cdn.lordicon.com/yxwmgaav.json"
@@ -52,5 +52,13 @@
             Naar webwinkel
         </a>
         @yield('content')
+        <div class="max-w-[1100px] mx-auto py-[1.5rem] flex items-center justify-between border-t-1 border-gray-200 mt-6">
+            <div class="text-center text-xs text-gray-400 py-4">
+                © {{ date('Y') }} DeLuxe Nailshop – Alle rechten voorbehouden
+            </div>
+            <div class="text-center text-xs text-gray-400 py-4">
+                Gemaakt door <a href="https://www.halfmanmedia.nl" target="_blank" class="hover:underline">HalfmanMedia</a>
+            </div>
+        </div>
     </body>
 </html>

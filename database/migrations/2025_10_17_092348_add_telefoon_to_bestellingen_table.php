@@ -4,22 +4,19 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::table('bestellingen', function (Blueprint $table) {
-            if (!Schema::hasColumn('bestellingen', 'track_trace')) {
-                $table->string('track_trace')->nullable()->after('status');
-            }
+            $table->string('telefoon')->nullable()->after('email');
         });
     }
 
     public function down(): void
     {
         Schema::table('bestellingen', function (Blueprint $table) {
-            if (Schema::hasColumn('bestellingen', 'track_trace')) {
-                $table->dropColumn('track_trace');
-            }
+            $table->dropColumn('telefoon');
         });
     }
 };

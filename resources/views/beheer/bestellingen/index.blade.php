@@ -4,18 +4,18 @@
     <div class="py-[1.5rem] max-w-[1100px] mx-auto">
         <div class="w-full flex items-center justify-between mb-6">
             <ul class="flex items-center gap-[2rem]">
-                <li><a href="/beheer" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition">Dashboard</a></li>
-                <li><a href="/beheer/producten" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition">Producten</a></li>
-                <li><a href="/beheer/bestellingen" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition text-[#ff64ba]">Bestellingen</a></li>
-                <li><a href="/beheer/voorraad" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition">Voorraad</a></li>
-                <li><a href="/beheer/instellingen" class="hover:text-[#ff64ba] text-[15px] font-medium rounded-sm transition">Instellingen</a></li>
+                <li><a href="/beheer" class="hover:text-[#b38867] text-[15px] font-medium rounded-sm transition">Dashboard</a></li>
+                <li><a href="/beheer/producten" class="hover:text-[#b38867] text-[15px] font-medium rounded-sm transition">Producten</a></li>
+                <li><a href="/beheer/bestellingen" class="hover:text-[#b38867] text-[15px] font-medium rounded-sm transition text-[#b38867]">Bestellingen</a></li>
+                <li><a href="/beheer/voorraad" class="hover:text-[#b38867] text-[15px] font-medium rounded-sm transition">Voorraad</a></li>
+                <li><a href="/beheer/instellingen" class="hover:text-[#b38867] text-[15px] font-medium rounded-sm transition">Instellingen</a></li>
             </ul>
             <form method="POST" action="{{ route('uitloggen') }}">
                 @csrf
                 <button type="submit" class="px-[1.5rem] py-[0.4rem] bg-gray-200 hover:bg-gray-300 text-gray-500 transition rounded-md text-[15px] font-medium cursor-pointer">Uitloggen</button>
             </form>
         </div>
-        <h1 class="text-[#191919] text-[38px] font-semibold leading-[1.15] mb-2">Beheer hier <i class="instrument-serif-font text-[#ff64ba]">jouw bestellingen</i></h1>
+        <h1 class="text-[#191919] text-[38px] font-semibold leading-[1.15] mb-2">Beheer hier <i class="instrument-serif-font text-[#b38867]">jouw bestellingen</i></h1>
         <p class="text-[#191919] opacity-80 text-[15px] mb-8">
         Hier beheer je alle bestellingen in je webshop. Bekijk recente aankopen,<br>verwerk openstaande orders en houd overzicht op je verkoopgeschiedenis. Zorg ervoor dat je klanten tijdig worden geholpen.
         </p>
@@ -41,7 +41,7 @@
                             <td class="px-4 py-4">{{ $bestelling->created_at }}</td>
                             @if($bestelling->status === 'open')
                                 <td class="px-4 py-4">
-                                    <p class="px-2 py-1 rounded-sm border-1 border-[#ff64ba] bg-[#ff64ba25] text-[#ff64ba] text-sm w-fit">Nieuw!</p>
+                                    <p class="px-2 py-1 rounded-sm border-1 border-[#b38867] bg-[#b3886725] text-[#b38867] text-sm w-fit">Nieuw!</p>
                                 </td>
                             @elseif($bestelling->status === 'onderweg')
                                 <td class="px-4 py-4">
@@ -67,7 +67,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td class="px-4 py-2" colspan="4">Nog geen producten toegevoegd.</td>
+                            <td class="px-4 py-2" colspan="4">Nog geen bestellingen.</td>
                         </tr>
                     @endforelse
                 </tbody>

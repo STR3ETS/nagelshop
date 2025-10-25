@@ -1,80 +1,139 @@
 @extends('layouts.pages')
 @section('content')
-<div class="w-full h-[500px] overflow-y-hidden flex items-center relative">
-    <video src="assets/home-hero.mp4" autoplay muted loop></video>
-    <div class="w-full h-full absolute z-[1] bg-[#00000050]"></div>
-    <div class="absolute z-[3] max-w-[1100px] left-0 right-0 ml-auto mr-auto">
-        <h1 class="text-white text-[50px] font-bold leading-[1.15]">Creëer <i class="instrument-serif-font text-[#ff64ba]">jouw droomnagels</i><br>met onze luxe producten</h1>
-        <p class="text-white opacity-80 text-[15px] mt-4 mb-6">Ontdek hoogwaardige nagelproducten voor thuis of in de salon. Van gelpolish tot nail art.<br>Alles wat je nodig hebt om jouw droomnagels te creëren, vind je hier.</p>
-        <div class="flex items-center gap-[1rem]">
-            <a href="#" class="px-[1.5rem] py-[0.4rem] bg-[#ff64ba] hover:bg-[#96366c] transition rounded-md text-white text-[15px] font-medium">Bekijk Collectie '25</a>
+<div class="w-full h-[350px] md:h-[500px] overflow-y-hidden flex items-center relative">
+    <video class="w-full h-full absolute z-1 object-cover" src="assets/home-hero.mp4" autoplay muted loop></video>
+    <div class="w-full h-full absolute z-2 bg-[#00000050]"></div>
+    <div class="absolute z-3 max-w-[1100px] px-[1rem] md:px-[3rem] left-0 right-0 ml-auto mr-auto">
+        <h1 class="text-white text-[34px] md:text-[50px] font-bold leading-[1.15]">Creëer <i class="instrument-serif-font">jouw droomnagels</i><br>met onze luxe producten</h1>
+        <p class="text-white opacity-80 text-[15px] mt-4 mb-6">Ontdek hoogwaardige nagelproducten voor thuis of in de salon. Van gelpolish tot nail art.<br class="hidden md:block">Alles wat je nodig hebt om jouw droomnagels te creëren, vind je hier.</p>
+    </div>
+</div>
+<div class="w-full h-auto">
+    <div class="max-w-[1100px] px-[1rem] md:px-[3rem] mx-auto py-[5rem]">
+        <div class="flex items-end gap-[2rem] mb-8">
+            <div class="w-1/2">
+                <h2 class="text-[#191919] text-[38px] font-light leading-[1.15]"><i class="instrument-serif-font text-[#b38867]">Catogorieën</i></h2>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 md:grid-cols-7 gap-4">
+            <a href="/producten" class="flex flex-col items-center">
+                <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
+                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/bases-tops.webp') }}" alt="">
+                </div>
+                <p class="text-[#191919] font-medium text-sm text-center mt-4">Bases & Tops</p>
+            </a>
+            <a href="/producten" class="flex flex-col items-center">
+                <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
+                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/french-base.webp') }}" alt="">
+                </div>
+                <p class="text-[#191919] font-medium text-sm text-center mt-4">French Base</p>
+            </a>
+            <a href="/producten" class="flex flex-col items-center">
+                <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
+                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/gel.webp') }}" alt="">
+                </div>
+                <p class="text-[#191919] font-medium text-sm text-center mt-4">Gel</p>
+            </a>
+            <a href="/producten" class="flex flex-col items-center">
+                <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
+                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/gel-polish.webp') }}" alt="">
+                </div>
+                <p class="text-[#191919] font-medium text-sm text-center mt-4">Gel Polish</p>
+            </a>
+            <a href="/producten" class="flex flex-col items-center">
+                <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
+                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/design.webp') }}" alt="">
+                </div>
+                <p class="text-[#191919] font-medium text-sm text-center mt-4">Design</p>
+            </a>
+            <a href="/producten" class="flex flex-col items-center">
+                <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
+                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/liquids.webp') }}" alt="">
+                </div>
+                <p class="text-[#191919] font-medium text-sm text-center mt-4">Liquids</p>
+            </a>
+            <a href="/producten" class="flex flex-col items-center">
+                <div class="w-32 h-32 bg-white rounded-full overflow-hidden flex items-center justify-center relative">
+                    <img class="absolute z-1" src="{{ Vite::asset('resources/images/catogorieen-fotos/forms-tips.webp') }}" alt="">
+                </div>
+                <p class="text-[#191919] font-medium text-sm text-center mt-4">Forms & Tips</p>
+            </a>
         </div>
     </div>
 </div>
 <div class="w-full h-auto">
-    <div class="max-w-[1100px] mx-auto py-[5rem]">
+    <div class="max-w-[1100px] px-[1rem] md:px-[3rem] mx-auto pb-[5rem]">
         <div class="flex items-end gap-[2rem] mb-8">
             <div class="w-1/2">
-                <h2 class="text-[#191919] text-[38px] font-light leading-[1.15]"><i class="instrument-serif-font text-[#ff64ba]">Populairste</i> catogorieën</h2>
-            </div>
-            <div class="w-1/2">
-                <p class="text-[#191919] opacity-80 text-[15px]">Bekijk onze bestsellers en ontdek welke nagelproducten het meest geliefd zijn bij onze klanten.</p>
+                <h2 class="text-[#191919] text-[38px] font-light leading-[1.15]"><i class="instrument-serif-font text-[#b38867]">Bestsellers</i></h2>
             </div>
         </div>
-        <div class="w-full h-auto flex gap-[1rem]">
-            <a href="#" class="w-1/3 min-h-[250px] p-[2rem] bg-cover bg-center rounded-md relative overflow-hidden group">
-                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 scale-100 group-hover:scale-110"
-                style="background-image: url('{{ Vite::asset('resources/images/catogory-1.jpg') }}'); z-index: 0;">
-            </div>
-            <div class="w-full h-full bg-[#00000050] absolute z-10 left-0 top-0"></div>
-            <div class="w-full h-auto p-[2rem] absolute z-20 bottom-0 left-0 flex items-center justify-between">
-                <h3 class="text-white text-[26px] font-medium leading-[1.15] w-fit">Gelpolish</h3>
-                <svg class="rotate-[45deg]" width="20px" height="20px" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="#fff" stroke="#fff">
-                    </svg>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            @foreach($producten->take(4) as $product)
+                <div class="bg-white p-[1.5rem] rounded-lg flex flex-col h-full border-1 border-gray-100 relative">
+                    @if ($product->voorraad === 0)
+                        <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                            Uitverkocht
+                        </span>
+                    @endif
+                    <!-- Afbeelding -->
+                    <div class="w-full aspect-square overflow-hidden border border-gray-200 rounded-lg p-[1rem]">
+                        <img src="{{ asset('storage/producten/' . $product->foto) }}" alt="{{ $product->naam }}" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Inhoud -->
+                    <div class="flex flex-col justify-between flex-1 mt-4">
+                        <div class="flex flex-col gap-[0.5rem]">
+                            <h2 class="text-[16px] font-medium">{{ $product->naam }}</h2>
+                        </div>
+                        <!-- Prijs en button onderaan -->
+                        <div class="mt-4">
+                            <p class="text-[#191919] opacity-80 text-[15px] mb-2">€{{ number_format($product->prijs, 2, ',', '.') }}</p>
+                            <form action="{{ route('winkelwagen.toevoegen', $product) }}" method="POST" class="toevoegen-form" data-product-id="{{ $product->id }}">
+                                @csrf
+                                @if ($product->voorraad === 0)
+                                    <div class="cursor-not-allowed select-none w-full py-[0.4rem] bg-[#b38867] opacity-25 transition rounded-md text-white text-[15px] font-medium flex items-center justify-center gap-2">
+                                        <lord-icon
+                                            src="https://cdn.lordicon.com/pbrgppbb.json"
+                                            trigger="hover"
+                                            colors="primary:#ffffff"
+                                            style="width:20px;height:20px">
+                                        </lord-icon>
+                                        Toevoegen
+                                    </div>
+                                @else
+                                    <button type="submit" class="cursor-pointer w-full py-[0.4rem] bg-[#b38867] hover:bg-[#947054] transition rounded-md text-white text-[15px] font-medium flex items-center justify-center gap-2">
+                                        <lord-icon
+                                            src="https://cdn.lordicon.com/pbrgppbb.json"
+                                            trigger="hover"
+                                            colors="primary:#ffffff"
+                                            style="width:20px;height:20px">
+                                        </lord-icon>
+                                        Toevoegen
+                                    </button>
+                                @endif
+                            </form>
+                        </div>
+                    </div>
                 </div>
-            </a>
-            <a href="#" class="w-1/3 min-h-[250px] p-[2rem] bg-cover bg-center rounded-md relative overflow-hidden group">
-                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 scale-100 group-hover:scale-110"
-                style="background-image: url('{{ Vite::asset('resources/images/catogory-2.jpg') }}'); z-index: 0;">
-            </div>
-            <div class="w-full h-full bg-[#00000050] absolute z-10 left-0 top-0"></div>
-            <div class="w-full h-auto p-[2rem] absolute z-20 bottom-0 left-0 flex items-center justify-between">
-                <h3 class="text-white text-[26px] font-medium leading-[1.15] w-fit">Liguid gel</h3>
-                <svg class="rotate-[45deg]" width="20px" height="20px" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="#fff" stroke="#fff">
-                    </svg>
-                </div>
-            </a>
-            <a href="#" class="w-1/3 min-h-[250px] p-[2rem] bg-cover bg-center rounded-md relative overflow-hidden group">
-                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 scale-100 group-hover:scale-110"
-                style="background-image: url('{{ Vite::asset('resources/images/catogory-3.jpg') }}'); z-index: 0;">
-            </div>
-            <div class="w-full h-full bg-[#00000050] absolute z-10 left-0 top-0"></div>
-            <div class="w-full h-auto p-[2rem] absolute z-20 bottom-0 left-0 flex items-center justify-between">
-                <h3 class="text-white text-[26px] font-medium leading-[1.15] w-fit">Acryl- en builder gels</h3>
-                <svg class="rotate-[45deg]" width="20px" height="20px" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="#fff" stroke="#fff">
-                    </svg>
-                </div>
-            </a>
+            @endforeach
         </div>
     </div>
 </div>
-<div class="w-full h-auto bg-white">
+<!-- <div class="w-full h-auto bg-white">
     <div class="max-w-[1100px] mx-auto py-[5rem]">
-        <h2 class="text-[#191919] text-[38px] font-light leading-[1.15] text-center mb-6">Welke <i class="instrument-serif-font text-[#ff64ba]">manicure</i> past bij jou?</h2>
+        <h2 class="text-[#191919] text-[38px] font-light leading-[1.15] text-center mb-6">Welke <i class="instrument-serif-font text-[#e5b2a4]">manicure</i> past bij jou?</h2>
         <div class="w-full flex justify-center gap-[2rem]">
             <div class="max-w-[25rem]">
                 <img src="assets/manicure-1.webp" class="rounded-lg">
                 <h3 class="text-[#191919] text-[30px] font-medium leading-[1.15] my-4 instrument-serif-font italic">Gel Stickers</h3>
-                <p class="text-[#191919] opacity-80 text-[15px] mb-6">Perfecte gelnagels in enkele minuten. Kies simpelweg je favoriete kleur, effect of design, plak ze op en laat je nagels spreken. Snel aan te brengen en makkelijk te verwijderen — de ideale oplossing voor jouw drukke dagen.</p>
                 <a href="#" class="px-[1.5rem] py-[0.4rem] bg-[#191919] hover:bg-[#222222] transition rounded-md text-white text-[15px] font-medium">Ontdek nu</a>
             </div>
             <div class="max-w-[25rem]">
                 <img src="assets/manicure-2.webp" class="rounded-lg">
                 <h3 class="text-[#191919] text-[30px] font-medium leading-[1.15] my-4 instrument-serif-font italic">Gellak</h3>
-                <p class="text-[#191919] opacity-80 text-[15px] mb-6">Creëer salonwaardige gelnagels gewoon thuis en laat je creativiteit de vrije loop. Kies je favoriete kleur, laag, blend of ontwerp je eigen nail art voor een perfecte, gepersonaliseerde look die lang meegaat en eindeloze mogelijkheden biedt.</p>
                 <a href="#" class="px-[1.5rem] py-[0.4rem] bg-[#191919] hover:bg-[#222222] transition rounded-md text-white text-[15px] font-medium">Ontdek nu</a>
             </div>
         </div>
     </div>
-</div>
+</div> -->
 @endsection

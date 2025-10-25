@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\Product;
 use App\Models\Category;
 
@@ -94,5 +95,27 @@ class ProductenController extends Controller
         }
 
         return back()->with('success', 'Voorraad succesvol bijgewerkt.');
+    }
+
+    public function show(Product $product, ?string $slug = null)
+    {
+        // Canonical slug afdwingen (301)
+        $expected = Str::slug($product->naam);
+        if ($slug !== $expected) {
+            return redirect()->route('producten.show', [
+                'product' => $product->id,
+                'slug'    => $expected,
+            ], 301);
+        }
+
+        // Gerelateerde producten (zelfde categorie, excl. huidige)
+        $gerelateerd = Product::query()
+            ->where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('product-detail', compact('product', 'gerelateerd'));
     }
 }

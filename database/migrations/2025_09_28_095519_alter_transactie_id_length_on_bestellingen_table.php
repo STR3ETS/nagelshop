@@ -8,18 +8,16 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('bestellingen', function (Blueprint $table) {
-            if (!Schema::hasColumn('bestellingen', 'track_trace')) {
-                $table->string('track_trace')->nullable()->after('status');
-            }
+            // Verleng alleen de kolom; raak de unique index niet aan
+            $table->string('transactie_id', 64)->change();
         });
     }
 
     public function down(): void
     {
         Schema::table('bestellingen', function (Blueprint $table) {
-            if (Schema::hasColumn('bestellingen', 'track_trace')) {
-                $table->dropColumn('track_trace');
-            }
+            // Zet terug naar de oude lengte indien nodig (pas 20 aan naar jouw vorige lengte)
+            $table->string('transactie_id', 20)->change();
         });
     }
 };
