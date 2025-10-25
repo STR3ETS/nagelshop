@@ -17,9 +17,9 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Boyd Halfman',
+            'name' => 'Davdjanlena',
             'email' => 'admin@deluxenailshop.nl',
-            'password' => Hash::make('password'), // veilig gehasht wachtwoord
+            'password' => Hash::make('DeLuxeNailshop2025!'), // veilig gehasht wachtwoord
         ]);
     }
 }
