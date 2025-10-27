@@ -78,7 +78,7 @@
             </div>
             <div class="w-full h-auto py-[1rem]">
                 <div class="w-full px-[1rem] md:px-[3rem] mx-auto h-full flex items-center justify-between">
-                    <div class="w-4/5 flex items-center gap-10">
+                    <div class="flex items-center gap-10">
                         <a href="/">
                             <img src="{{ asset('/images/deluxenailshop_transp_wit_v1.png') }}" class="max-h-[4rem]">
                         </a>
@@ -207,8 +207,11 @@
                         </li>
                         </ul>
                     </div>
-                    <div class="w-1/5 flex justify-end items-center gap-[1rem]">
+                    <div class="flex justify-end items-center gap-[1rem]">
                         <div class="flex items-center gap-[1rem]">
+                            <a href="#" class="flex items-center">
+                                <i class="fa-solid fa-magnifying-glass fa-md text-white hover:text-[#ebe2db] transition"></i>
+                            </a>
                             <a href="{{ route('winkelwagen.index') }}" class="relative group">
                                 <i class="fa-solid fa-cart-shopping fa-md text-white hover:text-[#ebe2db] transition"></i>
                                 @php $aantal = collect(session('cart'))->sum('aantal'); @endphp
