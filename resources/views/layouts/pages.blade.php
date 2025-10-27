@@ -87,7 +87,9 @@
                     </ul>
                 </div>
                 <div class="w-1/5 flex justify-center items-center">
-                    <img src="{{ asset('/images/deluxenailshop_transp_v1.png') }}" class="max-h-[4rem]">
+                    <a href="/">
+                        <img src="{{ asset('/images/deluxenailshop_transp_v1.png') }}" class="max-h-[4rem]">
+                    </a>
                 </div>
                 <div class="w-2/5 flex justify-end items-center gap-[1rem]">
                     <div class="flex items-center gap-[1rem]">
