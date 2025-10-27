@@ -43,6 +43,7 @@ Route::get('/producten', function (Illuminate\Http\Request $request) {
     return view('producten', compact('producten', 'alleCategories'));
 })->name('producten.index');
 Route::get('/producten/{product}/{slug?}', [ProductenController::class, 'show'])->name('producten.show');
+Route::get('/zoek/producten', [\App\Http\Controllers\SearchController::class, 'products'])->name('search.products');
 Route::get('/faq', function () { return view('veelgestelde-vragen'); });
 
 Route::post('/winkelwagen/toevoegen/{product}', [WinkelwagenController::class, 'toevoegen'])->name('winkelwagen.toevoegen');

@@ -209,9 +209,71 @@
                     </div>
                     <div class="flex justify-end items-center gap-[1rem]">
                         <div class="flex items-center gap-[1rem]">
-                            <a href="#" class="flex items-center">
-                                <i class="fa-solid fa-magnifying-glass fa-md text-white hover:text-[#ebe2db] transition"></i>
-                            </a>
+                            <div x-data="productSearch()" class="relative">
+                                <button type="button"
+                                        @click="toggle()"
+                                        :aria-expanded="open"
+                                        aria-controls="product-search-popover"
+                                        class="flex items-center"
+                                        title="Zoeken">
+                                    <i class="fa-solid fa-magnifying-glass fa-md text-white hover:text-[#ebe2db] transition"></i>
+                                </button>
+                                <!-- Popover -->
+                                <div x-cloak x-show="open" x-transition
+                                    @click.outside="close()" @keydown.escape.prevent.stop="close()"
+                                    id="product-search-popover"
+                                    class="absolute right-0 mt-2 w-[320px] md:w-[420px] z-50">
+                                    <div class="rounded-xl bg-white shadow-xl border border-gray-100 p-3">
+                                    <!-- Input -->
+                                    <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3">
+                                        <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+                                        <input
+                                        x-ref="input"
+                                        x-model.debounce.200ms="q"
+                                        @input="onInput()"
+                                        @keydown.arrow-down.prevent="move(1)"
+                                        @keydown.arrow-up.prevent="move(-1)"
+                                        @keydown.enter.prevent="goHighlighted()"
+                                        type="text"
+                                        placeholder="Zoek producten..."
+                                        class="w-full h-10 outline-none text-[14px]"/>
+                                        <button x-show="q.length" @click="clear()" type="button" class="text-gray-400 hover:text-gray-600">
+                                        <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                    <!-- Resultaten -->
+                                    <div class="mt-2 max-h-[320px] overflow-y-auto">
+                                        <template x-if="loading">
+                                        <div class="px-3 py-3 text-sm text-gray-500 hidden">Zoeken…</div>
+                                        </template>
+                                        <template x-if="!loading && q.length && results.length === 0">
+                                        <div class="px-3 py-3 text-sm text-gray-500">Geen resultaten</div>
+                                        </template>
+                                        <ul role="listbox" aria-label="Zoekresultaten" class="divide-y divide-gray-50">
+                                        <template x-for="(p, i) in results" :key="p.id">
+                                            <li :id="`res-${i}`"
+                                                :class="i === highlight ? 'bg-gray-50' : ''"
+                                                class="cursor-pointer">
+                                            <a @mouseenter="highlight = i"
+                                                @click.prevent="go(p)"
+                                                class="flex items-center gap-3 px-3 py-2">
+                                                <img x-show="p.foto" :src="p.foto" alt="" class="w-10 h-10 object-cover rounded hidden md:block">
+                                                <div class="min-w-0">
+                                                <p class="text-[14px] font-medium text-gray-900" x-text="p.naam"></p>
+                                                <p class="text-[12px] text-gray-500 truncate" x-show="p.categorie" x-text="p.categorie"></p>
+                                                </div>
+                                            </a>
+                                            </li>
+                                        </template>
+                                        </ul>
+                                    </div>
+                                    <!-- Footer -->
+                                    <div class="mt-2 flex items-center justify-end text-[11px] text-gray-500">
+                                        <button class="hover:underline" @click="close()">Sluiten (Esc)</button>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
                             <a href="{{ route('winkelwagen.index') }}" class="relative group">
                                 <i class="fa-solid fa-cart-shopping fa-md text-white hover:text-[#ebe2db] transition"></i>
                                 @php $aantal = collect(session('cart'))->sum('aantal'); @endphp
@@ -291,6 +353,59 @@
             mobileMenuClose.addEventListener('click', function() {
                 mobileMenu.classList.remove('active');
             })
+        </script>
+        <script>
+            // Zorg dat Alpine v3 geladen is in je layout
+            function productSearch() {
+                return {
+                open: false,
+                q: '',
+                results: [],
+                loading: false,
+                highlight: -1,
+                toggle() {
+                    this.open = !this.open;
+                    if (this.open) this.$nextTick(() => this.$refs.input.focus());
+                },
+                close() { this.open = false; this.highlight = -1; },
+                clear() { this.q = ''; this.results = []; this.highlight = -1; this.$refs.input.focus(); },
+                onInput() {
+                    if (this.q.trim().length < 1) { this.results = []; this.highlight = -1; return; }
+                    this.search(this.q.trim());
+                },
+                async search(q) {
+                    this.loading = true;
+                    try {
+                    const res = await fetch(`/zoek/producten?q=${encodeURIComponent(q)}`, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await res.json();
+                    // verwacht: [{id, naam, slug?, foto?, categorie?}]
+                    this.results = Array.isArray(data) ? data : [];
+                    this.highlight = this.results.length ? 0 : -1;
+                    } catch (e) {
+                    console.error('Zoekfout', e);
+                    this.results = [];
+                    this.highlight = -1;
+                    } finally {
+                    this.loading = false;
+                    }
+                },
+                move(step) {
+                    if (!this.results.length) return;
+                    this.highlight = (this.highlight + step + this.results.length) % this.results.length;
+                },
+                goHighlighted() {
+                    if (this.highlight < 0 || !this.results[this.highlight]) return;
+                    this.go(this.results[this.highlight]);
+                },
+                go(p) {
+                    // Bepaal je product URL (slug als je die hebt)
+                    const url = p.slug ? `/producten/${p.slug}` : `/producten/${p.id}`;
+                    window.location.href = url;
+                }
+                }
+            }
         </script>
     </body>
 </html>
