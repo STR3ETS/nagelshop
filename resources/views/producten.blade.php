@@ -1,5 +1,6 @@
 @extends('layouts.pages')
 @section('content')
+<style>[x-cloak]{ display:none !important; }</style>
 @php use Illuminate\Support\Str; @endphp
 <div class="w-full h-[250px] overflow-y-hidden flex items-center relative bg-cover bg-center bg-[url(https://i.imgur.com/99DomHP.jpeg)]">
     <div class="w-full h-full absolute z-[1] bg-[#00000050]"></div>
@@ -9,30 +10,70 @@
 </div>
 <div class="w-full h-auto relative">
     <div class="max-w-[1100px] px-[1rem] md:px-[3rem] mx-auto py-[5rem] flex flex-col md:flex-row gap-8">
-        <!-- Sidebar: categorieën -->
-        <div id="categorieSidebar" class="w-full md:w-1/4 bg-white rounded-lg p-[1.5rem] h-fit border-1 border-gray-100">
-            <h2 class="text-lg font-semibold text-[#b38867] mb-4">Categorieën</h2>
-            <form method="GET" action="{{ route('producten.index') }}" class="space-y-2 max-h-[85vh] overflow-y-auto" id="categorie-filter" data-turbo="false">
-                <div x-data class="space-y-2">
-                    @foreach($alleCategories as $categorie)
-                        <div class="flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                name="categorie[]"
-                                value="{{ $categorie->id }}"
-                                id="cat-{{ $categorie->id }}"
-                                class="accent-[#b38867]"
-                                {{ in_array($categorie->id, request()->get('categorie', [])) ? 'checked' : '' }}
-                                @change="$nextTick(() => document.getElementById('categorie-filter').requestSubmit())"
-                            >
-                            <label for="cat-{{ $categorie->id }}" class="text-sm text-[#343434]">{{ $categorie->naam }}</label>
-                        </div>
-                    @endforeach
-                </div>
-                <div class="pt-4 flex flex-col gap-2">
-                    <a href="{{ route('producten.index') }}" class="text-sm text-gray-500 hover:underline">Reset alle filters</a>
-                </div>
+        <!-- Sidebar: categorieën (mobiel inklapbaar) -->
+        <div id="categorieSidebar"
+            x-data="{ open:false }"
+            class="w-full md:w-1/4 bg-white rounded-lg p-[1.5rem] h-fit border-1 border-gray-100">
+
+          <!-- Header + mobiele toggle -->
+          <div class="flex items-center justify-between md:block">
+            <h2 class="text-lg font-semibold text-[#b38867] mb-0 md:mb-4">Categorieën</h2>
+
+            <!-- Alleen tonen op mobiel -->
+            <button type="button"
+                    class="md:hidden inline-flex items-center gap-2 text-sm text-[#343434] px-3 py-2 rounded-lg border border-gray-200"
+                    @click="open = !open"
+                    :aria-expanded="open.toString()"
+                    aria-controls="categorie-filter-wrap">
+              <span x-text="open ? 'Verberg filters' : 'Toon filters'"></span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform"
+                  :class="open ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Wrapper om netjes te kunnen togglen op mobiel, altijd zichtbaar op >= md -->
+          <div id="categorie-filter-wrap"
+              x-cloak
+              class="mt-4 md:mt-0 md:block"
+              x-show="open"
+              x-init="if (window.matchMedia('(min-width:768px)').matches) open = true"
+              @resize.window="if (window.matchMedia('(min-width:768px)').matches) open = true"
+              x-transition>
+
+            <form method="GET"
+                  action="{{ route('producten.index') }}"
+                  class="space-y-2 max-h-[85vh] overflow-y-auto"
+                  id="categorie-filter"
+                  data-turbo="false">
+              <div x-data class="space-y-2">
+                @foreach($alleCategories as $categorie)
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      name="categorie[]"
+                      value="{{ $categorie->id }}"
+                      id="cat-{{ $categorie->id }}"
+                      class="accent-[#b38867]"
+                      {{ in_array($categorie->id, request()->get('categorie', [])) ? 'checked' : '' }}
+                      @change="$nextTick(() => document.getElementById('categorie-filter').requestSubmit())"
+                    >
+                    <label for="cat-{{ $categorie->id }}" class="text-sm text-[#343434]">
+                      {{ $categorie->naam }}
+                    </label>
+                  </div>
+                @endforeach
+              </div>
+
+              <div class="pt-4 flex flex-col gap-2">
+                <a href="{{ route('producten.index') }}" class="text-sm text-gray-500 hover:underline">
+                  Reset alle filters
+                </a>
+              </div>
             </form>
+          </div>
         </div>
         <!-- Cards: producten -->
         <div class="w-full md:w-3/4 grid grid-cols-2 md:grid-cols-3 gap-[1rem] h-fit">
