@@ -196,7 +196,7 @@
                                 <li><a href="/werkmateriaal/top-nail-forms" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Top Nail Forms</a></li>
                                 <li><a href="/werkmateriaal/gel-tips" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Gel Tips</a></li>
                                 <li><a href="/werkmateriaal/penselen" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Penselen</a></li>
-                                <li><a href="/werkmateriaal/short" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Short</a></li>
+                                <li><a href="/werkmateriaal/schort" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Sxhort</a></li>
                             </ul>
                             </div>
                         </li>
