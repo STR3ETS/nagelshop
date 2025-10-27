@@ -1,11 +1,14 @@
 @extends('layouts.pages')
 @section('content')
-<div class="w-full h-[350px] md:h-[500px] overflow-y-hidden flex items-center relative">
-    <video class="w-full h-full absolute z-1 object-cover" src="assets/home-hero.mp4" autoplay muted loop></video>
-    <div class="w-full h-full absolute z-2 bg-[#00000050]"></div>
-    <div class="absolute z-3 max-w-[1100px] px-[1rem] md:px-[3rem] left-0 right-0 ml-auto mr-auto">
-        <h1 class="text-white text-[34px] md:text-[50px] font-bold leading-[1.15]">Creëer <i class="instrument-serif-font">jouw droomnagels</i><br>met onze luxe producten</h1>
-        <p class="text-white opacity-80 text-[15px] mt-4 mb-6">Ontdek hoogwaardige nagelproducten voor thuis of in de salon. Van gelpolish tot nail art.<br class="hidden md:block">Alles wat je nodig hebt om jouw droomnagels te creëren, vind je hier.</p>
+<div class="p-2">
+    <div class="w-full h-[350px] md:h-[600px] overflow-y-hidden flex items-center relative rounded-3xl">
+        <!-- <video class="w-full h-full absolute z-1 object-cover" src="assets/home-hero.mp4" autoplay muted loop></video> -->
+         <div class="w-full h-full absolute z-1 bg-cover bg-center" style="background-image: url('/images/hero.webp')"></div>
+        <div class="w-full h-full absolute z-2 bg-[#00000050]"></div>
+        <div class="absolute z-3 max-w-[1100px] px-[1rem] md:px-[3rem] left-0 right-0 ml-auto mr-auto">
+            <h1 class="text-white text-[34px] md:text-[50px] font-bold leading-[1.15] pt-[100px]">Creëer <i class="instrument-serif-font">jouw droomnagels</i><br>met onze luxe producten</h1>
+            <p class="text-white opacity-80 text-[15px] mt-4 mb-6">Ontdek hoogwaardige nagelproducten voor thuis of in de salon. Van gelpolish tot nail art.<br class="hidden md:block">Alles wat je nodig hebt om jouw droomnagels te creëren, vind je hier.</p>
+        </div>
     </div>
 </div>
 <div class="w-full h-auto">

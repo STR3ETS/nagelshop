@@ -19,6 +19,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://kit.fontawesome.com/4180a39c11.js" crossorigin="anonymous"></script>
 
 
         <style>
@@ -65,55 +66,166 @@
                 <li><a href="/faq" class="px-[0.75rem] py-[0.4rem] text-white hover:bg-[#947055] text-[15px] font-medium rounded-sm transition">FAQ</a></li>
             </ul>
         </div>
-        <div class="w-full h-auto py-[0.5rem] bg-[#b38867]">
-            <div class="max-w-[1100px] mx-auto h-full flex items-center justify-center">
-                <p class="text-white font-regular text-sm flex flex-col md:flex-row items-center">
-                    Verzendkosten: Nederland €5,95 | België €9,50 <span class="text-xs p-[0.35rem] w-fit bg-[#947054] rounded-sm ml-4">Gratis verzending vanaf 75,-</span>
-                <p>
-            </div>
-        </div>
-        <div class="w-full h-auto py-[1rem] bg-[#fff]">
-            <div class="w-full px-[1rem] md:px-[3rem] mx-auto h-full flex items-center justify-between">
-                <div class="w-2/5">
-                    <div id="mobile-menu-open" class="md:hidden cursor-pointer w-6 h-4 flex flex-col justify-between">
-                        <div class="w-full h-[2px] bg-[#b38867]"></div>
-                        <div class="w-full h-[2px] bg-[#b38867]"></div>
-                        <div class="w-[80%] h-[2px] bg-[#b38867]"></div>
+        <div class="fixed top-0 left-0 z-999 w-full">
+            <div class="px-4 pt-4">
+                <div class="w-full h-auto py-[0.5rem] bg-[#b38867]/75 border border-[#a0795c] rounded-3xl">
+                    <div class="max-w-[1100px] mx-auto h-full flex items-center justify-center">
+                        <p class="text-white font-regular text-sm flex flex-col md:flex-row items-center">
+                            Verzendkosten: Nederland €5,95 | België €9,50 <span class="text-xs p-[0.35rem] w-fit bg-[#947054] rounded-sm ml-4">Gratis verzending vanaf 75,-</span>
+                        <p>
                     </div>
-                    <ul class="md:flex items-center gap-[0.5rem] hidden">
-                        <li><a href="/" class="px-[0.75rem] py-[0.4rem] hover:bg-[#b38867] text-[15px] font-medium rounded-sm hover:text-white transition">Home</a></li>
-                        <li><a href="/producten" class="px-[0.75rem] py-[0.4rem] hover:bg-[#b38867] text-[15px] font-medium rounded-sm hover:text-white transition">Producten</a></li>
-                        <li><a href="/faq" class="px-[0.75rem] py-[0.4rem] hover:bg-[#b38867] text-[15px] font-medium rounded-sm hover:text-white transition">FAQ</a></li>
-                    </ul>
                 </div>
-                <div class="w-1/5 flex justify-center items-center">
-                    <a href="/">
-                        <img src="{{ asset('/images/deluxenailshop_transp_v1.png') }}" class="max-h-[4rem]">
-                    </a>
-                </div>
-                <div class="w-2/5 flex justify-end items-center gap-[1rem]">
-                    <div class="flex items-center gap-[1rem]">
-                        <a href="{{ route('winkelwagen.index') }}" class="relative group">
-                            🛒
-                            @php $aantal = collect(session('cart'))->sum('aantal'); @endphp
-                            @if($aantal > 0)
-                                <span class="absolute -top-2 -right-4 text-[#b38867] font-semibold text-[11px] rounded-full px-2 py-[1px]">{{ $aantal }}</span>
-                            @endif
+            </div>
+            <div class="w-full h-auto py-[1rem]">
+                <div class="w-full px-[1rem] md:px-[3rem] mx-auto h-full flex items-center justify-between">
+                    <div class="w-4/5 flex items-center gap-10">
+                        <a href="/">
+                            <img src="{{ asset('/images/deluxenailshop_transp_wit_v1.png') }}" class="max-h-[4rem]">
                         </a>
-                        @auth
-                            <a href="/beheer" class="text-sm text-[#fff] px-4 py-1 rounded-md bg-[#b38867] font-normal">
-                                Beheer
+                        <div id="mobile-menu-open" class="md:hidden cursor-pointer w-6 h-4 flex flex-col justify-between">
+                            <div class="w-full h-[2px] bg-[#b38867]"></div>
+                            <div class="w-full h-[2px] bg-[#b38867]"></div>
+                            <div class="w-[80%] h-[2px] bg-[#b38867]"></div>
+                        </div>
+                        <ul class="md:flex items-center gap-[2rem] hidden">
+                        <!-- Home -->
+                        <li>
+                            <a href="/" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">Home</a>
+                        </li>
+
+                        <!-- Base Coat (submenu) -->
+                        <li class="relative group">
+                            <a href="/base-coat" class="text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2">
+                            Base Coat <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
-                        @else
-                            <a href="/inloggen" class="flex items-center">
-                                <lord-icon
-                                    src="https://cdn.lordicon.com/hrjifpbq.json"
-                                    trigger="hover"
-                                    colors="primary:#191919"
-                                    style="width:25px;height:25px">
-                                </lord-icon>
+                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
+                                        absolute left-0 top-full -mt-2 pt-4 z-40">
+                            <ul class="min-w-[220px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
+                                <li><a href="/base-coat/rubber-base" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg ">Rubber Base</a></li>
+                                <li><a href="/base-coat/cold-base" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Cold Base</a></li>
+                            </ul>
+                            </div>
+                        </li>
+
+                        <!-- Top Coat (geen submenu) -->
+                        <li>
+                            <a href="/top-coat" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">Top Coat</a>
+                        </li>
+
+                        <!-- Acrylgel (geen submenu) -->
+                        <li>
+                            <a href="/acrylgel" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">Acrylgel</a>
+                        </li>
+
+                        <!-- Gel (submenu) -->
+                        <li class="relative group">
+                            <a href="/gel" class="text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2">
+                            Gel <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
-                        @endauth
+                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
+                                        absolute left-0 top-full -mt-2 pt-4 z-40">
+                            <ul class="min-w-[260px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
+                                <li><a href="/gel/builder-gel" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Builder Gel</a></li>
+                                <li><a href="/gel/builder-love-story-gel" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Builder Love Story Gel</a></li>
+                                <li><a href="/gel/builder-dream-gel" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Builder Dream Gel</a></li>
+                                <li><a href="/gel/jelly-gelly-gel" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Jelly Gelly Gel</a></li>
+                                <li><a href="/gel/liquid-gel" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Liquid Gel</a></li>
+                            </ul>
+                            </div>
+                        </li>
+
+                        <!-- Builder in a Bottle (geen submenu) -->
+                        <li>
+                            <a href="/builder-in-a-bottle" class="text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] transition">Builder in a Bottle</a>
+                        </li>
+
+                        <!-- Gelpolish (submenu) -->
+                        <li class="relative group">
+                            <a href="/gelpolish" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition text-white flex items-center gap-2">
+                            Gelpolish <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </a>
+                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
+                                        absolute left-0 top-full -mt-2 pt-4 z-40">
+                            <ul class="min-w-[220px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
+                                <li><a href="/gelpolish/flash" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Flash</a></li>
+                                <li><a href="/gelpolish/color" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Color</a></li>
+                            </ul>
+                            </div>
+                        </li>
+
+                        <!-- Liquids (submenu) -->
+                        <li class="relative group">
+                            <a href="/liquids" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition text-white flex items-center gap-2">
+                            Liquids <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </a>
+                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
+                                        absolute left-0 top-full -mt-2 pt-4 z-40">
+                            <ul class="min-w-[280px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
+                                <li><a href="/liquids/prep" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Prep</a></li>
+                                <li><a href="/liquids/cuticle-oil" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Cuticle Oil</a></li>
+                                <li><a href="/liquids/cuticle-remover" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Cuticle Remover</a></li>
+                                <li><a href="/liquids/3-in-1-nail-prep-cleanser" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">3 in 1 Nail Prep &amp; Cleanser</a></li>
+                                <li><a href="/liquids/remover" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Remover</a></li>
+                            </ul>
+                            </div>
+                        </li>
+
+                        <!-- Nail Art (submenu) -->
+                        <li class="relative group">
+                            <a href="/nail-art" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white group-hover:text-[#ebe2db] transition flex items-center gap-2">
+                            Nail Art <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </a>
+                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
+                                        absolute left-0 top-full -mt-2 pt-4 z-40">
+                            <ul class="min-w-[220px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
+                                <li><a href="/nail-art/metalic-gel" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Metalic Gel</a></li>
+                                <li><a href="/nail-art/gypsum" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Gypsum</a></li>
+                                <li><a href="/nail-art/ombre-spray" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Ombre Spray</a></li>
+                            </ul>
+                            </div>
+                        </li>
+
+                        <!-- Werkmateriaal (submenu) -->
+                        <li class="relative group">
+                            <a href="/werkmateriaal" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2 text-white">
+                            Werkmateriaal <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </a>
+                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
+                                        absolute left-0 top-full -mt-2 pt-4 z-40">
+                            <ul class="min-w-[240px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
+                                <li><a href="/werkmateriaal/top-nail-forms" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Top Nail Forms</a></li>
+                                <li><a href="/werkmateriaal/gel-tips" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Gel Tips</a></li>
+                                <li><a href="/werkmateriaal/penselen" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Penselen</a></li>
+                                <li><a href="/werkmateriaal/short" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Short</a></li>
+                            </ul>
+                            </div>
+                        </li>
+
+                        <!-- FAQ -->
+                        <li>
+                            <a href="/faq" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">FAQ</a>
+                        </li>
+                        </ul>
+                    </div>
+                    <div class="w-1/5 flex justify-end items-center gap-[1rem]">
+                        <div class="flex items-center gap-[1rem]">
+                            <a href="{{ route('winkelwagen.index') }}" class="relative group">
+                                <i class="fa-solid fa-cart-shopping fa-md text-white hover:text-[#ebe2db] transition"></i>
+                                @php $aantal = collect(session('cart'))->sum('aantal'); @endphp
+                                @if($aantal > 0)
+                                    <span class="absolute -top-2 -right-4 text-[#b38867] font-semibold text-[11px] rounded-full px-2 py-[1px]">{{ $aantal }}</span>
+                                @endif
+                            </a>
+                            @auth
+                                <a href="/beheer" class="text-sm text-[#fff] px-4 py-1 rounded-md bg-[#b38867] font-normal">
+                                    Beheer
+                                </a>
+                            @else
+                                <a href="/inloggen" class="flex items-center">
+                                    <i class="fa-solid fa-user fa-md text-white hover:text-[#ebe2db] transition"></i>
+                                </a>
+                            @endauth
+                        </div>
                     </div>
                 </div>
             </div>
