@@ -71,7 +71,7 @@
                 <div class="w-full h-auto py-[0.5rem] bg-[#b38867]/75 border border-[#a0795c] rounded-3xl">
                     <div class="max-w-[1100px] mx-auto h-full flex items-center justify-center">
                         <p class="text-white font-regular text-sm flex flex-col md:flex-row items-center">
-                            Verzendkosten: Nederland €5,95 | België €9,50 <span class="text-xs p-[0.35rem] w-fit bg-[#947054] rounded-sm ml-4">Gratis verzending vanaf 75,-</span>
+                            Verzendkosten: Nederland €5,95 | België €9,50 <span class="text-xs p-[0.35rem] w-fit bg-[#947054] rounded-sm ml-4">Gratis verzending vanaf: NL 50,- / BE 75,-</span>
                         <p>
                     </div>
                 </div>
@@ -256,7 +256,7 @@
                         <ul class="space-y-4 text-sm text-[#fff]">
                             <div class="space-y-2">
                                 <li>Lentemorgen 5</li>
-                                <li>6904KH Zevenaar</li>
+                                <li>6903CT Zevenaar</li>
                                 <li>Kamer 5.36</li>
                             </div>
                             <div class="space-y-2">

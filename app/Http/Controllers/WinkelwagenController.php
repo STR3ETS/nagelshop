@@ -148,7 +148,6 @@ class WinkelwagenController extends Controller
         $actieveKortingscode = null;
 
         if ($sessieCode && !empty($sessieCode['code'])) {
-            // Hercontroleer de code (bestaat & niet verlopen)
             $k = \App\Models\Kortingscode::where('code', mb_strtoupper($sessieCode['code']))->first();
             if ($k && !$k->isExpired()) {
                 $actieveKortingscode = [
@@ -163,15 +162,13 @@ class WinkelwagenController extends Controller
                 // Korting nooit groter dan producttotaal
                 $kortingBedrag = min($kortingBedrag, $productenTotaal);
             } else {
-                // Ongeldig/Verlopen -> verwijder uit sessie
                 session()->forget('checkout.kortingscode');
             }
         }
 
         $totaalNaKorting = max(0, $productenTotaal - $kortingBedrag);
 
-        // 3) Verzendkosten bepalen
-        $gratisVerzendingDrempel = 75.00;
+        // 3) Verzendkosten bepalen (NL gratis vanaf €50, BE gratis vanaf €75)
         $verzendkosten = 0.00;
         $adresOk = !empty($klant['adres'] ?? null) && !empty($klant['postcode'] ?? null) && !empty($klant['plaats'] ?? null);
 
@@ -182,10 +179,21 @@ class WinkelwagenController extends Controller
             // BE: 1234 (exact 4 cijfers)
             $isBE = !$isNL && (bool) preg_match('/^\d{4}$/', $pc);
 
-            $tarief = $isBE ? 9.50 : 5.95; // default naar NL-tarief als onherkenbaar
-            $verzendkosten = $totaalNaKorting >= $gratisVerzendingDrempel ? 0.00 : $tarief;
+            // Tarieven en drempels
+            $tariefNL  = 5.95;
+            $tariefBE  = 9.50;
+            $drempelNL = 50.00;
+            $drempelBE = 75.00;
+
+            // Fallback: als niet herkend → behandel als NL
+            $isNL = $isNL || (!$isBE);
+
+            $tarief  = $isBE ? $tariefBE : $tariefNL;
+            $drempel = $isBE ? $drempelBE : $drempelNL;
+
+            // Let op: gratis-drempel op bedrag ná korting
+            $verzendkosten = $totaalNaKorting >= $drempel ? 0.00 : $tarief;
         } else {
-            // Als geen adres is ingevuld, rekenen we nog geen verzendkosten mee
             $verzendkosten = 0.00;
         }
 
@@ -210,15 +218,14 @@ class WinkelwagenController extends Controller
         $payment = \Mollie\Laravel\Facades\Mollie::api()->payments->create([
             'amount' => [
                 'currency' => 'EUR',
-                'value'    => number_format($totaalprijs, 2, '.', ''), // ← zet hier '0.01' om te testen
-                // 'value' => '0.01',
+                'value'    => number_format($totaalprijs, 2, '.', ''),
+                // 'value' => '0.01', // ← testbedrag
             ],
             'description' => 'Bestelling bij Deluxe Nailshop',
             'redirectUrl' => route('mollie.callback', ['bestelling' => $bestellingUuid]),
             'metadata'    => [
                 'bestelling_id' => $bestellingUuid,
             ],
-            // Optioneel: webhookUrl als je server-side statusupdates wilt
             // 'webhookUrl' => route('mollie.webhook'),
         ]);
 
@@ -311,27 +318,45 @@ class WinkelwagenController extends Controller
     public function bedankt($id)
     {
         $bestelling = Bestelling::findOrFail($id);
-    
+
         $gegevens = [
             'naam'     => $bestelling->naam,
             'email'    => $bestelling->email,
-            'telefoon' => $bestelling->telefoon, // ← tonen op bedanktpagina
+            'telefoon' => $bestelling->telefoon,
             'adres'    => $bestelling->adres,
             'postcode' => $bestelling->postcode,
             'plaats'   => $bestelling->plaats,
         ];
-    
-        $bestellingProducten = $bestelling->producten; 
-    
-        $gratisVerzendingDrempel = 75;
+
+        $bestellingProducten = $bestelling->producten;
+
+        // Subtotaal (zonder korting/verzendkosten – puur voor weergave)
         $totaalIncl = $bestellingProducten->sum(fn($item) => $item->prijs * $item->pivot->aantal);
         $btw = $totaalIncl * 0.21;
-        $verzendkosten = $totaalIncl >= $gratisVerzendingDrempel ? 0 : 4.90;
+
+        // Verzendkosten bepalen o.b.v. NL/BE (NL: gratis vanaf 50, BE: gratis vanaf 75)
+        $pc = strtoupper(trim($bestelling->postcode));
+        $isNL = (bool) preg_match('/^\d{4}\s?[A-Z]{2}$/', $pc);
+        $isBE = !$isNL && (bool) preg_match('/^\d{4}$/', $pc);
+
+        $tariefNL  = 5.95;
+        $tariefBE  = 9.50;
+        $drempelNL = 50.00;
+        $drempelBE = 75.00;
+
+        // Fallback naar NL als onduidelijk
+        $isNL = $isNL || (!$isBE);
+
+        $tarief  = $isBE ? $tariefBE : $tariefNL;
+        $drempel = $isBE ? $drempelBE : $drempelNL;
+
+        $verzendkosten = $totaalIncl >= $drempel ? 0.00 : $tarief;
+
         $totaalMetVerzending = $totaalIncl + $verzendkosten;
-    
+
         return view('winkelwagen.bedankt', compact(
             'bestelling', 'gegevens', 'bestellingProducten',
             'totaalIncl', 'btw', 'verzendkosten', 'totaalMetVerzending'
         ));
-    } 
+    }
 }
