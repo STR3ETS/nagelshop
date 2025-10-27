@@ -11,7 +11,7 @@
         </div>
     </div>
 </div>
-<div class="w-full h-auto">
+<!-- <div class="w-full h-auto">
     <div class="max-w-[1100px] px-[1rem] md:px-[3rem] mx-auto py-[5rem]">
         <div class="flex items-end gap-[2rem] mb-8">
             <div class="w-1/2">
@@ -63,7 +63,7 @@
             </a>
         </div>
     </div>
-</div>
+</div> -->
 <div class="w-full h-auto">
     <div class="max-w-[1100px] px-[1rem] md:px-[3rem] mx-auto pb-[5rem]">
         <div class="flex items-end gap-[2rem] mb-8">
