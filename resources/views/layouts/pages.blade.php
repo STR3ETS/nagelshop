@@ -125,7 +125,7 @@
         <footer class="bg-[#b38867]">
             <div class="max-w-[1100px] px-[1rem] md:px-[3rem] mx-auto py-[5rem] flex flex-col md:flex-row gap-16">
                 <div class="w-full md:w-1/3">
-                    <img src="{{ Vite::asset('resources/images/deluxenailshop_transp_wit_v1.png') }}" class="max-h-[6rem] mb-4">
+                    <img src="{{ asset('/images/deluxenailshop_transp_wit_v1.png') }}" class="max-h-[6rem] mb-4">
                     <p class="opacity-80 text-[#fff] text-sm">Ontdek hoogwaardige nagelproducten voor thuis of in de salon. Van gelpolish tot nail art. Alles wat je nodig hebt om jouw droomnagels te creëren, vind je hier.</p>
                 </div>
                 <div class="flex flex-col md:flex-row justify-between gap-8 w-full md:w-2/3">
