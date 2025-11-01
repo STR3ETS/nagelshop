@@ -429,9 +429,11 @@
 
             mobileMenuOpen.addEventListener('click', function() {
                 mobileMenu.classList.add('active');
+                document.querySelector('body').classList.add('overflow-y-hidden');
             })
             mobileMenuClose.addEventListener('click', function() {
                 mobileMenu.classList.remove('active');
+                document.querySelector('body').classList.remove('overflow-y-hidden');
             })
         </script>
         <script>
