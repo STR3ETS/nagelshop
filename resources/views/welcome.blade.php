@@ -1,6 +1,6 @@
 @extends('layouts.pages')
 @section('content')
-<div class="p-2 h-[730px] md:h-auto">
+<div class="p-2 h-[650px] md:h-auto">
     <div class="w-full h-full md:h-[600px] overflow-y-hidden flex items-center relative rounded-3xl">
         <!-- <video class="w-full h-full absolute z-1 object-cover" src="assets/home-hero.mp4" autoplay muted loop></video> -->
         <div class="w-full h-full absolute z-1 bg-cover bg-center hidden md:block" style="background-image: url('/images/hero.webp')"></div>
