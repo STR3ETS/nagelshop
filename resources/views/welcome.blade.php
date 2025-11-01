@@ -12,7 +12,7 @@
         </div>
         <div class="p-4 rounded-xl bg-[#b38867]/50 border border-[#a0795c]/75 w-fit max-w-[80%] absolute z-10 left-4 md:left-auto md:right-4 bottom-4">
             <h3 class="text-white text-sm font-medium tracking-tight">Nieuw jasje, zelfde topkwaliteit!</h3>
-            <p class="text-white opacity-80 text-xs">We stappen geleidelijk over op onze nieuwe verpakking.<br class="hidden md:block">Het product blijft precies hetzelfde alleen de look is vernieuwd.</p>
+            <p class="text-white opacity-80 text-xs">We stappen geleidelijk over op onze nieuwe verpakking. <br class="hidden md:block">Het product blijft precies hetzelfde alleen de look is vernieuwd.</p>
         </div>
     </div>
 </div>
