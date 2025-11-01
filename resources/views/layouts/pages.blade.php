@@ -33,11 +33,11 @@
             }
 
             #mobile-menu {
-                transform: translateY(-100%);
+                transform: translateX(-100%);
                 transition: 0.3s ease-in-out;
             }
             #mobile-menu.active {
-                transform: translateY(0%);
+                transform: translateX(0%);
             }
         </style>
 
@@ -51,24 +51,81 @@
         @endif
     </head>
     <body class="bg-[#fbf6f5]">
-        <div id="mobile-menu" class="fixed z-999 w-full h-screen bg-[#b38867] p-[1rem]">
-            <div class="w-full flex items-center justify-between mb-10">
-                <img src="{{ asset('/images/deluxenailshop_transp_wit_v1.png') }}" class="max-h-[4rem]">
+        <div id="mobile-menu"
+            class="fixed z-9999 inset-0 w-full h-screen bg-[#fff] p-[1rem] flex flex-col">
+            <div class="w-full flex items-center justify-between pb-[1rem] border-b border-gray-300 mb-8 shrink-0">
+                <a href="/">
+                    <img src="{{ asset('/images/deluxenailshop_transp_zwart_v1.png') }}" class="max-h-[4rem]">
+                </a>
                 <svg id="mobile-menu-close" class="-mr-2 cursor-pointer" width="40px" height="40px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g id="Menu / Close_SM">
-                    <path id="Vector" d="M16 16L12 12M12 12L8 8M12 12L16 8M12 12L8 16" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path id="Vector" d="M16 16L12 12M12 12L8 8M12 12L16 8M12 12L8 16" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </g>
                 </svg>
             </div>
-            <ul class="flex flex-col items-center gap-[2rem]">
-                <li><a href="/" class="px-[0.75rem] py-[0.4rem] text-white hover:bg-[#947055] text-[15px] font-medium rounded-sm transition">Home</a></li>
-                <li><a href="/producten" class="px-[0.75rem] py-[0.4rem] text-white hover:bg-[#947055] text-[15px] font-medium rounded-sm transition">Producten</a></li>
-                <li><a href="/faq" class="px-[0.75rem] py-[0.4rem] text-white hover:bg-[#947055] text-[15px] font-medium rounded-sm transition">FAQ</a></li>
-            </ul>
+            <div class="grid grid-cols-2 gap-8 flex-1 overflow-y-auto min-h-0 md:min-h-0 [--tw-scroll:touch] scroll-area pr-1">
+                <ul class="text-black">
+                    <li><a href="/" class="font-medium py-2 text-sm">Home</a></li>
+                </ul>
+                <ul class="text-black">
+                    <li><a href="/faq" class="font-medium py-2 text-sm">FAQ</a></li>
+                </ul>
+                <ul class="text-black">
+                    <li><a href="#" class="font-medium py-2 text-sm">Top Coat</a></li>
+                </ul>
+                <ul class="text-black">
+                    <li><a href="#" class="font-medium py-2 text-sm">Acrylgel</a></li>
+                </ul>
+                <ul class="text-black">
+                    <li><a href="#" class="font-medium py-2 text-sm">Builder in a Bottle</a></li>
+                </ul>
+                <ul class="text-black">
+                    <li><a href="#" class="font-medium py-2 text-sm">Builder in a Bottle</a></li>
+                </ul>
+                <ul class="text-black">
+                    <li class="font-bold text-lg mb-1">Gel</li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Builder Gel</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Builder Love Story Gel</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Builder Dream Gel</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Jelly Gelly Gel</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Liquid Gel</a></li>
+                </ul>
+                <ul class="text-black">
+                    <li class="font-bold text-lg mb-1">Liquids</li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Prep</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Cuticle Oil</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Cuticle Remover</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">3 in 1 Nail Prep & Cleanser</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Remover</a></li>
+                </ul>
+                <ul class="text-black">
+                    <li class="font-bold text-lg mb-1">Base Coat</li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Rubber Base</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Cold Base</a></li>
+                </ul>
+                <ul class="text-black">
+                    <li class="font-bold text-lg mb-1">Gelpolish</li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Flash</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Color</a></li>
+                </ul>
+                <ul class="text-black">
+                    <li class="font-bold text-lg mb-1">Nail Art</li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Metalic Gel</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Gypsum</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Ombre Spray</a></li>
+                </ul>
+                <ul class="text-black">
+                    <li class="font-bold text-lg mb-1">Werkmateriaal</li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Top Nail Forms</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Gel Tips</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Penselen</a></li>
+                    <li><a href="#" class="font-medium py-2 text-sm">Schort</a></li>
+                </ul>
+            </div>
         </div>
         <div class="fixed top-0 left-0 z-999 w-full">
             <div class="px-4 pt-4">
-                <div class="w-full h-auto py-[0.5rem] bg-[#b38867]/75 border border-[#a0795c] rounded-3xl">
+                <div class="w-full h-auto py-[0.5rem] bg-[#b38867]/75 backdrop-blur border border-[#a0795c] rounded-3xl">
                     <div class="max-w-[1100px] mx-auto h-full flex items-center justify-center">
                         <p class="text-white font-regular text-sm flex flex-col md:flex-row items-center">
                             Verzendkosten: Nederland €5,95 | België €9,50 <span class="text-xs p-[0.35rem] w-fit bg-[#947054] rounded-sm ml-4">Gratis verzending vanaf: NL 50,- / BE 75,-</span>
@@ -76,11 +133,12 @@
                     </div>
                 </div>
             </div>
-            <div class="w-full h-auto py-[1rem]">
-                <div class="w-full px-[1rem] md:px-[3rem] mx-auto h-full flex items-center justify-between">
+            <div class="w-full h-auto py-[1rem] px-4">
+                <div id="menu-bar" class="w-full px-[1rem] md:px-[3rem] py-2 rounded-3xl mx-auto h-full flex items-center justify-between transition duration-300">
                     <div class="flex items-center gap-10">
-                        <a href="/">
-                            <img src="{{ asset('/images/deluxenailshop_transp_wit_v1.png') }}" class="max-h-[4rem]">
+                        <a href="/" class="relative">
+                            <img src="{{ asset('/images/deluxenailshop_transp_wit_v1.png') }}" id="logo-white" class="max-h-[4rem] transition duration-300">
+                            <img src="{{ asset('/images/deluxenailshop_transp_zwart_v1.png') }}" id="logo-black" class="max-h-[4rem] absolute top-0 -ml-[0.4px] transition duration-300 opacity-0">
                         </a>
                         <div id="mobile-menu-open" class="md:hidden cursor-pointer w-6 h-4 flex flex-col justify-between">
                             <div class="w-full h-[2px] bg-[#b38867]"></div>
@@ -90,12 +148,12 @@
                         <ul class="md:flex items-center gap-[2rem] hidden">
                         <!-- Home -->
                         <li>
-                            <a href="/" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">Home</a>
+                            <a href="/" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">Home</a>
                         </li>
 
                         <!-- Base Coat (submenu) -->
                         <li class="relative group">
-                            <a href="/base-coat" class="text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2">
+                            <a href="/base-coat" class="menu-item text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2">
                             Base Coat <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
                             <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
@@ -109,17 +167,17 @@
 
                         <!-- Top Coat (geen submenu) -->
                         <li>
-                            <a href="/top-coat" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">Top Coat</a>
+                            <a href="/top-coat" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">Top Coat</a>
                         </li>
 
                         <!-- Acrylgel (geen submenu) -->
                         <li>
-                            <a href="/acrylgel" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">Acrylgel</a>
+                            <a href="/acrylgel" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">Acrylgel</a>
                         </li>
 
                         <!-- Gel (submenu) -->
                         <li class="relative group">
-                            <a href="/gel" class="text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2">
+                            <a href="/gel" class="menu-item text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2">
                             Gel <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
                             <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
@@ -136,12 +194,12 @@
 
                         <!-- Builder in a Bottle (geen submenu) -->
                         <li>
-                            <a href="/builder-in-a-bottle" class="text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] transition">Builder in a Bottle</a>
+                            <a href="/builder-in-a-bottle" class="menu-item text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] transition">Builder in a Bottle</a>
                         </li>
 
                         <!-- Gelpolish (submenu) -->
                         <li class="relative group">
-                            <a href="/gelpolish" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition text-white flex items-center gap-2">
+                            <a href="/gelpolish" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition text-white flex items-center gap-2">
                             Gelpolish <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
                             <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
@@ -155,7 +213,7 @@
 
                         <!-- Liquids (submenu) -->
                         <li class="relative group">
-                            <a href="/liquids" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition text-white flex items-center gap-2">
+                            <a href="/liquids" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition text-white flex items-center gap-2">
                             Liquids <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
                             <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
@@ -172,7 +230,7 @@
 
                         <!-- Nail Art (submenu) -->
                         <li class="relative group">
-                            <a href="/nail-art" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white group-hover:text-[#ebe2db] transition flex items-center gap-2">
+                            <a href="/nail-art" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white group-hover:text-[#ebe2db] transition flex items-center gap-2">
                             Nail Art <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
                             <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
@@ -187,7 +245,7 @@
 
                         <!-- Werkmateriaal (submenu) -->
                         <li class="relative group">
-                            <a href="/werkmateriaal" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2 text-white">
+                            <a href="/werkmateriaal" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2 text-white">
                             Werkmateriaal <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
                             <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
@@ -203,7 +261,7 @@
 
                         <!-- FAQ -->
                         <li>
-                            <a href="/faq" class="text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">FAQ</a>
+                            <a href="/faq" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">FAQ</a>
                         </li>
                         </ul>
                     </div>
@@ -214,16 +272,32 @@
                                         @click="toggle()"
                                         :aria-expanded="open"
                                         aria-controls="product-search-popover"
-                                        class="flex items-center"
+                                        class="flex items-center cursor-pointer"
                                         title="Zoeken">
-                                    <i class="fa-solid fa-magnifying-glass fa-md text-white hover:text-[#ebe2db] transition"></i>
+                                    <i class="menu-item fa-solid fa-magnifying-glass fa-md text-white hover:text-[#ebe2db] transition"></i>
                                 </button>
                                 <!-- Popover -->
                                 <div x-cloak x-show="open" x-transition
                                     @click.outside="close()" @keydown.escape.prevent.stop="close()"
                                     id="product-search-popover"
-                                    class="absolute right-0 mt-2 w-[320px] md:w-[420px] z-50">
-                                    <div class="rounded-xl bg-white shadow-xl border border-gray-100 p-3">
+                                    class="fixed inset-0 w-full h-screen z-50
+                                            md:absolute md:inset-auto md:right-0 md:top-auto md:mt-2 md:w-[420px] md:h-auto">
+
+                                <div class="bg-white h-full rounded-none shadow-none border-0
+                                            md:rounded-xl md:shadow-xl md:border md:border-gray-100
+                                            flex flex-col">
+
+                                    <!-- Mobile header (alleen op mobiel zichtbaar) -->
+                                    <div class="md:hidden flex items-center justify-between border-b border-gray-200 h-12 px-4">
+                                    <p class="text-sm font-medium text-gray-900">Zoek producten</p>
+                                    <button type="button" @click="close()" class="p-2 -mr-2 text-gray-500 hover:text-gray-700">
+                                        <i class="fa-solid fa-xmark text-lg"></i>
+                                    </button>
+                                    </div>
+
+                                    <!-- Body -->
+                                    <div class="p-3 md:p-3 flex flex-col h-full md:h-auto">
+
                                     <!-- Input -->
                                     <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3">
                                         <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
@@ -236,19 +310,22 @@
                                         @keydown.enter.prevent="goHighlighted()"
                                         type="text"
                                         placeholder="Zoek producten..."
-                                        class="w-full h-10 outline-none text-[14px]"/>
+                                        class="w-full h-10 outline-none text-[14px]" />
                                         <button x-show="q.length" @click="clear()" type="button" class="text-gray-400 hover:text-gray-600">
                                         <i class="fa-solid fa-xmark"></i>
                                         </button>
                                     </div>
+
                                     <!-- Resultaten -->
-                                    <div class="mt-2 max-h-[320px] overflow-y-auto">
+                                    <div class="mt-2 overflow-y-auto flex-1 md:max-h-[320px] md:flex-none">
                                         <template x-if="loading">
-                                        <div class="px-3 py-3 text-sm text-gray-500 hidden">Zoeken…</div>
+                                        <div class="px-3 py-3 text-sm text-gray-500">Zoeken…</div>
                                         </template>
+
                                         <template x-if="!loading && q.length && results.length === 0">
                                         <div class="px-3 py-3 text-sm text-gray-500">Geen resultaten</div>
                                         </template>
+
                                         <ul role="listbox" aria-label="Zoekresultaten" class="divide-y divide-gray-50">
                                         <template x-for="(p, i) in results" :key="p.id">
                                             <li :id="`res-${i}`"
@@ -267,15 +344,18 @@
                                         </template>
                                         </ul>
                                     </div>
+
                                     <!-- Footer -->
                                     <div class="mt-2 flex items-center justify-end text-[11px] text-gray-500">
-                                        <button class="hover:underline" @click="close()">Sluiten (Esc)</button>
+                                        <button class="hover:underline hidden md:inline" @click="close()">Sluiten (Esc)</button>
                                     </div>
                                     </div>
                                 </div>
+                                </div>
+
                             </div>
                             <a href="{{ route('winkelwagen.index') }}" class="relative group">
-                                <i class="fa-solid fa-cart-shopping fa-md text-white hover:text-[#ebe2db] transition"></i>
+                                <i class="menu-item fa-solid fa-cart-shopping fa-md text-white hover:text-[#ebe2db] transition"></i>
                                 @php $aantal = collect(session('cart'))->sum('aantal'); @endphp
                                 @if($aantal > 0)
                                     <span class="absolute -top-2 -right-4 text-[#b38867] font-semibold text-[11px] rounded-full px-2 py-[1px]">{{ $aantal }}</span>
@@ -287,7 +367,7 @@
                                 </a>
                             @else
                                 <a href="/inloggen" class="flex items-center">
-                                    <i class="fa-solid fa-user fa-md text-white hover:text-[#ebe2db] transition"></i>
+                                    <i class="menu-item fa-solid fa-user fa-md text-white hover:text-[#ebe2db] transition"></i>
                                 </a>
                             @endauth
                         </div>
@@ -406,6 +486,44 @@
                 }
                 }
             }
+        </script>
+        <script>
+            (function () {
+                const menuBar   = document.getElementById('menu-bar');
+                const menuItems = document.querySelectorAll('.menu-item');
+                const logoWhite = document.getElementById('logo-white');
+                const logoBlack = document.getElementById('logo-black');
+                if (!menuBar) return;
+
+                function setMenuScrolled(scrolled) {
+                    menuBar.classList.toggle('bg-white', scrolled);
+                    menuBar.classList.toggle('shadow-lg', scrolled);
+
+                    // Wissel logo's (als ze bestaan)
+                    if (logoWhite) logoWhite.classList.toggle('opacity-0', scrolled);
+                    if (logoBlack) logoBlack.classList.toggle('opacity-0', !scrolled);
+
+                    // Pas alle menu items aan
+                    menuItems.forEach((el) => {
+                    if (scrolled) {
+                        el.classList.add('text-black', 'hover:text-gray-600');
+                        el.classList.remove('text-white', 'hover:text-[#ebe2db]', 'group-hover:text-[#ebe2db]');
+                    } else {
+                        el.classList.add('text-white', 'hover:text-[#ebe2db]');
+                        el.classList.remove('text-black', 'hover:text-gray-600');
+                    }
+                    });
+                }
+
+                function onScroll() {
+                    const y = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+                    setMenuScrolled(y > 50);
+                }
+
+                // init & listen
+                onScroll();
+                window.addEventListener('scroll', onScroll, { passive: true });
+            })();
         </script>
     </body>
 </html>

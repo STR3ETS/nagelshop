@@ -1,5 +1,10 @@
 @extends('layouts.pages')
 @section('content')
+<div class="p-2 h-[350px] md:h-auto">
+    <div class="w-full h-full md:h-[350px] overflow-y-hidden rounded-3xl flex items-end relative bg-cover bg-center bg-[url(https://i.imgur.com/UA8Iztb.jpeg)]">
+        <div class="w-full h-full absolute z-[1] bg-[#00000050]"></div>
+    </div>
+</div>
 <div class="w-full h-auto">
     <div class="max-w-[1100px] px-[1rem] md:px-[3rem] mx-auto py-16">
         <div class="w-full flex items-center justify-between mb-2">

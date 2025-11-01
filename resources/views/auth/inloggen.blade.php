@@ -1,5 +1,10 @@
 @extends('layouts.pages')
 @section('content')
+<div class="p-2 h-[350px] md:h-auto">
+    <div class="w-full h-full md:h-[350px] overflow-y-hidden rounded-3xl flex items-end relative bg-cover bg-center bg-[url(https://i.imgur.com/UA8Iztb.jpeg)]">
+        <div class="w-full h-full absolute z-[1] bg-[#00000050]"></div>
+    </div>
+</div>
 <div class="py-[5rem] px-[1rem] md:px-[3rem] flex flex-col items-center">
     <h1 class="text-[#191919] text-[24px] font-light leading-[1.15]">Inloggen</h1>
     @if($errors->any())
