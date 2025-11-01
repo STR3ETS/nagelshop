@@ -10,7 +10,7 @@
             <h1 class="text-white text-[34px] md:text-[50px] text-center md:text-start font-bold leading-[1.15] pt-[100px]">Creëer <i class="instrument-serif-font">jouw droomnagels</i><br>met onze luxe producten</h1>
             <p class="text-white opacity-80 text-[15px] mt-4 mb-6 text-center md:text-start">Ontdek hoogwaardige nagelproducten voor thuis of in de salon. Van gelpolish tot nail art.<br class="hidden md:block">Alles wat je nodig hebt om jouw droomnagels te creëren, vind je hier.</p>
         </div>
-        <div class="p-4 rounded-xl bg-[#b38867]/50 border border-[#a0795c]/75 w-fit absolute z-10 left-4 md:left-auto md:right-4 bottom-4">
+        <div class="p-4 rounded-xl bg-[#b38867]/50 border border-[#a0795c]/75 w-fit max-w-[80%] absolute z-10 left-4 md:left-auto md:right-4 bottom-4">
             <h3 class="text-white text-sm font-medium tracking-tight">Nieuw jasje, zelfde topkwaliteit!</h3>
             <p class="text-white opacity-80 text-xs">We stappen geleidelijk over op onze nieuwe verpakking.<br>Het product blijft precies hetzelfde alleen de look is vernieuwd.</p>
         </div>
