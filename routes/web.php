@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\DB;
 
 use Carbon\Carbon;
 
+use Illuminate\Http\Request;
+
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Bestelling;
@@ -29,17 +31,26 @@ Route::get('/', function (Illuminate\Http\Request $request) {
     
     return view('welcome', compact('producten', 'alleCategories'));
 });
-Route::get('/producten', function (Illuminate\Http\Request $request) {
+Route::get('/producten', function (Request $request) {
+    // Verzamel filters
+    $cats = collect((array) $request->input('categorie', []))
+        ->filter()->map(fn($v) => (int) $v)->unique()->all();
+
+    $subs = collect((array) $request->input('subcategorie', []))
+        ->filter()->map(fn($v) => (int) $v)->unique()->all();
+
+    // Query
     $query = Product::query();
-    
-    // Filteren op categorieën (optioneel)
-    if ($request->filled('categorie')) {
-        $query->whereIn('category_id', $request->categorie);
+
+    if (!empty($subs)) {
+        $query->whereIn('subcategory_id', $subs);
+    } elseif (!empty($cats)) {
+        $query->whereIn('category_id', $cats);
     }
-    
-    $producten = $query->get();
-    $alleCategories = Category::all();
-    
+
+    $producten      = $query->get();
+    $alleCategories = Category::with('subcategories')->get();
+
     return view('producten', compact('producten', 'alleCategories'));
 })->name('producten.index');
 Route::get('/producten/{product}/{slug?}', [ProductenController::class, 'show'])->name('producten.show');

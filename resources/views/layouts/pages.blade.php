@@ -1,3 +1,19 @@
+@php
+use App\Models\Category;
+use App\Models\Subcategory;
+
+// Haal IDs op o.b.v. NAAM (moet 1-op-1 matchen met je DB)
+$cat = Category::pluck('id', 'naam')->toArray();
+$sub = Subcategory::pluck('id', 'naam')->toArray();
+
+// Helpers om direct naar productenlijst met filter te linken
+$catUrl = function (string $naam) use ($cat) {
+    return isset($cat[$naam]) ? route('producten.index', ['categorie' => [$cat[$naam]]]) : '#';
+};
+$subUrl = function (string $naam) use ($sub) {
+    return isset($sub[$naam]) ? route('producten.index', ['subcategorie' => [$sub[$naam]]]) : '#';
+};
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -70,56 +86,48 @@
                 <ul class="text-black">
                     <li><a href="/faq" class="font-medium py-2 text-sm">FAQ</a></li>
                 </ul>
-                <ul class="text-black">
-                    <li><a href="#" class="font-medium py-2 text-sm">Top Coat</a></li>
-                </ul>
-                <ul class="text-black">
-                    <li><a href="#" class="font-medium py-2 text-sm">Acrylgel</a></li>
-                </ul>
-                <ul class="text-black">
-                    <li><a href="#" class="font-medium py-2 text-sm">Builder in a Bottle</a></li>
-                </ul>
-                <ul class="text-black">
-                    <li><a href="#" class="font-medium py-2 text-sm">Builder in a Bottle</a></li>
-                </ul>
+                <ul class="text-black"><li><a href="{{ $catUrl('Top Coat') }}" class="font-medium py-2 text-sm">Top Coat</a></li></ul>
+                <ul class="text-black"><li><a href="{{ $catUrl('Acrylgel') }}" class="font-medium py-2 text-sm">Acrylgel</a></li></ul>
+                <ul class="text-black"><li><a href="{{ $catUrl('Builder in a Bottle') }}" class="font-medium py-2 text-sm">Builder in a Bottle</a></li></ul>
+                <ul></ul>
                 <ul class="text-black">
                     <li class="font-bold text-lg mb-1">Gel</li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Builder Gel</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Builder Love Story Gel</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Builder Dream Gel</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Jelly Gelly Gel</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Liquid Gel</a></li>
+                    <li><a href="{{ $subUrl('Builder Gel') }}" class="font-medium py-2 text-sm">Builder Gel</a></li>
+                    <li><a href="{{ $subUrl('Builder Love Story Gel') }}" class="font-medium py-2 text-sm">Builder Love Story Gel</a></li>
+                    <li><a href="{{ $subUrl('Builder Dream Gel') }}" class="font-medium py-2 text-sm">Builder Dream Gel</a></li>
+                    <li><a href="{{ $subUrl('Jelly Gelly Gel') }}" class="font-medium py-2 text-sm">Jelly Gelly Gel</a></li>
+                    <li><a href="{{ $subUrl('Liquid Gel') }}" class="font-medium py-2 text-sm">Liquid Gel</a></li>
                 </ul>
                 <ul class="text-black">
                     <li class="font-bold text-lg mb-1">Liquids</li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Prep</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Cuticle Oil</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Cuticle Remover</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">3 in 1 Nail Prep & Cleanser</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Remover</a></li>
+                    <li><a href="{{ $subUrl('Prep') }}" class="font-medium py-2 text-sm">Prep</a></li>
+                    <li><a href="{{ $subUrl('Cuticle Oil') }}" class="font-medium py-2 text-sm">Cuticle Oil</a></li>
+                    <li><a href="{{ $subUrl('Cuticle Remover') }}" class="font-medium py-2 text-sm">Cuticle Remover</a></li>
+                    <li><a href="{{ $subUrl('3 in 1 Nail Prep & Cleanser') }}" class="font-medium py-2 text-sm">3 in 1 Nail Prep &amp; Cleanser</a></li>
+                    <li><a href="{{ $subUrl('Remover') }}" class="font-medium py-2 text-sm">Remover</a></li>
                 </ul>
                 <ul class="text-black">
                     <li class="font-bold text-lg mb-1">Base Coat</li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Rubber Base</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Cold Base</a></li>
+                    <li><a href="{{ $subUrl('Rubber Base') }}" class="font-medium py-2 text-sm">Rubber Base</a></li>
+                    <li><a href="{{ $subUrl('Cold Base') }}" class="font-medium py-2 text-sm">Cold Base</a></li>
                 </ul>
                 <ul class="text-black">
                     <li class="font-bold text-lg mb-1">Gelpolish</li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Flash</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Color</a></li>
+                    <li><a href="{{ $subUrl('Flash') }}" class="font-medium py-2 text-sm">Flash</a></li>
+                    <li><a href="{{ $subUrl('Color') }}" class="font-medium py-2 text-sm">Color</a></li>
                 </ul>
                 <ul class="text-black">
                     <li class="font-bold text-lg mb-1">Nail Art</li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Metalic Gel</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Gypsum</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Ombre Spray</a></li>
+                    <li><a href="{{ $subUrl('Metalic Gel') }}" class="font-medium py-2 text-sm">Metalic Gel</a></li>
+                    <li><a href="{{ $subUrl('Gypsum') }}" class="font-medium py-2 text-sm">Gypsum</a></li>
+                    <li><a href="{{ $subUrl('Ombre Spray') }}" class="font-medium py-2 text-sm">Ombre Spray</a></li>
                 </ul>
                 <ul class="text-black">
                     <li class="font-bold text-lg mb-1">Werkmateriaal</li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Top Nail Forms</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Gel Tips</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Penselen</a></li>
-                    <li><a href="#" class="font-medium py-2 text-sm">Schort</a></li>
+                    <li><a href="{{ $subUrl('Top Nail Forms') }}" class="font-medium py-2 text-sm">Top Nail Forms</a></li>
+                    <li><a href="{{ $subUrl('Gel Tips') }}" class="font-medium py-2 text-sm">Gel Tips</a></li>
+                    <li><a href="{{ $subUrl('Penselen') }}" class="font-medium py-2 text-sm">Penselen</a></li>
+                    <li><a href="{{ $subUrl('Schort') }}" class="font-medium py-2 text-sm">Schort</a></li>
                 </ul>
             </div>
         </div>
@@ -153,109 +161,103 @@
 
                         <!-- Base Coat (submenu) -->
                         <li class="relative group">
-                            <a href="/base-coat" class="menu-item text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2">
-                            Base Coat <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            <a href="{{ $catUrl('Base Coat') }}" class="menu-item text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2">
+                                Base Coat <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
-                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
-                                        absolute left-0 top-full -mt-2 pt-4 z-40">
-                            <ul class="min-w-[220px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
-                                <li><a href="/base-coat/rubber-base" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg ">Rubber Base</a></li>
-                                <li><a href="/base-coat/cold-base" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Cold Base</a></li>
-                            </ul>
+                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition absolute left-0 top-full -mt-2 pt-4 z-40">
+                                <ul class="min-w-[220px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
+                                <li><a href="{{ $subUrl('Rubber Base') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Rubber Base</a></li>
+                                <li><a href="{{ $subUrl('Cold Base') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Cold Base</a></li>
+                                </ul>
                             </div>
                         </li>
 
                         <!-- Top Coat (geen submenu) -->
                         <li>
-                            <a href="/top-coat" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">Top Coat</a>
+                            <a href="{{ $catUrl('Top Coat') }}" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">Top Coat</a>
                         </li>
 
                         <!-- Acrylgel (geen submenu) -->
                         <li>
-                            <a href="/acrylgel" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">Acrylgel</a>
+                            <a href="{{ $catUrl('Acrylgel') }}" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white transition">Acrylgel</a>
                         </li>
 
                         <!-- Gel (submenu) -->
                         <li class="relative group">
-                            <a href="/gel" class="menu-item text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2">
-                            Gel <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            <a href="{{ $catUrl('Gel') }}" class="menu-item text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2">
+                                Gel <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
-                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
-                                        absolute left-0 top-full -mt-2 pt-4 z-40">
-                            <ul class="min-w-[260px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
-                                <li><a href="/gel/builder-gel" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Builder Gel</a></li>
-                                <li><a href="/gel/builder-love-story-gel" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Builder Love Story Gel</a></li>
-                                <li><a href="/gel/builder-dream-gel" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Builder Dream Gel</a></li>
-                                <li><a href="/gel/jelly-gelly-gel" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Jelly Gelly Gel</a></li>
-                                <li><a href="/gel/liquid-gel" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Liquid Gel</a></li>
-                            </ul>
+                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition absolute left-0 top-full -mt-2 pt-4 z-40">
+                                <ul class="min-w-[260px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
+                                <li><a href="{{ $subUrl('Builder Gel') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Builder Gel</a></li>
+                                <li><a href="{{ $subUrl('Builder Love Story Gel') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Builder Love Story Gel</a></li>
+                                <li><a href="{{ $subUrl('Builder Dream Gel') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Builder Dream Gel</a></li>
+                                <li><a href="{{ $subUrl('Jelly Gelly Gel') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Jelly Gelly Gel</a></li>
+                                <li><a href="{{ $subUrl('Liquid Gel') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Liquid Gel</a></li>
+                                </ul>
                             </div>
                         </li>
 
                         <!-- Builder in a Bottle (geen submenu) -->
                         <li>
-                            <a href="/builder-in-a-bottle" class="menu-item text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] transition">Builder in a Bottle</a>
+                            <a href="{{ $catUrl('Builder in a Bottle') }}" class="menu-item text-[15px] font-medium rounded-sm text-white hover:text-[#ebe2db] transition">Builder in a Bottle</a>
                         </li>
 
                         <!-- Gelpolish (submenu) -->
                         <li class="relative group">
-                            <a href="/gelpolish" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition text-white flex items-center gap-2">
-                            Gelpolish <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            <a href="{{ $catUrl('Gelpolish') }}" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition text-white flex items-center gap-2">
+                                Gelpolish <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
-                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
-                                        absolute left-0 top-full -mt-2 pt-4 z-40">
-                            <ul class="min-w-[220px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
-                                <li><a href="/gelpolish/flash" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Flash</a></li>
-                                <li><a href="/gelpolish/color" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Color</a></li>
-                            </ul>
+                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition absolute left-0 top-full -mt-2 pt-4 z-40">
+                                <ul class="min-w-[220px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
+                                <li><a href="{{ $subUrl('Flash') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Flash</a></li>
+                                <li><a href="{{ $subUrl('Color') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Color</a></li>
+                                </ul>
                             </div>
                         </li>
 
                         <!-- Liquids (submenu) -->
                         <li class="relative group">
-                            <a href="/liquids" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition text-white flex items-center gap-2">
-                            Liquids <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            <a href="{{ $catUrl('Liquids') }}" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition text-white flex items-center gap-2">
+                                Liquids <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
-                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
-                                        absolute left-0 top-full -mt-2 pt-4 z-40">
-                            <ul class="min-w-[280px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
-                                <li><a href="/liquids/prep" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Prep</a></li>
-                                <li><a href="/liquids/cuticle-oil" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Cuticle Oil</a></li>
-                                <li><a href="/liquids/cuticle-remover" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Cuticle Remover</a></li>
-                                <li><a href="/liquids/3-in-1-nail-prep-cleanser" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">3 in 1 Nail Prep &amp; Cleanser</a></li>
-                                <li><a href="/liquids/remover" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Remover</a></li>
-                            </ul>
+                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition absolute left-0 top-full -mt-2 pt-4 z-40">
+                                <ul class="min-w-[280px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
+                                <li><a href="{{ $subUrl('Prep') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Prep</a></li>
+                                <li><a href="{{ $subUrl('Cuticle Oil') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Cuticle Oil</a></li>
+                                <li><a href="{{ $subUrl('Cuticle Remover') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Cuticle Remover</a></li>
+                                <li><a href="{{ $subUrl('3 in 1 Nail Prep & Cleanser') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">3 in 1 Nail Prep &amp; Cleanser</a></li>
+                                <li><a href="{{ $subUrl('Remover') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Remover</a></li>
+                                </ul>
                             </div>
                         </li>
 
                         <!-- Nail Art (submenu) -->
                         <li class="relative group">
-                            <a href="/nail-art" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white group-hover:text-[#ebe2db] transition flex items-center gap-2">
-                            Nail Art <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            <a href="{{ $catUrl('Nail Art') }}" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] text-white group-hover:text-[#ebe2db] transition flex items-center gap-2">
+                                Nail Art <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
-                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
-                                        absolute left-0 top-full -mt-2 pt-4 z-40">
-                            <ul class="min-w-[220px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
-                                <li><a href="/nail-art/metalic-gel" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Metalic Gel</a></li>
-                                <li><a href="/nail-art/gypsum" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Gypsum</a></li>
-                                <li><a href="/nail-art/ombre-spray" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Ombre Spray</a></li>
-                            </ul>
+                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition absolute left-0 top-full -mt-2 pt-4 z-40">
+                                <ul class="min-w-[220px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
+                                <li><a href="{{ $subUrl('Metalic Gel') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Metalic Gel</a></li>
+                                <li><a href="{{ $subUrl('Gypsum') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Gypsum</a></li>
+                                <li><a href="{{ $subUrl('Ombre Spray') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Ombre Spray</a></li>
+                                </ul>
                             </div>
                         </li>
 
                         <!-- Werkmateriaal (submenu) -->
                         <li class="relative group">
-                            <a href="/werkmateriaal" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2 text-white">
-                            Werkmateriaal <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            <a href="{{ $catUrl('Werkmateriaal') }}" class="menu-item text-[15px] font-medium rounded-sm hover:text-[#ebe2db] group-hover:text-[#ebe2db] transition flex items-center gap-2 text-white">
+                                Werkmateriaal <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </a>
-                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition
-                                        absolute left-0 top-full -mt-2 pt-4 z-40">
-                            <ul class="min-w-[240px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
-                                <li><a href="/werkmateriaal/top-nail-forms" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Top Nail Forms</a></li>
-                                <li><a href="/werkmateriaal/gel-tips" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Gel Tips</a></li>
-                                <li><a href="/werkmateriaal/penselen" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Penselen</a></li>
-                                <li><a href="/werkmateriaal/schort" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Schort</a></li>
-                            </ul>
+                            <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition absolute left-0 top-full -mt-2 pt-4 z-40">
+                                <ul class="min-w-[240px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
+                                <li><a href="{{ $subUrl('Top Nail Forms') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Top Nail Forms</a></li>
+                                <li><a href="{{ $subUrl('Gel Tips') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Gel Tips</a></li>
+                                <li><a href="{{ $subUrl('Penselen') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Penselen</a></li>
+                                <li><a href="{{ $subUrl('Schort') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Schort</a></li>
+                                </ul>
                             </div>
                         </li>
 

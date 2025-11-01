@@ -41,7 +41,11 @@ class ProductenController extends Controller
                 'nullable',
                 Rule::exists('subcategories','id')->where('category_id', $categoryId),
             ],
+            'uitverkoop'     => ['nullable','boolean'],
         ]);
+
+        // normaliseer checkbox -> boolean
+        $data['uitverkoop'] = $request->boolean('uitverkoop');
 
         if ($request->hasFile('foto')) {
             $foto = $request->file('foto')->store('producten', 'public');
@@ -76,7 +80,11 @@ class ProductenController extends Controller
                 'nullable',
                 Rule::exists('subcategories','id')->where('category_id', $categoryId),
             ],
+            'uitverkoop'     => ['nullable','boolean'],
         ]);
+
+        // normaliseer checkbox -> boolean
+        $data['uitverkoop'] = $request->boolean('uitverkoop');
 
         if ($request->hasFile('foto')) {
             if ($product->foto && file_exists(storage_path('app/public/producten/'.$product->foto))) {

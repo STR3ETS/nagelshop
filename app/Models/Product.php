@@ -14,6 +14,11 @@ class Product extends Model
         'foto',
         'category_id',
         'subcategory_id',
+        'uitverkoop',
+    ];
+
+    protected $casts = [
+        'uitverkoop' => 'boolean',
     ];
 
     public function bestellingen()

@@ -79,10 +79,20 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             @foreach($producten->take(4) as $product)
                 <div class="bg-white p-[1.5rem] rounded-lg flex flex-col h-full border-1 border-gray-100 relative">
-                    @if ($product->voorraad === 0)
+                    @if (isset($product->voorraad) && (int)$product->voorraad === 0)
                         <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
-                            Uitverkocht
+                        Uitverkocht
                         </span>
+                    @endif
+                    @if ($product->uitverkoop)
+                        @if (isset($product->voorraad) && (int)$product->voorraad === 0)
+
+                        @else
+                        <span class="absolute top-2 left-2 bg-red-400 text-white text-xs font-semibold px-2 py-1 rounded flex items-center gap-2">
+                            <i class="fa-solid fa-tag"></i>
+                            In de uitverkoop!
+                        </span>
+                        @endif
                     @endif
                     <!-- Afbeelding -->
                     <div class="w-full aspect-square overflow-hidden border border-gray-200 rounded-lg p-[1rem]">

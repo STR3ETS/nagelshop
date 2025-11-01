@@ -97,6 +97,18 @@
                     <input type="number" name="voorraad" required min="0" value="{{ old('voorraad') }}" class="w-full border border-gray-300 px-4 py-2 rounded-md">
                 </div>
 
+                <div class="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        id="uitverkoop"
+                        name="uitverkoop"
+                        value="1"
+                        class="h-4 w-4 border-gray-300 rounded"
+                        {{ old('uitverkoop') ? 'checked' : '' }}
+                    >
+                    <label for="uitverkoop" class="text-sm font-medium">Uitverkoop</label>
+                </div>
+
                 <button type="submit" class="bg-[#b38867] text-white px-6 py-2 rounded-md hover:bg-[#e652a7] transition">
                     Opslaan
                 </button>
