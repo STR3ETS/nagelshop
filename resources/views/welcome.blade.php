@@ -7,7 +7,7 @@
         <div class="w-full h-full absolute z-1 bg-cover bg-center block md:hidden" style="background-image: url('/images/mobile-bg-hero-home.jpeg')"></div>
         <div class="w-full h-full absolute z-2 bg-[#00000060]"></div>
         <div class="absolute z-3 max-w-[1100px] px-[1rem] md:px-[3rem] left-0 right-0 pb-18 md:pb-0 ml-auto mr-auto">
-            <h1 class="text-white text-[34px] md:text-[50px] text-center md:text-start font-bold leading-[1.15] pt-[100px]">Creëer <i class="instrument-serif-font">jouw droomnagels</i><br>met onze luxe producten</h1>
+            <h1 class="text-white text-[30px] md:text-[50px] text-center md:text-start font-bold leading-[1.15] pt-[100px]">Creëer <i class="instrument-serif-font">jouw droomnagels</i><br>met onze luxe producten</h1>
             <p class="text-white opacity-80 text-[15px] mt-4 mb-6 text-center md:text-start">Ontdek hoogwaardige nagelproducten voor thuis of in de salon. Van gelpolish tot nail art.<br class="hidden md:block">Alles wat je nodig hebt om jouw droomnagels te creëren, vind je hier.</p>
         </div>
         <div class="p-4 rounded-xl bg-[#b38867]/50 border border-[#a0795c]/75 w-fit max-w-[80%] absolute z-10 left-4 md:left-auto md:right-4 bottom-4">
