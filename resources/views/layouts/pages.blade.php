@@ -52,7 +52,7 @@
     </head>
     <body class="bg-[#fbf6f5]">
         <div id="mobile-menu"
-            class="fixed z-9999 inset-0 w-full h-screen bg-[#fff] p-[1rem] flex flex-col">
+            class="fixed z-9999 inset-0 w-full h-[100dvh] bg-[#fff] p-[1rem] flex flex-col">
             <div class="w-full flex items-center justify-between pb-[1rem] border-b border-gray-300 mb-8 shrink-0">
                 <a href="/">
                     <img src="{{ asset('/images/deluxenailshop_transp_zwart_v1.png') }}" class="max-h-[4rem]">
