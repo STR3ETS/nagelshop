@@ -103,6 +103,12 @@ Route::middleware(['auth'])->prefix('beheer')->group(function () {
     Route::get('/producten/{product}/bewerken', [ProductenController::class, 'edit'])->name('producten.bewerken');
     Route::put('/producten/{product}', [ProductenController::class, 'update'])->name('producten.bijwerken');
     Route::delete('/producten/{product}', [ProductenController::class, 'destroy'])->name('producten.verwijderen');
+    Route::get('/api/subcategories', function (Illuminate\Http\Request $request) {
+        $categoryId = (int) $request->get('category_id');
+        return \App\Models\Subcategory::where('category_id', $categoryId)
+            ->orderBy('naam')
+            ->get(['id','naam']);
+    })->name('beheer.api.subcategories');
 
     Route::get('/bestellingen', [BestellingenController::class, 'index'])->name('beheer.bestellingen');
     Route::get('/bestellingen/{bestelling}/inzien', [BestellingenController::class, 'inzien'])->name('bestellingen.inzien');

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Product;
 use App\Models\Category;
+use Illuminate\Validation\Rule;
+use App\Models\Subcategory;
 
 class ProductenController extends Controller
 {
@@ -18,18 +20,27 @@ class ProductenController extends Controller
 
     public function create()
     {
-        $categories = Category::all(); // Haal alle categorieën op
+        $categories = Category::all();
         return view('beheer.producten.aanmaken', compact('categories'));
     }
 
     public function store(Request $request)
     {
+        $categoryId = (int) $request->input('category_id');
+        $hasSubs = Subcategory::where('category_id', $categoryId)->exists();
+
         $data = $request->validate([
-            'naam' => 'required|string|max:255',
-            'beschrijving' => 'nullable|string',
-            'prijs' => 'required|numeric|min:0',
-            'voorraad' => 'required|integer|min:0',
-            'category_id' => 'required|exists:categories,id', // ✅ toegevoegd
+            'naam'           => ['required','string','max:255'],
+            'beschrijving'   => ['nullable','string'],
+            'prijs'          => ['required','numeric','min:0'],
+            'voorraad'       => ['required','integer','min:0'],
+            'category_id'    => ['required','exists:categories,id'],
+            'foto'           => ['nullable','image','max:5120'],
+            'subcategory_id' => [
+                $hasSubs ? 'required' : 'nullable',
+                'nullable',
+                Rule::exists('subcategories','id')->where('category_id', $categoryId),
+            ],
         ]);
 
         if ($request->hasFile('foto')) {
@@ -50,24 +61,33 @@ class ProductenController extends Controller
 
     public function update(Request $request, Product $product)
     {
+        $categoryId = (int) $request->input('category_id');
+        $hasSubs = Subcategory::where('category_id', $categoryId)->exists();
+
         $data = $request->validate([
-            'naam' => 'required|string|max:255',
-            'beschrijving' => 'nullable|string',
-            'prijs' => 'required|numeric|min:0',
-            'category_id' => 'required|exists:categories,id', // ✅ toevoegen!
+            'naam'           => ['required','string','max:255'],
+            'beschrijving'   => ['nullable','string'],
+            'prijs'          => ['required','numeric','min:0'],
+            'voorraad'       => ['required','integer','min:0'],
+            'category_id'    => ['required','exists:categories,id'],
+            'foto'           => ['nullable','image','max:5120'],
+            'subcategory_id' => [
+                $hasSubs ? 'required' : 'nullable',
+                'nullable',
+                Rule::exists('subcategories','id')->where('category_id', $categoryId),
+            ],
         ]);
 
         if ($request->hasFile('foto')) {
-            // Oude foto verwijderen indien gewenst
-            if ($product->foto && file_exists(storage_path('app/public/producten/' . $product->foto))) {
-                unlink(storage_path('app/public/producten/' . $product->foto));
+            if ($product->foto && file_exists(storage_path('app/public/producten/'.$product->foto))) {
+                @unlink(storage_path('app/public/producten/'.$product->foto));
             }
-        
             $foto = $request->file('foto')->store('producten', 'public');
             $data['foto'] = basename($foto);
         }
 
         $product->update($data);
+
         return redirect()->route('beheer.producten')->with('success', 'Product bijgewerkt.');
     }
 

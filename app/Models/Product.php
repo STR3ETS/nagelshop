@@ -13,6 +13,7 @@ class Product extends Model
         'voorraad',
         'foto',
         'category_id',
+        'subcategory_id',
     ];
 
     public function bestellingen()

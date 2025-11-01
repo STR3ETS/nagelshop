@@ -13,12 +13,14 @@
 @endphp
 
 {{-- Hero --}}
-<div class="w-full h-[250px]  overflow-y-hidden flex items-center relative bg-cover bg-center bg-[url(https://i.imgur.com/99DomHP.jpeg)]">
-    <div class="w-full h-full absolute z-[1] bg-[#00000050]"></div>
-    <div class="absolute z-[3] max-w-[1100px] px-[1rem] md:px-[3rem] left-0 right-0 ml-auto mr-auto">
-        <h1 class="text-white text-[34px] md:text-[42px] font-bold leading-[1.15]">
-            {{ $product->naam }}
-        </h1>
+<div class="p-2 h-[350px] md:h-auto">
+    <div class="w-full h-full md:h-[350px] overflow-y-hidden rounded-3xl flex items-end relative bg-cover bg-center bg-[url(https://i.imgur.com/99DomHP.jpeg)]">
+        <div class="w-full h-full absolute z-[1] bg-[#00000050]"></div>
+        <div class="absolute z-[3] max-w-[1100px] px-[1rem] md:px-[3rem] left-0 right-0 ml-auto mr-auto pb-8">
+            <h1 class="text-white text-[34px] md:text-[50px] font-bold leading-[1.15] text-center md:text-start">
+                {{ $product->naam }}
+            </h1>
+        </div>
     </div>
 </div>
 
