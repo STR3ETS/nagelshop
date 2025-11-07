@@ -39,9 +39,9 @@
         <div class="col-span-12 md:col-span-7">
             <div>
                 <h2 class="text-xl font-semibold text-[#191919]">{{ $product->naam }}</h2>
-                <p class="text-[#191919] opacity-80 mt-2 leading-relaxed">
-                    {!! nl2br(e($product->beschrijving ?? '')) !!}
-                </p>
+                <div class="prose prose-sm md:prose max-w-none text-[#191919] opacity-80 mt-2 leading-relaxed">
+                    {!! $product->beschrijving !!}
+                </div>
 
                 <div class="mt-6 flex flex-col">
                     <div class="mb-6">

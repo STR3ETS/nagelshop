@@ -130,61 +130,77 @@
 </div>
 
 <script>
-    // Quill
-    const quill = new Quill('#quill-editor', { theme: 'snow' });
-    const hiddenInput = document.getElementById('beschrijving');
-    if (hiddenInput.value) { quill.clipboard.dangerouslyPasteHTML(hiddenInput.value); }
-    document.getElementById('form').addEventListener('submit', function () {
-        hiddenInput.value = quill.getText().trim();
+(function () {
+  // === Quill (HTML opslaan) ===
+  const quill = new Quill('#quill-editor', { theme: 'snow' });
+  const hiddenInput = document.getElementById('beschrijving');
+
+  if (hiddenInput && hiddenInput.value) {
+    quill.clipboard.dangerouslyPasteHTML(hiddenInput.value);
+  }
+
+  const form = document.getElementById('form');
+  if (form) {
+    form.addEventListener('submit', function () {
+      // Stuur HTML i.p.v. plain text
+      hiddenInput.value = quill.root.innerHTML.trim();
     });
+  }
 
-    // Foto label
-    const input = document.getElementById('foto-upload');
-    const filename = document.getElementById('file-name');
-    input.addEventListener('change', function () {
-        filename.textContent = input.files[0]?.name || 'Geen bestand gekozen';
+  // === Bestandslabel ===
+  const fileInput = document.getElementById('foto-upload');
+  const fileNameEl = document.getElementById('file-name');
+  if (fileInput && fileNameEl) {
+    fileInput.addEventListener('change', function () {
+      fileNameEl.textContent = (fileInput.files && fileInput.files[0]) ? fileInput.files[0].name : 'Geen bestand gekozen';
     });
+  }
 
-    // Subcategorie loader
-    (function () {
-        const SUBS_URL = '{{ route('beheer.api.subcategories') }}';
-        const cat = document.getElementById('category_id');
-        const wrap = document.getElementById('subcategory-wrap');
-        const sub = document.getElementById('subcategory_id');
+  // === Subcategorie loader ===
+  const SUBS_URL = '{{ route('beheer.api.subcategories') }}';
+  const cat = document.getElementById('category_id');
+  const wrap = document.getElementById('subcategory-wrap');
+  const sub  = document.getElementById('subcategory_id');
 
-        const preCat = @json(old('category_id', $product->category_id));
-        const preSub = @json(old('subcategory_id', $product->subcategory_id));
+  const preCat = @json(old('category_id', $product->category_id));
+  const preSub = @json(old('subcategory_id', $product->subcategory_id));
 
-        async function loadSubs(categoryId, selectedId = null) {
-            sub.innerHTML = '<option value="">Selecteer een subcategorie</option>';
-            wrap.classList.add('hidden');
-            if (!categoryId) return;
+  async function loadSubs(categoryId, selectedId = null) {
+    if (!sub || !wrap) return;
 
-            try {
-                const res = await fetch(SUBS_URL + '?category_id=' + encodeURIComponent(categoryId), {
-                    headers: { 'Accept': 'application/json' }
-                });
-                const data = await res.json();
-                if (Array.isArray(data) && data.length) {
-                    data.forEach(s => {
-                        const opt = document.createElement('option');
-                        opt.value = s.id;
-                        opt.textContent = s.naam;
-                        if (selectedId && String(selectedId) === String(s.id)) opt.selected = true;
-                        sub.appendChild(opt);
-                    });
-                    wrap.classList.remove('hidden');
-                }
-            } catch (e) {
-                console.error('Kon subcategorieën niet laden', e);
-            }
+    sub.innerHTML = '<option value="">Selecteer een subcategorie</option>';
+    wrap.classList.add('hidden');
+    if (!categoryId) return;
+
+    try {
+      const res = await fetch(SUBS_URL + '?category_id=' + encodeURIComponent(categoryId), {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+
+      if (Array.isArray(data) && data.length) {
+        for (const s of data) {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = s.naam;
+          if (selectedId && String(selectedId) === String(s.id)) opt.selected = true;
+          sub.appendChild(opt);
         }
+        wrap.classList.remove('hidden');
+      }
+    } catch (err) {
+      console.error('Kon subcategorieën niet laden:', err);
+    }
+  }
 
-        // init – laad per huidige categorie (edit) en preselecteer
-        if (preCat) {
-            loadSubs(preCat, preSub);
-        }
-        cat.addEventListener('change', () => loadSubs(cat.value, null));
-    })();
+  // init – laad per huidige categorie (edit) en preselecteer
+  if (cat) {
+    if (preCat) {
+      loadSubs(preCat, preSub);
+    }
+    cat.addEventListener('change', () => loadSubs(cat.value, null));
+  }
+})();
 </script>
 @endsection
