@@ -132,3 +132,20 @@ Route::middleware(['auth'])->prefix('beheer')->group(function () {
     Route::post('/instellingen/kortingscodes', [InstellingenController::class, 'opslaanKortingscode'])->name('instellingen.kortingscode.aanmaken');
     Route::delete('/instellingen/kortingscodes/{kortingscode}', [InstellingenController::class, 'verwijderKortingscode'])->name('instellingen.kortingscode.verwijderen');
 });
+
+// Downloads: Algemene voorwaarden & Privacybeleid
+Route::get('/download/algemene-voorwaarden', function () {
+    $path = resource_path('download/algemene_voorwaarden.pdf');
+    abort_unless(file_exists($path), 404);
+    return response()->download($path, 'algemene-voorwaarden.pdf', [
+        'Content-Type' => 'application/pdf',
+    ]);
+})->name('download.algemene_voorwaarden');
+
+Route::get('/download/privacybeleid', function () {
+    $path = resource_path('download/privacy_beleid.pdf');
+    abort_unless(file_exists($path), 404);
+    return response()->download($path, 'privacybeleid.pdf', [
+        'Content-Type' => 'application/pdf',
+    ]);
+})->name('download.privacybeleid');

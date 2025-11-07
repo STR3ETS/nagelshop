@@ -155,6 +155,55 @@
                     </div>
                 </li>
             </ul>
+            {{-- Download sectie: Algemene Voorwaarden & Privacybeleid --}}
+            <div class="w-full mt-4">
+                <div class="max-w-[1100px] mx-auto pb-[3rem]">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {{-- Algemene Voorwaarden --}}
+                        <div class="bg-white rounded-lg p-[1.5rem] border border-gray-100 flex items-start gap-4">
+                            <div class="shrink-0 w-10 h-10 rounded-full bg-[#b38867]/15 grid place-items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#b38867]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6M9 8h6m-9 8V6a2 2 0 0 1 2-2h6l4 4v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/>
+                            </svg>
+                            </div>
+                            <div class="flex-1">
+                            <h3 class="text-lg text-[#191919] font-semibold">Algemene voorwaarden</h3>
+                            <p class="opacity-80 text-sm text-[#191919] mt-1">Download onze algemene voorwaarden als PDF.</p>
+                            <a href="{{ route('download.algemene_voorwaarden') }}"
+                                class="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-md bg-[#b38867] text-white text-sm hover:bg-[#947054] transition">
+                                Download PDF
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 10l5 5 5-5M12 15V3"/>
+                                </svg>
+                            </a>
+                            </div>
+                        </div>
+                        {{-- Privacybeleid --}}
+                        <div class="bg-white rounded-lg p-[1.5rem] border border-gray-100 flex items-start gap-4">
+                            <div class="shrink-0 w-10 h-10 rounded-full bg-[#b38867]/15 grid place-items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#b38867]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 12c2.21 0 4-1.79 4-4V5a4 4 0 1 0-8 0v3c0 2.21 1.79 4 4 4zm6 0V9a6 6 0 1 0-12 0v3a6 6 0 0 0-4 5v2h20v-2a6 6 0 0 0-4-5z"/>
+                            </svg>
+                            </div>
+                            <div class="flex-1">
+                            <h3 class="text-lg text-[#191919] font-semibold">Privacybeleid</h3>
+                            <p class="opacity-80 text-sm text-[#191919] mt-1">Lees ons privacybeleid in PDF-vorm.</p>
+                            <a href="{{ route('download.privacybeleid') }}"
+                                class="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-md bg-[#b38867] text-white text-sm hover:bg-[#947054] transition">
+                                Download PDF
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 10l5 5 5-5M12 15V3"/>
+                                </svg>
+                            </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
