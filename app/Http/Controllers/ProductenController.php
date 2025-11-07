@@ -42,10 +42,12 @@ class ProductenController extends Controller
                 Rule::exists('subcategories','id')->where('category_id', $categoryId),
             ],
             'uitverkoop'     => ['nullable','boolean'],
+            'is_visible'  => ['nullable','boolean'],
         ]);
 
         // normaliseer checkbox -> boolean
         $data['uitverkoop'] = $request->boolean('uitverkoop');
+        $data['is_visible'] = $request->boolean('is_visible', true);
 
         if ($request->hasFile('foto')) {
             $foto = $request->file('foto')->store('producten', 'public');
@@ -81,10 +83,12 @@ class ProductenController extends Controller
                 Rule::exists('subcategories','id')->where('category_id', $categoryId),
             ],
             'uitverkoop'     => ['nullable','boolean'],
+            'is_visible'  => ['nullable','boolean'],
         ]);
 
         // normaliseer checkbox -> boolean
         $data['uitverkoop'] = $request->boolean('uitverkoop');
+        $data['is_visible'] = $request->boolean('is_visible', true);
 
         if ($request->hasFile('foto')) {
             if ($product->foto && file_exists(storage_path('app/public/producten/'.$product->foto))) {
@@ -145,5 +149,13 @@ class ProductenController extends Controller
             ->get();
 
         return view('product-detail', compact('product', 'gerelateerd'));
+    }
+
+    public function toggleVisibility(Product $product)
+    {
+        $product->is_visible = ! $product->is_visible;
+        $product->save();
+
+        return back()->with('success', 'Zichtbaarheid bijgewerkt.');
     }
 }

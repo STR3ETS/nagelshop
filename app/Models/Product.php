@@ -15,10 +15,12 @@ class Product extends Model
         'category_id',
         'subcategory_id',
         'uitverkoop',
+        'is_visible',
     ];
 
     protected $casts = [
         'uitverkoop' => 'boolean',
+        'is_visible' => 'boolean',
     ];
 
     public function bestellingen()
@@ -29,5 +31,10 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function scopeVisible($q)
+    { 
+        return $q->where('is_visible', true); 
     }
 }

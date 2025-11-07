@@ -19,28 +19,22 @@ use App\Http\Controllers\InstellingenController;
 use App\Http\Controllers\WinkelwagenController;
 
 Route::get('/', function (Illuminate\Http\Request $request) {
-    $query = Product::query();
-    
-    // Filteren op categorieën (optioneel)
+    $query = Product::visible(); // ← filter
+
     if ($request->filled('categorie')) {
         $query->whereIn('category_id', $request->categorie);
     }
-    
+
     $producten = $query->get();
     $alleCategories = Category::all();
-    
+
     return view('welcome', compact('producten', 'alleCategories'));
 });
 Route::get('/producten', function (Request $request) {
-    // Verzamel filters
-    $cats = collect((array) $request->input('categorie', []))
-        ->filter()->map(fn($v) => (int) $v)->unique()->all();
+    $cats = collect((array) $request->input('categorie', []))->filter()->map(fn($v)=>(int)$v)->unique()->all();
+    $subs = collect((array) $request->input('subcategorie', []))->filter()->map(fn($v)=>(int)$v)->unique()->all();
 
-    $subs = collect((array) $request->input('subcategorie', []))
-        ->filter()->map(fn($v) => (int) $v)->unique()->all();
-
-    // Query
-    $query = Product::query();
+    $query = Product::visible(); // ← filter
 
     if (!empty($subs)) {
         $query->whereIn('subcategory_id', $subs);
@@ -114,6 +108,7 @@ Route::middleware(['auth'])->prefix('beheer')->group(function () {
     Route::get('/producten/{product}/bewerken', [ProductenController::class, 'edit'])->name('producten.bewerken');
     Route::put('/producten/{product}', [ProductenController::class, 'update'])->name('producten.bijwerken');
     Route::delete('/producten/{product}', [ProductenController::class, 'destroy'])->name('producten.verwijderen');
+    Route::patch('/producten/{product}/toggle-visibility', [ProductenController::class, 'toggleVisibility'])->name('producten.toggleVisibility');
     Route::get('/api/subcategories', function (Illuminate\Http\Request $request) {
         $categoryId = (int) $request->get('category_id');
         return \App\Models\Subcategory::where('category_id', $categoryId)

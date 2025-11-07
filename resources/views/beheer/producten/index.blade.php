@@ -52,8 +52,24 @@
                             <td class="px-4 py-4">{{ $product->voorraad }}</td>
                             <td class="px-4 py-4 text-right align-middle">
                                 <div class="flex justify-end items-center gap-[1rem]">
+                                    {{-- Oogje: toggle zichtbaar/verborgen --}}
+                                    <form action="{{ route('producten.toggleVisibility', $product) }}" method="POST"
+                                            onsubmit="return confirm('Zichtbaarheid van dit product wijzigen?')">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="text-gray-500 hover:text-[#b38867]" title="{{ $product->is_visible ? 'Verbergen' : 'Zichtbaar maken' }}">
+                                            @if($product->is_visible)
+                                                <p class="text-gray-500 hover:underline">Verbergen</p>
+                                            @else
+                                                <p class="text-gray-500 hover:underline">Zichtbaar maken</p>
+                                            @endif
+                                        </button>
+                                    </form>
+
                                     <a href="{{ route('producten.bewerken', $product) }}" class="text-orange-500 hover:underline">Bewerken</a>
-                                    <form action="{{ route('producten.verwijderen', $product) }}" method="POST" onsubmit="return confirm('Weet je zeker dat je dit product wilt verwijderen?')">
+
+                                    <form action="{{ route('producten.verwijderen', $product) }}" method="POST"
+                                            onsubmit="return confirm('Weet je zeker dat je dit product wilt verwijderen?')">
                                         @csrf
                                         @method('DELETE')
                                         <button class="text-gray-500 hover:underline cursor-pointer" type="submit">Verwijderen</button>
