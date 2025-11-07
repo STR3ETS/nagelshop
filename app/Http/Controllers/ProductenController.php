@@ -14,7 +14,7 @@ class ProductenController extends Controller
 {
     public function index()
     {
-        $producten = Product::latest()->paginate(10);
+        $producten = Product::orderBy('naam')->paginate(10);
         return view('beheer.producten.index', compact('producten'));
     }
 

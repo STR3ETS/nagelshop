@@ -19,22 +19,25 @@ use App\Http\Controllers\InstellingenController;
 use App\Http\Controllers\WinkelwagenController;
 
 Route::get('/', function (Illuminate\Http\Request $request) {
-    $query = Product::visible(); // ← filter
+    $query = Product::visible()
+        ->orderBy('naam'); // ← alfabetisch
 
     if ($request->filled('categorie')) {
         $query->whereIn('category_id', $request->categorie);
     }
 
-    $producten = $query->get();
+    $producten      = $query->get();
     $alleCategories = Category::all();
 
     return view('welcome', compact('producten', 'alleCategories'));
 });
+
 Route::get('/producten', function (Request $request) {
     $cats = collect((array) $request->input('categorie', []))->filter()->map(fn($v)=>(int)$v)->unique()->all();
     $subs = collect((array) $request->input('subcategorie', []))->filter()->map(fn($v)=>(int)$v)->unique()->all();
 
-    $query = Product::visible(); // ← filter
+    $query = Product::visible()
+        ->orderBy('naam'); // ← alfabetisch
 
     if (!empty($subs)) {
         $query->whereIn('subcategory_id', $subs);
