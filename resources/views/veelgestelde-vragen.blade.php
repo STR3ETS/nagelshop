@@ -13,52 +13,145 @@
         <div class="w-full">
             <ul class="faq grid grid-cols-1 md:grid-cols-2 gap-4">
                 <li class="faq-item bg-white rounded-lg p-[1.5rem]">
+                    <h2 class="text-lg text-[#191919] font-semibold">Bestellen & Betalen</h2>
+                    <div class="faq-item-content">
+                        <hr class="my-3 border-gray-200">
+                        <div class="mb-3">
+                            <p class="opacity-80 text-sm text-[#191919] font-semibold">Hoe plaats ik een bestelling?</p>
+                            <p class="opacity-80 text-sm text-[#191919]">Kies je favoriete producten, voeg ze toe aan je winkelmandje en reken veilig af via iDEAL, creditcard, PayPal, Bancontact of KBC/CBC.</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="opacity-80 text-sm text-[#191919] font-semibold">Kan ik mijn bestelling nog wijzigen of annuleren?</p>
+                            <p class="opacity-80 text-sm text-[#191919]">Dat kan zolang je bestelling nog niet is verzonden. Stuur ons binnen 2 uur na je bestelling een berichtje via de e-mail, dan passen we het direct aan.</p>
+                        </div>
+                        <div>
+                            <p class="opacity-80 text-sm text-[#191919] font-semibold">Welke betaalmethodes accepteren jullie?</p>
+                            <p class="opacity-80 text-sm text-[#191919]">We accepteren iDEAL, creditcard, PayPal, Bancontact of KBC/CBC. Zo kies je wat voor jou het makkelijkst is.</p>
+                        </div>
+                    </div>
+                </li>
+                <li class="faq-item bg-white rounded-lg p-[1.5rem]">
+                    <h2 class="text-lg text-[#191919] font-semibold">Verzending & Levertijd</h2>
+                    <div class="faq-item-content">
+                        <hr class="my-3 border-gray-200">
+                        <div class="mb-3">
+                            <p class="opacity-80 text-sm text-[#191919] font-semibold">Hoe snel wordt mijn bestelling geleverd?</p>
+                            <p class="opacity-80 text-sm text-[#191919]">Bestellingen die vóór 15:00 uur zijn geplaatst, worden dezelfde dag verzonden. Meestal heb je ze binnen 1–2 werkdagen in huis (NL &amp; BE).</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="opacity-80 text-sm text-[#191919] font-semibold">Wat zijn de verzendkosten?</p>
+                            <p class="opacity-80 text-sm text-[#191919]">Binnen Nederland: €5,95 (gratis vanaf €50). België: €9,50 (gratis vanaf €75). We versturen met PostNL.</p>
+                        </div>
+                    </div>
+                </li>
+                <li class="faq-item bg-white rounded-lg p-[1.5rem]">
                     <h2 class="text-lg text-[#191919] font-semibold">Wat zijn de openingstijden?</h2>
                     <div class="faq-item-content">
                         <hr class="my-3 border-gray-200">
-                        <p class="opacity-80 text-sm text-[#191919]">Ma - Vr: 09:00 - 18:00 uur<br>Za: 11:00 - 16:00 uur<br>Zo: Gesloten</p>
+
+                        @php
+                            // Haal JSON op uit tabel 'instellingen' (kolom 'openingstijden')
+                            // Voorbeeld JSON:
+                            // {"maandag":"09:00-17:00","dinsdag":"09:00-17:00","woensdag":"09:00-17:00","donderdag":"09:00-17:00","vrijdag":"09:00-17:00","zaterdag":"Gesloten","zondag":"Gesloten"}
+                            $json = DB::table('instellingen')->value('openingstijden');
+                            $oh   = $json ? json_decode($json, true) : [];
+
+                            // Fallback als er niets is
+                            $labels = [
+                                'maandag'   => 'Ma',
+                                'dinsdag'   => 'Di',
+                                'woensdag'  => 'Wo',
+                                'donderdag' => 'Do',
+                                'vrijdag'   => 'Vr',
+                                'zaterdag'  => 'Za',
+                                'zondag'    => 'Zo',
+                            ];
+
+                            // Helper om netjes "09:00 - 17:00" te tonen i.p.v. "09:00-17:00"
+                            $fmt = function ($v) {
+                                if (!$v || strtolower($v) === 'gesloten') return 'Gesloten';
+                                return str_replace('-', ' - ', $v);
+                            };
+
+                            // Bouw lijst per dag
+                            $perDag = [];
+                            foreach ($labels as $key => $short) {
+                                $perDag[] = [
+                                    'key'   => $key,
+                                    'short' => $short,
+                                    'val'   => isset($oh[$key]) ? $fmt($oh[$key]) : 'Gesloten',
+                                ];
+                            }
+
+                            // Probeer Ma–Vr te groeperen als alle werkdagen identiek zijn
+                            $workdays = array_slice($perDag, 0, 5);
+                            $sameWork = count(array_unique(array_column($workdays, 'val'))) === 1;
+
+                            // Resultregels opbouwen
+                            $regels = [];
+                            if ($sameWork) {
+                                $regels[] = [
+                                    'label' => 'Ma - Vr',
+                                    'val'   => $workdays[0]['val'],
+                                ];
+                            } else {
+                                foreach ($workdays as $d) {
+                                    $regels[] = ['label' => $d['short'], 'val' => $d['val']];
+                                }
+                            }
+                            // Weekend altijd apart tonen
+                            foreach (array_slice($perDag, 5) as $d) {
+                                $regels[] = ['label' => $d['short'], 'val' => $d['val']];
+                            }
+                        @endphp
+
+                        <p class="opacity-80 text-sm text-[#191919]">
+                            @foreach ($regels as $i => $r)
+                                {{ $r['label'] }}: {{ $r['val'] }}@if($i < count($regels)-1)<br>@endif
+                            @endforeach
+                        </p>
                     </div>
                 </li>
                 <li class="faq-item bg-white rounded-lg p-[1.5rem]">
-                    <h2 class="text-lg text-[#191919] font-semibold">Hoe kan ik bestellen?</h2>
+                    <h2 class="text-lg text-[#191919] font-semibold">Retourneren & Ruilen</h2>
                     <div class="faq-item-content">
                         <hr class="my-3 border-gray-200">
-                        <p class="opacity-80 text-sm text-[#191919]">Hoe kan ik bestellen?</p>
+                        <div class="mb-3">
+                            <p class="opacity-80 text-sm text-[#191919] font-semibold">Kan ik producten retourneren?</p>
+                            <p class="opacity-80 text-sm text-[#191919]">Ja, binnen 14 dagen na ontvangst. Producten moeten ongebruikt en ongeopend zijn. Meld je retour aan door ons een e-mail te sturen.</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="opacity-80 text-sm text-[#191919] font-semibold">Wanneer krijg ik mijn geld terug?</p>
+                            <p class="opacity-80 text-sm text-[#191919]">Binnen 5 werkdagen na ontvangst van je retourzending. Let op: de verzendkosten voor het retourneren zijn voor eigen rekening.</p>
+                        </div>
                     </div>
                 </li>
                 <li class="faq-item bg-white rounded-lg p-[1.5rem]">
-                    <h2 class="text-lg text-[#191919] font-semibold">Welke betaalmogelijkheden zijn er?</h2>
+                    <h2 class="text-lg text-[#191919] font-semibold">Over Deluxe Nail Shop</h2>
                     <div class="faq-item-content">
                         <hr class="my-3 border-gray-200">
-                        <p class="opacity-80 text-sm text-[#191919]">Je kunt bij ons betalen met iDeal, Visa en Paypal</p>
+                        <div class="mb-3">
+                            <p class="opacity-80 text-sm text-[#191919] font-semibold">Waar staat Deluxe Nail Shop voor?</p>
+                            <p class="opacity-80 text-sm text-[#191919]">Wij geloven in kwaliteit, luxe en liefde voor detail. Elk product is zorgvuldig geselecteerd en getest, zodat jij het beste resultaat krijgt, zowel thuis als in je salon.</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="opacity-80 text-sm text-[#191919] font-semibold">Hebben jullie ook een fysieke winkel?</p>
+                            <p class="opacity-80 text-sm text-[#191919]">Ja! We zijn gevestigd aan Lentemorgen 5, kamer 5.36, 6903 CT Zevenaar. We staan voor je klaar!</p>
+                        </div>
                     </div>
                 </li>
                 <li class="faq-item bg-white rounded-lg p-[1.5rem]">
-                    <h2 class="text-lg text-[#191919] font-semibold">Wat is jullie retourbeleid?</h2>
+                    <h2 class="text-lg text-[#191919] font-semibold">Contact & Service</h2>
                     <div class="faq-item-content">
                         <hr class="my-3 border-gray-200">
-                        <p class="opacity-80 text-sm text-[#191919]">Wil je een product retourneren, dan kan dat binnen 14 dagen na ontvangst zonder reden. Meld je retourzending aan via info@deluxenailshop.com. Producten dienen binnen 14 dagen retour gestuurd te worden, verzendkosten zijn voor eigen rekening.  Na ontvangst van de goederen wordt het verschuldigde bedrag retour gestort.</p>
-                    </div>
-                </li>
-                <li class="faq-item bg-white rounded-lg p-[1.5rem]">
-                    <h2 class="text-lg text-[#191919] font-semibold">Wat zijn de verzend mogelijkheden?</h2>
-                    <div class="faq-item-content">
-                        <hr class="my-3 border-gray-200">
-                        <p class="opacity-80 text-sm text-[#191919]">Nederland €6.95 ( boven €75,- GRATIS )<br>België €11,- ( boven €75,- GRATIS )<br>We versturen met PostNL.</p>
-                    </div>
-                </li>
-                <li class="faq-item bg-white rounded-lg p-[1.5rem]">
-                    <h2 class="text-lg text-[#191919] font-semibold">Een product is niet op voorraad, wat nu?</h2>
-                    <div class="faq-item-content">
-                        <hr class="my-3 border-gray-200">
-                        <p class="opacity-80 text-sm text-[#191919]">Binnen paar dagen komt het product weer op voorraad. Houdt de webshop in de gaten.</p>
-                    </div>
-                </li>
-                <li class="faq-item bg-white rounded-lg p-[1.5rem]">
-                    <h2 class="text-lg text-[#191919] font-semibold">Ik heb een klacht/opmering, wat moet ik doen?</h2>
-                    <div class="faq-item-content">
-                        <hr class="my-3 border-gray-200">
-                        <p class="opacity-80 text-sm text-[#191919]">Stuur een email naar info@deluxenailshop.com met een duidelijke omschrijving van je klacht/opmerking. Er wordt zo snel mogelijk contact met je opgenomen.</p>
+                        <div class="mb-3">
+                            <p class="opacity-80 text-sm text-[#191919] font-semibold">Hoe kan ik contact opnemen?</p>
+                            <p class="opacity-80 text-sm text-[#191919]">Via e-mail, WhatsApp of Instagram DM. We reageren meestal binnen enkele uren (ma–vrij 09:00–18:00).</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="opacity-80 text-sm text-[#191919] font-semibold">Kan ik advies krijgen over de producten?</p>
+                            <p class="opacity-80 text-sm text-[#191919]">Zeker! We helpen je graag persoonlijk bij het kiezen van de juiste producten of kleuren. Stuur ons gerust een bericht via e-mail, WhatsApp of Instagram DM, we denken met je mee!</p>
+                        </div>
                     </div>
                 </li>
             </ul>

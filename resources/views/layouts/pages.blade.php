@@ -141,9 +141,9 @@ $subUrl = function (string $naam) use ($sub) {
                     </div>
                 </div>
             </div>
-            <div class="w-full h-auto py-[1rem] px-4">
-                <div id="menu-bar" class="w-full px-[1rem] md:px-[3rem] py-2 rounded-3xl mx-auto h-full flex items-center justify-between transition duration-300">
-                    <div class="flex items-center gap-10">
+            <div class="w-full h-auto py-[1rem] px-[1rem]">
+                <div id="menu-bar" class="w-full px-[1rem] md:px-[2rem] py-2 rounded-3xl mx-auto h-full flex items-center justify-between transition duration-300">
+                    <div class="flex items-center gap-6">
                         <a href="/" class="relative">
                             <img src="{{ asset('/images/deluxenailshop_transp_wit_v1.png') }}" id="logo-white" class="max-h-[4rem] transition duration-300">
                             <img src="{{ asset('/images/deluxenailshop_transp_zwart_v1.png') }}" id="logo-black" class="max-h-[4rem] absolute top-0 -ml-[0.4px] transition duration-300 opacity-0">
