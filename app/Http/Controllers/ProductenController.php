@@ -42,12 +42,18 @@ class ProductenController extends Controller
                 Rule::exists('subcategories','id')->where('category_id', $categoryId),
             ],
             'uitverkoop'     => ['nullable','boolean'],
-            'is_visible'  => ['nullable','boolean'],
+            'is_visible'     => ['nullable','boolean'], // als je die kolom gebruikt
         ]);
 
-        // normaliseer checkbox -> boolean
+        // normaliseer checkboxen
         $data['uitverkoop'] = $request->boolean('uitverkoop');
         $data['is_visible'] = $request->boolean('is_visible', true);
+
+        // --- HIER: 15% korting toepassen als uitverkoop aan staat ---
+        if ($data['uitverkoop']) {
+            $data['prijs'] = round(((float)$data['prijs']) * 0.85, 2);
+        }
+        // ------------------------------------------------------------
 
         if ($request->hasFile('foto')) {
             $foto = $request->file('foto')->store('producten', 'public');
@@ -83,12 +89,18 @@ class ProductenController extends Controller
                 Rule::exists('subcategories','id')->where('category_id', $categoryId),
             ],
             'uitverkoop'     => ['nullable','boolean'],
-            'is_visible'  => ['nullable','boolean'],
+            'is_visible'     => ['nullable','boolean'], // als je die kolom gebruikt
         ]);
 
-        // normaliseer checkbox -> boolean
+        // normaliseer checkboxen
         $data['uitverkoop'] = $request->boolean('uitverkoop');
         $data['is_visible'] = $request->boolean('is_visible', true);
+
+        // --- HIER: 15% korting toepassen als uitverkoop aan staat ---
+        if ($data['uitverkoop']) {
+            $data['prijs'] = round(((float)$data['prijs']) * 0.85, 2);
+        }
+        // ------------------------------------------------------------
 
         if ($request->hasFile('foto')) {
             if ($product->foto && file_exists(storage_path('app/public/producten/'.$product->foto))) {
