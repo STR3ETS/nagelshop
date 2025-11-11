@@ -96,6 +96,13 @@
                     <span class="text-[15px] font-medium">Totaal: &euro;{{ number_format($bestelling->totaalprijs, 2, ',', '.') }}</span>
                 </div>
             </ul>
+
+            <div class="mt-4 flex justify-end">
+                <a href="{{ route('bestellingen.factuur.download', $bestelling) }}"
+                   class="inline-flex items-center gap-2 px-[1.5rem] py-[0.55rem] bg-[#191919] hover:bg-[#b38867] transition rounded-md text-white text-[15px] font-medium cursor-pointer">
+                    Factuur downloaden (PDF)
+                </a>
+            </div>
         </div>
         <div class="w-full bg-white p-[1.5rem] rounded-lg">
             <h2 class="text-[#191919] text-[24px] font-semibold leading-[1.15] mb-2">Track & Trace</h2>

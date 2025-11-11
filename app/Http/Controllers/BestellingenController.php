@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Bestelling;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class BestellingenController extends Controller
 {
@@ -51,5 +52,42 @@ class BestellingenController extends Controller
         ]);
 
         return back()->with('success', 'Track & Trace code succesvol toegevoegd');
+    }
+
+    public function downloadFactuur(Bestelling $bestelling)
+    {
+        // Bedrijfsgegevens – pas aan naar je eigen data / Instellingen-model
+        $bedrijf = [
+            'naam'     => 'Deluxe Nail Shop',
+            'adres'    => 'Voorbeeldstraat 1',
+            'postcode' => '1234 AB',
+            'plaats'   => 'Arnhem',
+            'kvk'      => '12345678',
+            'btw'      => 'NL001234567B01',
+            'iban'     => 'NL00BANK0123456789',
+            'email'    => 'info@deluxenailshop.nl',
+        ];
+
+        $btwPercentage = 21;
+
+        // Uitgaande van totaalprijs incl. btw
+        $totaalIncl  = $bestelling->totaalprijs;
+        $subtotaalEx = round($totaalIncl / (1 + $btwPercentage / 100), 2);
+        $btwBedrag   = round($totaalIncl - $subtotaalEx, 2);
+
+        $factuurnummer = $bestelling->factuurnummer
+            ?? 'INV-' . str_pad($bestelling->id, 6, '0', STR_PAD_LEFT);
+
+        $pdf = Pdf::loadView('beheer.bestellingen.factuur', [
+            'bestelling'    => $bestelling,
+            'bedrijf'       => $bedrijf,
+            'btwPercentage' => $btwPercentage,
+            'subtotaalEx'   => $subtotaalEx,
+            'btwBedrag'     => $btwBedrag,
+            'totaalIncl'    => $totaalIncl,
+            'factuurnummer' => $factuurnummer,
+        ]);
+
+        return $pdf->download('factuur-' . $factuurnummer . '.pdf');
     }
 }
