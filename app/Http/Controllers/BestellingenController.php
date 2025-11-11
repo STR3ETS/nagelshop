@@ -59,12 +59,11 @@ class BestellingenController extends Controller
         // Bedrijfsgegevens – pas aan naar je eigen data / Instellingen-model
         $bedrijf = [
             'naam'     => 'Deluxe Nail Shop',
-            'adres'    => 'Voorbeeldstraat 1',
-            'postcode' => '1234 AB',
-            'plaats'   => 'Arnhem',
-            'kvk'      => '12345678',
-            'btw'      => 'NL001234567B01',
-            'iban'     => 'NL00BANK0123456789',
+            'adres'    => 'Lentemorgen 5 (Kamer 5.36)',
+            'postcode' => '6903 CT',
+            'plaats'   => 'Zevenaar',
+            'kvk'      => '84373466',
+            'btw'      => 'NL003954592B82',
             'email'    => 'info@deluxenailshop.nl',
         ];
 

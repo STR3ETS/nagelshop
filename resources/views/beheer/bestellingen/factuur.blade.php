@@ -29,7 +29,6 @@
             <div class="small mt-2">
                 KVK: {{ $bedrijf['kvk'] }}<br>
                 BTW: {{ $bedrijf['btw'] }}<br>
-                IBAN: {{ $bedrijf['iban'] }}<br>
                 E-mail: {{ $bedrijf['email'] }}
             </div>
         </div>
@@ -89,9 +88,5 @@
             <th class="text-right">&euro;{{ number_format($totaalIncl, 2, ',', '.') }}</th>
         </tr>
     </table>
-
-    <div class="footer mt-4 small">
-        Deze factuur is automatisch gegenereerd vanuit het besteloverzicht.
-    </div>
 </body>
 </html>
