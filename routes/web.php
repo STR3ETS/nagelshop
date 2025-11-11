@@ -123,7 +123,7 @@ Route::middleware(['auth'])->prefix('beheer')->group(function () {
     Route::get('/bestellingen/{bestelling}/inzien', [BestellingenController::class, 'inzien'])->name('bestellingen.inzien');
     Route::put('/bestellingen/{bestelling}/verzendgegevens', [BestellingenController::class, 'updateVerzendgegevens'])->name('bestellingen.verzendgegevens');
     Route::put('/bestellingen/{bestelling}/tracktrace', [BestellingenController::class, 'updateTrackTrace'])->name('bestellingen.tracktrace');
-    Route::get('/bestellingen/{bestelling}/factuur-download', [BestellingController::class, 'downloadFactuur'])->name('bestellingen.factuur.download');
+    Route::get('/bestellingen/{bestelling}/factuur-download', [BestellingenController::class, 'downloadFactuur'])->name('bestellingen.factuur.download');
 
     Route::get('/voorraad', [ProductenController::class, 'voorraad'])->name('beheer.voorraad');
     Route::post('/voorraad/bijwerken', [ProductenController::class, 'updateVoorraad'])->name('beheer.voorraad.bijwerken');
