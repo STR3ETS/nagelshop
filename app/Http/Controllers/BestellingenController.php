@@ -12,7 +12,7 @@ class BestellingenController extends Controller
     public function index()
     {
         $bestellingen = Bestelling::orderByRaw("
-            FIELD(status, 'open', 'onderweg', 'afgeleverd')
+            FIELD(status, 'open', 'onderweg', 'opgehaald', 'afgerond')
         ")->orderBy('created_at', 'desc')->get();
 
         return view('beheer.bestellingen.index', compact('bestellingen'));
@@ -27,17 +27,46 @@ class BestellingenController extends Controller
 
     public function updateVerzendgegevens(Request $request, Bestelling $bestelling)
     {
-        $validated = $request->validate([
-            'naam' => 'required|string|max:255',
+        $rules = [
+            'naam'  => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'adres' => 'required|string|max:255',
-            'postcode' => 'required|string|max:20',
-            'plaats' => 'required|string|max:100',
-        ]);
+        ];
+
+        $levermethode = $bestelling->levermethode ?? 'verzenden';
+
+        if ($levermethode === 'verzenden') {
+            $rules['adres']    = 'required|string|max:255';
+            $rules['postcode'] = 'required|string|max:20';
+            $rules['plaats']   = 'required|string|max:100';
+        }
+
+        $validated = $request->validate($rules);
+
+        // Als ophalen: adresvelden leegmaken in DB (netjes)
+        if ($levermethode === 'ophalen') {
+            $validated['adres'] = null;
+            $validated['postcode'] = null;
+            $validated['plaats'] = null;
+        }
 
         $bestelling->update($validated);
 
         return redirect()->back()->with('success', 'Verzendgegevens succesvol opgeslagen');
+    }
+
+    public function updateStatus(Request $request, Bestelling $bestelling)
+    {
+        $validated = $request->validate([
+            'status' => ['required', \Illuminate\Validation\Rule::in([
+                'open', 'onderweg', 'opgehaald', 'afgerond'
+            ])],
+        ]);
+
+        $bestelling->update([
+            'status' => $validated['status'],
+        ]);
+
+        return back()->with('success', 'Status succesvol bijgewerkt');
     }
     
     public function updateTrackTrace(Request $request, Bestelling $bestelling)
@@ -46,10 +75,14 @@ class BestellingenController extends Controller
             'track_trace' => 'nullable|string|max:255',
         ]);
 
-        $bestelling->update([
-            'track_trace' => $request->track_trace,
-            'status' => 'onderweg',
-        ]);
+        $update = ['track_trace' => $request->track_trace];
+
+        // Alleen auto-naar onderweg als hij nog 'nieuw' is
+        if (($bestelling->status ?? 'open') === 'open') {
+            $update['status'] = 'onderweg';
+        }
+
+        $bestelling->update($update);
 
         return back()->with('success', 'Track & Trace code succesvol toegevoegd');
     }

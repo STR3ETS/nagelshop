@@ -121,6 +121,7 @@ Route::middleware(['auth'])->prefix('beheer')->group(function () {
 
     Route::get('/bestellingen', [BestellingenController::class, 'index'])->name('beheer.bestellingen');
     Route::get('/bestellingen/{bestelling}/inzien', [BestellingenController::class, 'inzien'])->name('bestellingen.inzien');
+    Route::put('/bestellingen/{bestelling}/status', [BestellingenController::class, 'updateStatus'])->name('bestellingen.status');
     Route::put('/bestellingen/{bestelling}/verzendgegevens', [BestellingenController::class, 'updateVerzendgegevens'])->name('bestellingen.verzendgegevens');
     Route::put('/bestellingen/{bestelling}/tracktrace', [BestellingenController::class, 'updateTrackTrace'])->name('bestellingen.tracktrace');
     Route::get('/bestellingen/{bestelling}/factuur-download', [BestellingenController::class, 'downloadFactuur'])->name('bestellingen.factuur.download');
