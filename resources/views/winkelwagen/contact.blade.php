@@ -73,8 +73,50 @@
 
         <div class="w-full flex flex-col md:flex-row gap-[1rem]">
             {{-- LINKER KOLOM: ENIG FORMULIER (POST naar contactOpslaan) --}}
-            <form action="{{ route('winkelwagen.contactOpslaan') }}" method="POST" class="bg-white p-[2rem] rounded-lg w-full md:w-2/3 h-fit">
+            @php
+                $leverInit = old('levermethode', $gegevens['levermethode'] ?? 'verzenden');
+            @endphp
+            <form
+                action="{{ route('winkelwagen.contactOpslaan') }}"
+                method="POST"
+                class="bg-white p-[2rem] rounded-lg w-full md:w-2/3 h-fit"
+                x-data="{ levermethode: @js($leverInit) }"
+            >
                 @csrf
+
+                @php
+                    $levermethodeWaarde = old('levermethode', $gegevens['levermethode'] ?? 'verzenden');
+                @endphp
+                <div class="mb-4">
+                    <label class="text-sm font-medium block mb-2">Ophalen of verzenden</label>
+                    <div class="flex items-center gap-4">
+                        <label class="flex items-center gap-2 text-[14px]">
+                            <input
+                                type="radio"
+                                x-model="levermethode"
+                                name="levermethode"
+                                value="verzenden"
+                                {{ $levermethodeWaarde === 'verzenden' ? 'checked' : '' }}
+                                class="accent-black"
+                            >
+                            Verzenden
+                        </label>
+                        <label class="flex items-center gap-2 text-[14px]">
+                            <input
+                                type="radio"
+                                x-model="levermethode"
+                                name="levermethode"
+                                value="ophalen"
+                                {{ $levermethodeWaarde === 'ophalen' ? 'checked' : '' }}
+                                class="accent-black"
+                            >
+                            Ophalen
+                        </label>
+                    </div>
+                    @error('levermethode')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
                 <div class="mb-2">
                     <label class="text-sm font-medium">Voor- en achternaam</label>
@@ -91,19 +133,45 @@
                     <input type="tel" name="telefoon" value="{{ old('telefoon', $gegevens['telefoon'] ?? '') }}" required inputmode="tel" autocomplete="tel" class="w-full px-[0.75rem] py-[0.55rem] ring-1 ring-gray-200 focus:ring-[#b38867] outline-none rounded-md">
                 </div>
 
-                <div class="mb-2">
-                    <label class="text-sm font-medium">Adres</label>
-                    <input type="text" name="adres" value="{{ old('adres', $gegevens['adres'] ?? '') }}" required class="w-full px-[0.75rem] py-[0.55rem] ring-1 ring-gray-200 focus:ring-[#b38867] outline-none rounded-md">
-                </div>
-
-                <div class="flex flex-col md:flex-row gap-2 md:gap-4 mb-2">
-                    <div class="w-full md:w-1/2">
-                        <label class="text-sm font-medium">Postcode</label>
-                        <input type="text" name="postcode" value="{{ old('postcode', $gegevens['postcode'] ?? '') }}" required class="w-full px-[0.75rem] py-[0.55rem] ring-1 ring-gray-200 focus:ring-[#b38867] outline-none rounded-md">
+                <div
+                    class="mt-2"
+                    :class="levermethode === 'ophalen' ? 'opacity-40 pointer-events-none' : ''"
+                >
+                    <div class="mb-2">
+                        <label class="text-sm font-medium">Adres</label>
+                        <input
+                            type="text"
+                            name="adres"
+                            value="{{ old('adres', $gegevens['adres'] ?? '') }}"
+                            :disabled="levermethode === 'ophalen'"
+                            :required="levermethode === 'verzenden'"
+                            class="w-full px-[0.75rem] py-[0.55rem] ring-1 ring-gray-200 focus:ring-[#b38867] outline-none rounded-md"
+                        >
                     </div>
-                    <div class="w-full md:w-1/2">
-                        <label class="text-sm font-medium">Plaats</label>
-                        <input type="text" name="plaats" value="{{ old('plaats', $gegevens['plaats'] ?? '') }}" required class="w-full px-[0.75rem] py-[0.55rem] ring-1 ring-gray-200 focus:ring-[#b38867] outline-none rounded-md">
+
+                    <div class="flex flex-col md:flex-row gap-2 md:gap-4 mb-2">
+                        <div class="w-full md:w-1/2">
+                            <label class="text-sm font-medium">Postcode</label>
+                            <input
+                                type="text"
+                                name="postcode"
+                                value="{{ old('postcode', $gegevens['postcode'] ?? '') }}"
+                                :disabled="levermethode === 'ophalen'"
+                                :required="levermethode === 'verzenden'"
+                                class="w-full px-[0.75rem] py-[0.55rem] ring-1 ring-gray-200 focus:ring-[#b38867] outline-none rounded-md"
+                            >
+                        </div>
+                        <div class="w-full md:w-1/2">
+                            <label class="text-sm font-medium">Plaats</label>
+                            <input
+                                type="text"
+                                name="plaats"
+                                value="{{ old('plaats', $gegevens['plaats'] ?? '') }}"
+                                :disabled="levermethode === 'ophalen'"
+                                :required="levermethode === 'verzenden'"
+                                class="w-full px-[0.75rem] py-[0.55rem] ring-1 ring-gray-200 focus:ring-[#b38867] outline-none rounded-md"
+                            >
+                        </div>
                     </div>
                 </div>
 

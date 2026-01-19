@@ -6,31 +6,35 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Bestelling;
+use App\Models\Kortingscode;
 use Illuminate\Support\Str;
 use Mollie\Laravel\Facades\Mollie;
-use App\Models\Kortingscode;
 use Illuminate\Validation\Rule;
 
 class WinkelwagenController extends Controller
 {
+    // -------------------------------
+    // WINKELWAGEN
+    // -------------------------------
     public function toevoegen(Request $request, Product $product)
     {
         $cart = session()->get('cart', []);
-        
+
         if (isset($cart[$product->id])) {
             $cart[$product->id]['aantal']++;
         } else {
             $cart[$product->id] = [
-                'naam'  => $product->naam,
-                'prijs' => $product->prijs,
-                'aantal'=> 1,
-                'foto'  => $product->foto,
+                'naam'   => $product->naam,
+                'prijs'  => $product->prijs,
+                'aantal' => 1,
+                'foto'   => $product->foto,
             ];
         }
-        
+
         session()->put('cart', $cart);
+
         return back()->with('toegevoegd', $product->naam);
-    }     
+    }
 
     public function index()
     {
@@ -52,43 +56,59 @@ class WinkelwagenController extends Controller
         $request->validate([
             'aantal' => 'required|integer|min:1'
         ]);
-    
+
         $cart = session()->get('cart', []);
         if (isset($cart[$id])) {
             $cart[$id]['aantal'] = $request->aantal;
             session()->put('cart', $cart);
         }
-    
+
         return redirect()->back();
     }
 
+    // -------------------------------
+    // CONTACT / AFLEVERGEGEVENS
+    // -------------------------------
     public function toonContactForm()
     {
         $cart = session()->get('cart', []);
-        return view('winkelwagen.contact', compact('cart'));
+        $gegevens = session('checkout.gegevens', []);
+
+        return view('winkelwagen.contact', compact('cart', 'gegevens'));
     }
-    
+
     public function contactOpslaan(Request $request)
     {
-        // Basisvalidatie (NL-telefoon tolerant)
         $data = $request->validate([
-            'naam'     => ['required','string','max:120'],
-            'email'    => ['required','email'],
-            'telefoon' => ['required','string','min:6','max:20'],
-            'adres'    => ['required','string','max:200'],
-            'postcode' => ['required','string','max:20'],
-            'plaats'   => ['required','string','max:120'],
+            'levermethode' => ['required', Rule::in(['verzenden', 'ophalen'])],
+
+            'naam'     => ['required', 'string', 'max:120'],
+            'email'    => ['required', 'email'],
+            'telefoon' => ['required', 'string', 'min:6', 'max:20'],
+
+            'adres'    => ['required_if:levermethode,verzenden', 'nullable', 'string', 'max:200'],
+            'postcode' => ['required_if:levermethode,verzenden', 'nullable', 'string', 'max:20'],
+            'plaats'   => ['required_if:levermethode,verzenden', 'nullable', 'string', 'max:120'],
         ]);
+
+        if (($data['levermethode'] ?? 'verzenden') === 'ophalen') {
+            $data['adres'] = null;
+            $data['postcode'] = null;
+            $data['plaats'] = null;
+        }
 
         session(['checkout.gegevens' => $data]);
 
         return redirect()->route('winkelwagen.betaling');
     }
 
+    // -------------------------------
+    // KORTINGSCODES
+    // -------------------------------
     public function kortingscodeToepassen(Request $request)
     {
         $data = $request->validate([
-            'code' => ['required','string','max:50','regex:/^[A-Za-z0-9\-_]+$/'],
+            'code' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9\-_]+$/'],
         ], [
             'code.regex' => 'Gebruik alleen letters, cijfers, streepjes (-) of underscores (_).',
         ]);
@@ -118,48 +138,56 @@ class WinkelwagenController extends Controller
         return back()->with('success', 'Kortingscode verwijderd.');
     }
 
+    // -------------------------------
+    // BETALING / BEVESTIGEN
+    // -------------------------------
     public function toonBetaling()
     {
         $cart = session()->get('cart', []);
-        $gegevens = session('checkout.gegevens');
+        $gegevens = session('checkout.gegevens', []);
 
         return view('winkelwagen.betaling', compact('cart', 'gegevens'));
     }
 
+    // -------------------------------
+    // AFRONDEN + MOLLIE START
+    // -------------------------------
     public function afronden(Request $request)
     {
         $request->validate([
             'betaalmethode' => 'required|string|in:ideal,paypal,creditcard',
         ]);
 
-        // Gegevens uit sessie
         $klant       = session('checkout.gegevens');
         $winkelwagen = session('cart', []);
+
         if (!$klant || empty($winkelwagen)) {
-            return redirect()->route('winkelwagen.index')->with('error', 'Je sessie is verlopen of je winkelwagen is leeg.');
+            return redirect()->route('winkelwagen.index')
+                ->with('error', 'Je sessie is verlopen of je winkelwagen is leeg.');
         }
 
-        // 1) Totaal van producten
+        // 1) Producten totaal
         $productenTotaal = collect($winkelwagen)->sum(fn($item) => $item['prijs'] * $item['aantal']);
 
-        // 2) Kortingscode toepassen (indien aanwezig)
-        $sessieCode  = session('checkout.kortingscode'); // ['code','type','value']
+        // 2) Kortingscode
+        $sessieCode = session('checkout.kortingscode');
         $kortingBedrag = 0.0;
         $actieveKortingscode = null;
 
         if ($sessieCode && !empty($sessieCode['code'])) {
-            $k = \App\Models\Kortingscode::where('code', mb_strtoupper($sessieCode['code']))->first();
+            $k = Kortingscode::where('code', mb_strtoupper($sessieCode['code']))->first();
+
             if ($k && !$k->isExpired()) {
                 $actieveKortingscode = [
                     'code'  => $k->code,
-                    'type'  => $k->type,            // 'percent' | 'amount'
+                    'type'  => $k->type,
                     'value' => (float) $k->value,
                 ];
+
                 $kortingBedrag = $k->type === 'percent'
                     ? ($k->value / 100) * $productenTotaal
                     : (float) $k->value;
 
-                // Korting nooit groter dan producttotaal
                 $kortingBedrag = min($kortingBedrag, $productenTotaal);
             } else {
                 session()->forget('checkout.kortingscode');
@@ -168,58 +196,61 @@ class WinkelwagenController extends Controller
 
         $totaalNaKorting = max(0, $productenTotaal - $kortingBedrag);
 
-        // 3) Verzendkosten bepalen (NL gratis vanaf €50, BE gratis vanaf €75)
-        $verzendkosten = 0.00;
-        $adresOk = !empty($klant['adres'] ?? null) && !empty($klant['postcode'] ?? null) && !empty($klant['plaats'] ?? null);
+        // 3) Verzendkosten (respecteer levermethode)
+        $levermethode = $klant['levermethode'] ?? 'verzenden';
 
-        if ($adresOk) {
+        $verzendkosten = 0.00;
+
+        $adresOk = $levermethode === 'verzenden'
+            && !empty($klant['adres'] ?? null)
+            && !empty($klant['postcode'] ?? null)
+            && !empty($klant['plaats'] ?? null);
+
+        if ($levermethode === 'ophalen') {
+            $verzendkosten = 0.00;
+        } elseif ($adresOk) {
             $pc = strtoupper(trim($klant['postcode']));
-            // NL: 1234 AB  (4 cijfers + 2 letters, spatie optioneel)
+
             $isNL = (bool) preg_match('/^\d{4}\s?[A-Z]{2}$/', $pc);
-            // BE: 1234 (exact 4 cijfers)
             $isBE = !$isNL && (bool) preg_match('/^\d{4}$/', $pc);
 
-            // Tarieven en drempels
             $tariefNL  = 5.95;
             $tariefBE  = 9.50;
             $drempelNL = 50.00;
             $drempelBE = 75.00;
 
-            // Fallback: als niet herkend → behandel als NL
+            // fallback NL
             $isNL = $isNL || (!$isBE);
 
             $tarief  = $isBE ? $tariefBE : $tariefNL;
             $drempel = $isBE ? $drempelBE : $drempelNL;
 
-            // Let op: gratis-drempel op bedrag ná korting
+            // gratis drempel op NA-korting
             $verzendkosten = $totaalNaKorting >= $drempel ? 0.00 : $tarief;
-        } else {
-            $verzendkosten = 0.00;
         }
 
         // 4) Eindtotaal
         $totaalprijs = round($totaalNaKorting + $verzendkosten, 2);
 
-        // 5) Unieke ID voor de bestelling (nog niet in DB, we doen dat pas in callback)
-        $bestellingUuid = (string) \Illuminate\Support\Str::uuid();
+        // 5) UUID voor tijdelijke opslag
+        $bestellingUuid = (string) Str::uuid();
 
-        // 6) Sla alles tijdelijk in de sessie op (wordt in callback definitief opgeslagen)
+        // 6) Tijdelijke sessie-bestelling
         session()->put("temp_bestellingen.$bestellingUuid", [
             'klant'          => $klant,
             'cart'           => $winkelwagen,
-            'kortingscode'   => $actieveKortingscode, // kan null zijn
+            'kortingscode'   => $actieveKortingscode,
             'korting_bedrag' => $kortingBedrag,
             'verzendkosten'  => $verzendkosten,
             'totaalprijs'    => $totaalprijs,
             'betaalmethode'  => $request->betaalmethode,
         ]);
 
-        // 7) Mollie betaling aanmaken
-        $payment = \Mollie\Laravel\Facades\Mollie::api()->payments->create([
+        // 7) Mollie payment
+        $payment = Mollie::api()->payments->create([
             'amount' => [
                 'currency' => 'EUR',
                 'value'    => number_format($totaalprijs, 2, '.', ''),
-                // 'value' => '0.01', // ← testbedrag
             ],
             'description' => 'Bestelling bij Deluxe Nailshop',
             'redirectUrl' => route('mollie.callback', ['bestelling' => $bestellingUuid]),
@@ -229,17 +260,22 @@ class WinkelwagenController extends Controller
             // 'webhookUrl' => route('mollie.webhook'),
         ]);
 
-        // 8) Bewaar Mollie payment ID in sessie voor callback
         session()->put('mollie_payment_id', $payment->id);
 
-        // 9) Naar Mollie checkout
         return redirect($payment->getCheckoutUrl());
     }
 
+    // -------------------------------
+    // MOLLIE CALLBACK (maakt DB record)
+    // -------------------------------
     public function mollieCallback()
     {
         $paymentId = session('mollie_payment_id');
-        $payment   = Mollie::api()->payments->get($paymentId);
+        if (!$paymentId) {
+            return redirect()->route('winkelwagen.index')->with('error', 'Betaling sessie ontbreekt.');
+        }
+
+        $payment = Mollie::api()->payments->get($paymentId);
 
         if (!$payment->isPaid()) {
             return redirect()->route('winkelwagen.index')->with('error', 'Betaling is niet gelukt.');
@@ -247,30 +283,39 @@ class WinkelwagenController extends Controller
 
         $bestellingId = request('bestelling');
         $data = session("temp_bestellingen.$bestellingId");
+
         if (!$data) {
             return redirect()->route('winkelwagen.index')->with('error', 'Geen betalingsgegevens gevonden.');
         }
 
+        // voorkom dubbele orders
         $bestaan = Bestelling::where('transactie_id', $payment->id)->first();
         if ($bestaan) {
             return redirect()->route('winkelwagen.bedankt', ['id' => $bestaan->id]);
         }
 
-        // Bestelling opslaan (→ inclusief telefoon + juiste betaalmethode)
+        $levermethode = $data['klant']['levermethode'] ?? 'verzenden';
+
         $bestelling = Bestelling::create([
             'transactie_id' => $payment->id,
             'naam'          => $data['klant']['naam'],
             'email'         => $data['klant']['email'],
-            'telefoon'      => $data['klant']['telefoon'], // ← nieuw
-            'adres'         => $data['klant']['adres'],
-            'postcode'      => $data['klant']['postcode'],
-            'plaats'        => $data['klant']['plaats'],
-            'betaalmethode' => $data['betaalmethode'],      // ← uit sessie i.p.v. hardcoded
+            'telefoon'      => $data['klant']['telefoon'],
+
+            'levermethode'  => $levermethode,
+
+            'adres'         => $levermethode === 'verzenden' ? ($data['klant']['adres'] ?? null) : null,
+            'postcode'      => $levermethode === 'verzenden' ? ($data['klant']['postcode'] ?? null) : null,
+            'plaats'        => $levermethode === 'verzenden' ? ($data['klant']['plaats'] ?? null) : null,
+
+            'betaalmethode' => $data['betaalmethode'],
             'totaalprijs'   => $data['totaalprijs'],
+            'status'        => 'open',
         ]);
 
-        // Koppel producten en verlaag voorraad
+        // Koppel producten + verlaag voorraad
         $product_data = [];
+
         foreach ($data['cart'] as $id => $item) {
             $product_data[$id] = ['aantal' => $item['aantal']];
 
@@ -287,6 +332,7 @@ class WinkelwagenController extends Controller
         session()->forget([
             'cart',
             'checkout.gegevens',
+            'checkout.kortingscode',
             'mollie_payment_id',
             "temp_bestellingen.$bestellingId"
         ]);
@@ -294,69 +340,75 @@ class WinkelwagenController extends Controller
         return redirect()->route('winkelwagen.bedankt', ['id' => $bestelling->id]);
     }
 
+    // -------------------------------
+    // (OPTIONEEL) WEBHOOK
+    // Let op: jij maakt de DB-bestelling pas in callback.
+    // Daarom is deze webhook in jouw huidige flow niet betrouwbaar.
+    // -------------------------------
     public function mollieWebhook(Request $request)
     {
         $payment = Mollie::api()->payments->get($request->id);
-        $bestellingId = $payment->metadata->bestelling_id;
 
-        $bestelling = Bestelling::find($bestellingId);
-        if (!$bestelling) {
-            return response()->json(['error' => 'Bestelling niet gevonden'], 404);
-        }
-
-        if ($payment->isPaid() && !$payment->hasRefunds()) {
-            $bestelling->status = 'betaald';
-        } elseif ($payment->isFailed() || $payment->isExpired()) {
-            $bestelling->status = 'mislukt';
-        }
-
-        $bestelling->save();
-
+        // Als je dit later wilt gebruiken, moet je eerst een bestelling record
+        // aanmaken vóór de betaling en hier opzoeken via payment_id.
         return response()->json(['status' => 'ok']);
     }
 
+    // -------------------------------
+    // BEDANKT-PAGINA
+    // -------------------------------
     public function bedankt($id)
     {
         $bestelling = Bestelling::findOrFail($id);
-
-        $gegevens = [
-            'naam'     => $bestelling->naam,
-            'email'    => $bestelling->email,
-            'telefoon' => $bestelling->telefoon,
-            'adres'    => $bestelling->adres,
-            'postcode' => $bestelling->postcode,
-            'plaats'   => $bestelling->plaats,
-        ];
-
         $bestellingProducten = $bestelling->producten;
 
-        // Subtotaal (zonder korting/verzendkosten – puur voor weergave)
+        $gegevens = [
+            'naam'         => $bestelling->naam,
+            'email'        => $bestelling->email,
+            'telefoon'     => $bestelling->telefoon,
+            'adres'        => $bestelling->adres,
+            'postcode'     => $bestelling->postcode,
+            'plaats'       => $bestelling->plaats,
+            'levermethode' => $bestelling->levermethode ?? 'verzenden',
+        ];
+
+        // Subtotaal (weergave)
         $totaalIncl = $bestellingProducten->sum(fn($item) => $item->prijs * $item->pivot->aantal);
         $btw = $totaalIncl * 0.21;
 
-        // Verzendkosten bepalen o.b.v. NL/BE (NL: gratis vanaf 50, BE: gratis vanaf 75)
-        $pc = strtoupper(trim($bestelling->postcode));
-        $isNL = (bool) preg_match('/^\d{4}\s?[A-Z]{2}$/', $pc);
-        $isBE = !$isNL && (bool) preg_match('/^\d{4}$/', $pc);
+        $levermethode = $bestelling->levermethode ?? 'verzenden';
 
-        $tariefNL  = 5.95;
-        $tariefBE  = 9.50;
-        $drempelNL = 50.00;
-        $drempelBE = 75.00;
+        if ($levermethode === 'ophalen') {
+            $verzendkosten = 0.00;
+        } else {
+            $pc = strtoupper(trim($bestelling->postcode));
 
-        // Fallback naar NL als onduidelijk
-        $isNL = $isNL || (!$isBE);
+            $isNL = (bool) preg_match('/^\d{4}\s?[A-Z]{2}$/', $pc);
+            $isBE = !$isNL && (bool) preg_match('/^\d{4}$/', $pc);
 
-        $tarief  = $isBE ? $tariefBE : $tariefNL;
-        $drempel = $isBE ? $drempelBE : $drempelNL;
+            $tariefNL  = 5.95;
+            $tariefBE  = 9.50;
+            $drempelNL = 50.00;
+            $drempelBE = 75.00;
 
-        $verzendkosten = $totaalIncl >= $drempel ? 0.00 : $tarief;
+            $isNL = $isNL || (!$isBE);
+
+            $tarief  = $isBE ? $tariefBE : $tariefNL;
+            $drempel = $isBE ? $drempelBE : $drempelNL;
+
+            $verzendkosten = $totaalIncl >= $drempel ? 0.00 : $tarief;
+        }
 
         $totaalMetVerzending = $totaalIncl + $verzendkosten;
 
         return view('winkelwagen.bedankt', compact(
-            'bestelling', 'gegevens', 'bestellingProducten',
-            'totaalIncl', 'btw', 'verzendkosten', 'totaalMetVerzending'
+            'bestelling',
+            'gegevens',
+            'bestellingProducten',
+            'totaalIncl',
+            'btw',
+            'verzendkosten',
+            'totaalMetVerzending'
         ));
     }
 }

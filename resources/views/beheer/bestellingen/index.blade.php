@@ -39,19 +39,32 @@
                             <td class="px-4 py-4">{{ $bestelling->transactie_id }}</td>
                             <td class="px-4 py-4">€{{ number_format($bestelling->totaalprijs, 2, ',', '.') }}</td>
                             <td class="px-4 py-4">{{ $bestelling->created_at }}</td>
-                            @if($bestelling->status === 'open')
-                                <td class="px-4 py-4">
-                                    <p class="px-2 py-1 rounded-sm border-1 border-[#b38867] bg-[#b3886725] text-[#b38867] text-sm w-fit">Nieuw!</p>
-                                </td>
-                            @elseif($bestelling->status === 'onderweg')
-                                <td class="px-4 py-4">
-                                    <p class="px-2 py-1 rounded-sm border-1 border-orange-500 bg-orange-100 text-orange-500 text-sm w-fit">Onderweg</p>
-                                </td>
-                            @elseif($bestelling->status === 'afgeleverd')
-                                <td class="px-4 py-4">
-                                    <p class="px-2 py-1 rounded-sm border-1 border-green-500 bg-green-100 text-green-500 text-sm w-fit">Afgeleverd</p>
-                                </td>
-                            @endif
+                            <td class="px-4 py-4">
+                                @php
+                                    $status = $bestelling->status ?? 'open';
+                                @endphp
+                                @if($status === 'open')
+                                    <p class="px-2 py-1 rounded-sm border-1 border-[#b38867] bg-[#b3886725] text-[#b38867] text-sm w-fit">
+                                        Nieuw!
+                                    </p>
+                                @elseif($status === 'onderweg')
+                                    <p class="px-2 py-1 rounded-sm border-1 border-orange-500 bg-orange-100 text-orange-500 text-sm w-fit">
+                                        Onderweg
+                                    </p>
+                                @elseif($status === 'opgehaald')
+                                    <p class="px-2 py-1 rounded-sm border-1 border-blue-500 bg-blue-100 text-blue-500 text-sm w-fit">
+                                        Opgehaald
+                                    </p>
+                                @elseif($status === 'afgerond')
+                                    <p class="px-2 py-1 rounded-sm border-1 border-green-500 bg-green-100 text-green-500 text-sm w-fit">
+                                        Afgerond
+                                    </p>
+                                @else
+                                    <p class="px-2 py-1 rounded-sm border-1 border-gray-300 bg-gray-100 text-gray-500 text-sm w-fit">
+                                        Onbekend
+                                    </p>
+                                @endif
+                            </td>
                             <td class="px-4 py-4 text-right align-middle">
                                 <div class="flex justify-end items-center gap-[1rem]">
                                     <a href="{{ route('bestellingen.inzien', $bestelling) }}" class="text-orange-500 hover:underline flex items-center jusitfy-center">
