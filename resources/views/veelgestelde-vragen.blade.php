@@ -40,7 +40,7 @@
                         </div>
                         <div class="mb-3">
                             <p class="opacity-80 text-sm text-[#191919] font-semibold">Wat zijn de verzendkosten?</p>
-                            <p class="opacity-80 text-sm text-[#191919]">Binnen Nederland: €5,95 (gratis vanaf €50). België: €9,50 (gratis vanaf €75). We versturen met PostNL.</p>
+                            <p class="opacity-80 text-sm text-[#191919]">Binnen Nederland: €6,35 (gratis vanaf €50). België: €9,50 (gratis vanaf €75). We versturen met PostNL.</p>
                         </div>
                     </div>
                 </li>

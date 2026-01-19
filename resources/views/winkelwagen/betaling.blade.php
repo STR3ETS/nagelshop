@@ -85,7 +85,7 @@
                         $pc = strtoupper(trim($gegevensSess['postcode']));
                         $isNL = (bool) preg_match('/^\d{4}\s?[A-Z]{2}$/', $pc); // 1234 AB
                         $isBE = !$isNL && (bool) preg_match('/^\d{4}$/', $pc);  // 1234
-                        $tarief = $isBE ? 9.50 : 5.95;
+                        $tarief = $isBE ? 9.50 : 6.35;
 
                         // Gratis vanaf drempel NA korting
                         if ($totaalNaKorting >= $gratisVerzendingDrempel) {

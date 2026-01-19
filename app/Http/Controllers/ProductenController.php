@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Subcategory;
 
 class ProductenController extends Controller
@@ -55,9 +56,11 @@ class ProductenController extends Controller
         }
         // ------------------------------------------------------------
 
-        if ($request->hasFile('foto')) {
-            $foto = $request->file('foto')->store('producten', 'public');
-            $data['foto'] = basename($foto);
+        $uploaded = $request->file('foto');
+
+        if ($uploaded && $uploaded->isValid()) {
+            $path = $uploaded->storePublicly('producten', 'public');
+            $data['foto'] = $path; // sla het volledige pad op
         }
 
         Product::create($data);
@@ -102,12 +105,17 @@ class ProductenController extends Controller
         }
         // ------------------------------------------------------------
 
-        if ($request->hasFile('foto')) {
-            if ($product->foto && file_exists(storage_path('app/public/producten/'.$product->foto))) {
-                @unlink(storage_path('app/public/producten/'.$product->foto));
+        $uploaded = $request->file('foto');
+
+        if ($uploaded && $uploaded->isValid()) {
+
+            // verwijder oude foto (werkt goed met volledige paden)
+            if ($product->foto) {
+                Storage::disk('public')->delete($product->foto);
             }
-            $foto = $request->file('foto')->store('producten', 'public');
-            $data['foto'] = basename($foto);
+
+            // sla nieuw pad op
+            $data['foto'] = $uploaded->storePublicly('producten', 'public');
         }
 
         $product->update($data);
