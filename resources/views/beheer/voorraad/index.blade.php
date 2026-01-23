@@ -9,6 +9,7 @@
                 <li><a href="/beheer/producten" class="hover:text-[#b38867] text-[15px] font-medium">Producten</a></li>
                 <li><a href="/beheer/bestellingen" class="hover:text-[#b38867] text-[15px] font-medium">Bestellingen</a></li>
                 <li><a href="/beheer/voorraad" class="hover:text-[#b38867] text-[15px] font-medium text-[#b38867]">Voorraad</a></li>
+                <li><a href="/beheer/facturen" class="hover:text-[#b38867] text-[15px] font-medium rounded-sm transition">Facturen</a></li>
                 <li><a href="/beheer/instellingen" class="hover:text-[#b38867] text-[15px] font-medium">Instellingen</a></li>
             </ul>
             <form method="POST" action="{{ route('uitloggen') }}">
