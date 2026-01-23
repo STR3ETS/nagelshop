@@ -40,7 +40,7 @@
                 <div>
                     <label class="block text-sm font-medium mb-1">Huidige foto:</label>
                     @if ($product->foto)
-                        <img src="{{ asset('storage/producten/' . $product->foto) }}" class="w-32 mb-2 rounded">
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($product->foto) }}" class="w-32 mb-2 rounded">
                     @else
                         <p class="text-sm text-gray-500">Geen foto beschikbaar</p>
                     @endif

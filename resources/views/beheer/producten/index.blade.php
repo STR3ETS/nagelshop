@@ -42,7 +42,7 @@
                         <tr class="border-t border-gray-100">
                             <td class="px-4 py-4">
                                 @if($product->foto)
-                                    <img src="{{ asset('storage/producten/' . $product->foto) }}" class="w-12 h-12 object-cover rounded">
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($product->foto) }}" class="w-12 h-12 object-cover rounded">
                                 @else
                                     -
                                 @endif
