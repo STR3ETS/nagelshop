@@ -40,7 +40,7 @@
       font-weight:800;
       font-size:16px;
       letter-spacing:0.8px;
-      color:#b08b2e;
+      color:#b38867;
     }
     .metaLine{
       margin-top:2px;
@@ -64,7 +64,7 @@
     }
     .addrBoxTitle{
       font-weight:700;
-      color:#b08b2e;
+      color:#b38867;
       margin-bottom:6px;
     }
     .totalBig{
@@ -77,7 +77,7 @@
       font-size:9px;
       letter-spacing:1.2px;
       font-weight:800;
-      color:#b08b2e;
+      color:#b38867;
       text-align:right;
       margin-top:2px;
     }
@@ -88,12 +88,12 @@
       margin-top:16px;
     }
     .items th{
-      background:#b08b2e;
+      background:#b38867;
       color:#ffffff;
       font-weight:700;
       padding:9px 8px;
       font-size:10px;
-      border:1px solid #b08b2e;
+      border:1px solid #b38867;
     }
     .items td{
       padding:10px 8px;
@@ -137,8 +137,8 @@
       vertical-align:top;
     }
     .summary .label{ color:#2b2b2b; }
-    .summary .sep{ width:14px; text-align:center; color:#b08b2e; }
-    .summary .amount{ text-align:right; font-weight:700; color:#b08b2e; }
+    .summary .sep{ width:14px; text-align:center; color:#b38867; }
+    .summary .amount{ text-align:right; font-weight:700; color:#b38867; }
     .summary .note{ font-size:9px; color:#6b6b6b; margin-top:1px; }
     .summary .rowTotal td{
       padding-top:8px;
@@ -157,7 +157,7 @@
     }
     .footerTitle{
       font-weight:700;
-      color:#b08b2e;
+      color:#b38867;
       margin-bottom:6px;
     }
 
