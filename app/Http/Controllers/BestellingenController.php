@@ -102,13 +102,29 @@ class BestellingenController extends Controller
 
         $btwPercentage = 21;
 
+        // Zorg dat relatie aanwezig is voor de PDF-view
+        $bestelling->loadMissing('producten');
+
+        // ✅ Factuurnummer éénmalig toekennen + opslaan (race-condition safe)
+        $bestelling = DB::transaction(function () use ($bestelling) {
+            $locked = Bestelling::whereKey($bestelling->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if (empty($locked->factuurnummer)) {
+                $locked->factuurnummer = app(InvoiceNumberService::class)->next('INV', 6); // INV-000001
+                $locked->save();
+            }
+
+            return $locked->loadMissing('producten');
+        });
+
         // Uitgaande van totaalprijs incl. btw
-        $totaalIncl  = $bestelling->totaalprijs;
+        $totaalIncl  = (float) $bestelling->totaalprijs;
         $subtotaalEx = round($totaalIncl / (1 + $btwPercentage / 100), 2);
         $btwBedrag   = round($totaalIncl - $subtotaalEx, 2);
 
-        $factuurnummer = $bestelling->factuurnummer
-            ?? 'INV-' . str_pad($bestelling->id, 6, '0', STR_PAD_LEFT);
+        $factuurnummer = $bestelling->factuurnummer;
 
         $pdf = Pdf::loadView('beheer.bestellingen.factuur', [
             'bestelling'    => $bestelling,

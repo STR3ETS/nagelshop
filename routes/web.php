@@ -17,6 +17,7 @@ use App\Http\Controllers\ProductenController;
 use App\Http\Controllers\BestellingenController;
 use App\Http\Controllers\InstellingenController;
 use App\Http\Controllers\WinkelwagenController;
+use App\Http\Controllers\FacturenController;
 
 Route::get('/', function (Illuminate\Http\Request $request) {
     $query = Product::visible()
@@ -125,6 +126,12 @@ Route::middleware(['auth'])->prefix('beheer')->group(function () {
     Route::put('/bestellingen/{bestelling}/verzendgegevens', [BestellingenController::class, 'updateVerzendgegevens'])->name('bestellingen.verzendgegevens');
     Route::put('/bestellingen/{bestelling}/tracktrace', [BestellingenController::class, 'updateTrackTrace'])->name('bestellingen.tracktrace');
     Route::get('/bestellingen/{bestelling}/factuur-download', [BestellingenController::class, 'downloadFactuur'])->name('bestellingen.factuur.download');
+
+    Route::get('/facturen', [FacturenController::class, 'index'])->name('beheer.facturen');
+    Route::get('/facturen/aanmaken', [FacturenController::class, 'create'])->name('facturen.aanmaken');
+    Route::post('/facturen', [FacturenController::class, 'store'])->name('facturen.opslaan');
+    Route::get('/facturen/{factuur}/inzien', [FacturenController::class, 'show'])->name('facturen.inzien');
+    Route::get('/facturen/{factuur}/factuur-download', [FacturenController::class, 'pdf'])->name('facturen.factuur.download');
 
     Route::get('/voorraad', [ProductenController::class, 'voorraad'])->name('beheer.voorraad');
     Route::post('/voorraad/bijwerken', [ProductenController::class, 'updateVoorraad'])->name('beheer.voorraad.bijwerken');
