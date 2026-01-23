@@ -129,6 +129,28 @@
       margin-top:2px;
     }
 
+    /* Summary (zoals screenshot) */
+    .summary{
+      width:45%;
+      margin-left:auto;
+      border-collapse:collapse;
+      margin-top:14px;
+    }
+    .summary td{
+      border:none;
+      padding:3px 0;
+      vertical-align:top;
+    }
+    .summary .label{ color:#2b2b2b; }
+    .summary .sep{ width:14px; text-align:center; color:#b08b2e; }
+    .summary .amount{ text-align:right; font-weight:700; color:#b08b2e; }
+    .summary .note{ font-size:9px; color:#6b6b6b; margin-top:1px; }
+    .summary .rowTotal td{
+      padding-top:8px;
+      border-top:1px solid #d9d9d9;
+      font-weight:800;
+    }
+
     /* Footer */
     .footer{
       width:100%;
@@ -152,10 +174,25 @@
 <body>
   @php
     $btwPct = (float) ($btwPercentage ?? ($factuur->btw_percentage ?? 21));
-    $totaal = (float) ($totaalIncl ?? 0);
 
     // Logo: verwacht bijv. $bedrijf['logo'] = public_path('images/logo.png') of volledige url
     $logoSrc = $bedrijf['logo'] ?? null;
+
+    // helpers
+    $money = function($v){
+      $v = (float)($v ?? 0);
+      return number_format($v, 2, ',', '.');
+    };
+
+    // optioneel (vallen terug naar 0 als je ze niet hebt)
+    $kortingBedrag = (float)($kortingBedrag ?? data_get($factuur, 'korting_bedrag') ?? data_get($factuur, 'korting') ?? 0);
+    $verzendKosten = (float)($verzendKosten ?? data_get($factuur, 'verzendkosten') ?? data_get($factuur, 'verzending') ?? data_get($factuur, 'shipping_cost') ?? 0);
+
+    // default: betaald = totaal (zoals screenshot), tenzij je variabele/veld hebt
+    $betaaldDoorKlant = (float)($betaaldDoorKlant ?? data_get($factuur, 'betaald_bedrag') ?? data_get($factuur, 'paid_amount') ?? 0);
+
+    // totals uit regels
+    $itemsTotaal = 0.0;
   @endphp
 
   <!-- TOP HEADER -->
@@ -177,6 +214,33 @@
 
   <div class="hr"></div>
 
+  @php
+    // items totaal berekenen vóór we grote totaal tonen (voor zekerheid)
+    foreach(($factuur->regels ?? []) as $r){
+      $qty = (int)($r->aantal ?? 0);
+      $unit = (float)($r->prijs_incl ?? 0);
+      $lineTotal = (float)($r->totaal_incl ?? ($unit * $qty));
+      $itemsTotaal += $lineTotal;
+    }
+
+    // Subtotaal vóór korting = items na korting + korting (korting als positief bedrag)
+    $subtotaal = max(0, $itemsTotaal + $kortingBedrag);
+    $subtotaalNaKorting = max(0, $itemsTotaal);
+
+    // Totaal incl = items + verzending (of doorgegeven $totaalIncl)
+    $totaal = (float)($totaalIncl ?? ($subtotaalNaKorting + $verzendKosten));
+
+    // BTW inbegrepen over producten + verzending (of doorgegeven $btwBedrag)
+    $btwIncl = (float)($btwBedrag ?? ($btwPct > 0 ? ($totaal - ($totaal / (1 + ($btwPct/100)))) : 0));
+
+    // Betaald/openstaand
+    if($betaaldDoorKlant <= 0){
+      // default gedrag: zoals screenshot (alles betaald)
+      $betaaldDoorKlant = $totaal;
+    }
+    $openstaand = max(0, $totaal - $betaaldDoorKlant);
+  @endphp
+
   <!-- ADDRESSES + TOTAL -->
   <table class="addrWrap">
     <tr>
@@ -197,7 +261,7 @@
       </td>
 
       <td style="width:28%;">
-        <div class="totalBig">&euro;{{ number_format($totaal, 2, ',', '.') }}</div>
+        <div class="totalBig">&euro;{{ $money($totaal) }}</div>
         <div class="totalLabel">TOTAAL</div>
       </td>
     </tr>
@@ -242,26 +306,79 @@
 
           <td class="unit right nowrap">
             @if(!empty($oldUnit))
-              <div class="priceOld">&euro;{{ number_format((float)$oldUnit, 2, ',', '.') }}</div>
+              <div class="priceOld">&euro;{{ $money((float)$oldUnit) }}</div>
             @endif
-            <div>&euro;{{ number_format($unit, 2, ',', '.') }}</div>
+            <div>&euro;{{ $money($unit) }}</div>
             @if(!empty($discountUnit))
-              <div class="discountLine">(Korting &euro;{{ number_format((float)$discountUnit, 2, ',', '.') }})</div>
+              <div class="discountLine">(Korting &euro;{{ $money((float)$discountUnit) }})</div>
             @endif
           </td>
 
           <td class="sub right nowrap">
-            <div>&euro;{{ number_format($lineTotal, 2, ',', '.') }}</div>
+            <div>&euro;{{ $money($lineTotal) }}</div>
             @if(!empty($discountLine))
-              <div class="discountLine">(Korting &euro;{{ number_format((float)$discountLine, 2, ',', '.') }})</div>
+              <div class="discountLine">(Korting &euro;{{ $money((float)$discountLine) }})</div>
             @endif
           </td>
 
-          <td class="vat right nowrap">&euro;{{ number_format($lineVat, 2, ',', '.') }}</td>
-          <td class="tot right nowrap">&euro;{{ number_format($lineTotal, 2, ',', '.') }}</td>
+          <td class="vat right nowrap">&euro;{{ $money($lineVat) }}</td>
+          <td class="tot right nowrap">&euro;{{ $money($lineTotal) }}</td>
         </tr>
       @endforeach
     </tbody>
+  </table>
+
+  <!-- SUMMARY (DIT MISJE) -->
+  <table class="summary">
+    <tr>
+      <td class="label">Subtotaal</td>
+      <td class="sep">:</td>
+      <td class="amount">&euro;{{ $money($subtotaal) }}</td>
+    </tr>
+    <tr>
+      <td class="label">Korting</td>
+      <td class="sep">:</td>
+      <td class="amount">
+        @if($kortingBedrag > 0)
+          -&euro;{{ $money($kortingBedrag) }}
+        @else
+          &euro;{{ $money(0) }}
+        @endif
+      </td>
+    </tr>
+    <tr>
+      <td class="label">Subtotaal na korting</td>
+      <td class="sep">:</td>
+      <td class="amount">&euro;{{ $money($subtotaalNaKorting) }}</td>
+    </tr>
+    <tr>
+      <td class="label">Verzending</td>
+      <td class="sep">:</td>
+      <td class="amount">&euro;{{ $money($verzendKosten) }}</td>
+    </tr>
+    <tr>
+      <td class="label">
+        BTW (Producten + Verzending)
+        <div class="note">(Inbegrepen)</div>
+      </td>
+      <td class="sep">:</td>
+      <td class="amount">&euro;{{ $money($btwIncl) }}</td>
+    </tr>
+    <tr class="rowTotal">
+      <td class="label">Totaal</td>
+      <td class="sep">:</td>
+      <td class="amount">&euro;{{ $money($totaal) }}</td>
+    </tr>
+    <tr>
+      <td class="label">Betaald door klant</td>
+      <td class="sep">:</td>
+      <td class="amount">&euro;{{ $money($betaaldDoorKlant) }}</td>
+    </tr>
+    <tr>
+      <td class="label">Openstaand</td>
+      <td class="sep">:</td>
+      <td class="amount">&euro;{{ $money($openstaand) }}</td>
+    </tr>
   </table>
 
   <!-- FOOTER -->
