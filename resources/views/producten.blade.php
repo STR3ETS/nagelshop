@@ -2,7 +2,25 @@
 
 @section('content')
 <style>[x-cloak]{ display:none !important; }</style>
-@php use Illuminate\Support\Str; @endphp
+
+@php
+  use Illuminate\Support\Str;
+  use Illuminate\Support\Facades\Storage;
+
+  // Helper: maak altijd een correcte publieke URL van $product->foto
+  $productFotoUrl = function ($foto) {
+    if (empty($foto)) return null;
+
+    // Als het al een volledige URL is, direct gebruiken
+    if (Str::startsWith($foto, ['http://', 'https://'])) return $foto;
+
+    // Normaliseer pad: sommige records zijn 'producten/xxx.jpg', anderen 'xxx.jpg'
+    $path = Str::startsWith($foto, 'producten/') ? $foto : 'producten/' . ltrim($foto, '/');
+
+    // Publieke URL via disk('public') => /storage/...
+    return Storage::disk('public')->url($path);
+  };
+@endphp
 
 <!-- Hero -->
 <div class="p-2 h-[350px] md:h-auto">
@@ -109,16 +127,21 @@
     <!-- Cards: producten -->
     <section class="w-full md:w-3/4 grid grid-cols-2 md:grid-cols-3 gap-[1rem] h-fit">
       @forelse($producten as $product)
-        @php $slug = Str::slug($product->naam); @endphp
+        @php
+          $slug = Str::slug($product->naam);
+          $fotoUrl = $productFotoUrl($product->foto ?? null);
+        @endphp
+
         <div class="bg-white p-[1.5rem] rounded-lg flex flex-col h-full border-1 border-gray-100 relative">
           @if (isset($product->voorraad) && (int)$product->voorraad === 0)
             <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
               Uitverkocht
             </span>
           @endif
+
           @if ($product->uitverkoop)
             @if (isset($product->voorraad) && (int)$product->voorraad === 0)
-
+              {{-- niets --}}
             @else
               <span class="absolute top-2 left-2 bg-red-400 text-white text-xs font-semibold px-2 py-1 rounded flex items-center gap-2">
                 <i class="fa-solid fa-tag"></i>
@@ -130,8 +153,8 @@
           <!-- Afbeelding -->
           <a href="{{ route('producten.show', ['product' => $product->id, 'slug' => $slug]) }}"
              class="w-full aspect-square overflow-hidden border border-gray-200 rounded-lg p-[1rem] block">
-            @if($product->foto)
-              <img src="{{ asset('storage/producten/' . $product->foto) }}" alt="{{ $product->naam }}" class="w-full h-full object-cover">
+            @if($fotoUrl)
+              <img src="{{ $fotoUrl }}" alt="{{ $product->naam }}" class="w-full h-full object-cover">
             @else
               <div class="w-full h-full grid place-items-center text-xs text-gray-400">Geen afbeelding</div>
             @endif
