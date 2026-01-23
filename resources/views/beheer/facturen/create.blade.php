@@ -108,8 +108,7 @@
           <table class="w-full border border-gray-200 rounded-lg text-[15px]">
             <thead>
               <tr class="bg-gray-100">
-                <th class="text-left px-4 py-4 font-normal w-[220px]">Product</th>
-                <th class="text-left px-4 py-4 font-normal">Artikel</th>
+                <th class="text-left px-4 py-4 font-normal w-[360px]">Product</th>
                 <th class="text-right px-4 py-4 font-normal w-[110px]">Aantal</th>
                 <th class="text-right px-4 py-4 font-normal w-[160px]">Prijs (incl)</th>
                 <th class="text-right px-4 py-4 font-normal w-[170px]">Totaal (incl)</th>
@@ -123,20 +122,19 @@
                   <td class="px-4 py-4">
                     <select class="w-full border border-gray-300 px-3 py-2 rounded-md"
                             x-model="r.product_id"
+                            :name="`regels[${i}][product_id]`"
                             @change="applyProduct(i)">
-                      <option value="">Selecteer</option>
+                      <option value="">Selecteer een product</option>
                       <template x-for="p in producten" :key="p.id">
                         <option :value="p.id" x-text="p.naam"></option>
                       </template>
                     </select>
-                    <input type="hidden" :name="`regels[${i}][product_id]`" :value="r.product_id || ''">
-                  </td>
 
-                  <td class="px-4 py-4">
-                    <input type="text"
-                           class="w-full border border-gray-300 px-3 py-2 rounded-md"
-                           x-model="r.artikel"
-                           :name="`regels[${i}][artikel]`">
+                    {{-- Hidden: artikel = productnaam (zodat je huidige store-validatie blijft werken) --}}
+                    <input type="hidden" :name="`regels[${i}][artikel]`" :value="r.artikel || ''">
+
+                    {{-- Hidden: prijs_incl (auto uit product, niet wijzigbaar) --}}
+                    <input type="hidden" :name="`regels[${i}][prijs_incl]`" :value="numberForSubmit(r.prijs_incl)">
                   </td>
 
                   <td class="px-4 py-4">
@@ -146,11 +144,8 @@
                            :name="`regels[${i}][aantal]`">
                   </td>
 
-                  <td class="px-4 py-4">
-                    <input type="number" min="0" step="0.01"
-                           class="w-full border border-gray-300 px-3 py-2 rounded-md text-right"
-                           x-model.number="r.prijs_incl"
-                           :name="`regels[${i}][prijs_incl]`">
+                  <td class="px-4 py-4 text-right">
+                    <span class="font-medium" x-text="formatMoney(r.prijs_incl)"></span>
                   </td>
 
                   <td class="px-4 py-4 text-right">
@@ -174,6 +169,12 @@
                 <span class="text-[#191919] opacity-80">Totaal (incl)</span>
                 <span class="font-medium" x-text="formatMoney(totaalIncl())"></span>
               </div>
+
+              <template x-if="hasInvalidRegels()">
+                <p class="text-[12px] text-red-600 mt-2">
+                  Selecteer bij elke regel een product.
+                </p>
+              </template>
             </div>
           </div>
 
@@ -181,7 +182,9 @@
         </div>
 
         <div class="flex justify-end">
-          <button type="submit" class="bg-[#b38867] text-white px-6 py-2 rounded-md hover:bg-[#e652a7] transition">
+          <button type="submit"
+                  :disabled="hasInvalidRegels()"
+                  class="bg-[#b38867] text-white px-6 py-2 rounded-md hover:bg-[#e652a7] transition disabled:opacity-50 disabled:cursor-not-allowed">
             Opslaan + PDF downloaden
           </button>
         </div>
@@ -197,34 +200,61 @@ function factuurForm(producten) {
   const normalize = (p) => ({
     id: p.id,
     naam: p.naam,
-    prijs: Number(p.prijs ?? 0)
+    prijs: Number(p.prijs ?? 0),
   });
 
   return {
     producten: (producten || []).map(normalize),
+
     regels: [
       { key: Date.now() + '-' + Math.random(), product_id: '', artikel: '', aantal: 1, prijs_incl: 0 }
     ],
+
     addRegel() {
       this.regels.push({ key: Date.now() + '-' + Math.random(), product_id: '', artikel: '', aantal: 1, prijs_incl: 0 });
     },
+
     removeRegel(i) {
       this.regels.splice(i, 1);
       if (this.regels.length === 0) this.addRegel();
     },
+
     applyProduct(i) {
       const r = this.regels[i];
       const p = this.producten.find(x => String(x.id) === String(r.product_id));
-      if (!p) return;
-      if (!r.artikel) r.artikel = p.naam;
+
+      // Reset als leeg
+      if (!p) {
+        r.artikel = '';
+        r.prijs_incl = 0;
+        return;
+      }
+
+      // Artikel = productnaam (niet bewerkbaar)
+      r.artikel = p.naam;
+
+      // Prijs = productprijs (niet bewerkbaar)
       r.prijs_incl = Number(p.prijs || 0);
     },
+
     regelTotaal(r) {
       return Number(r.prijs_incl || 0) * Number(r.aantal || 0);
     },
+
     totaalIncl() {
       return this.regels.reduce((sum, r) => sum + this.regelTotaal(r), 0);
     },
+
+    hasInvalidRegels() {
+      return this.regels.some(r => !r.product_id);
+    },
+
+    // Zorg dat we altijd "12.34" posten (numeric validation)
+    numberForSubmit(v) {
+      const n = Number(v || 0);
+      return n.toFixed(2);
+    },
+
     formatMoney(v) {
       const n = Number(v || 0).toFixed(2).replace('.', ',');
       return '€' + n;
