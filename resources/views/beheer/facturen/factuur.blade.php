@@ -4,82 +4,284 @@
   <meta charset="UTF-8">
   <title>Factuur {{ $factuurnummer }}</title>
   <style>
-    body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #222; }
-    .clearfix::after { content: ""; display: table; clear: both; }
-    .header, .footer { width: 100%; }
-    .header-left { float: left; width: 55%; }
-    .header-right { float: right; width: 40%; text-align: right; }
-    h1 { font-size: 22px; margin-bottom: 5px; }
-    h2 { font-size: 14px; margin: 0 0 4px 0; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { border: 1px solid #ddd; padding: 6px 8px; }
-    th { background: #f5f5f5; text-align: left; }
-    .text-right { text-align: right; }
-    .mt-2 { margin-top: 8px; }
-    .mt-4 { margin-top: 16px; }
-    .small { font-size: 10px; color: #666; }
+    @page { margin: 28px 34px; }
+
+    body{
+      font-family: DejaVu Sans, sans-serif;
+      font-size: 11px;
+      color:#1b1b1b;
+      margin:0;
+      padding:0;
+    }
+
+    .muted{ color:#6b6b6b; }
+    .small{ font-size:10px; }
+    .tiny{ font-size:9px; }
+    .right{ text-align:right; }
+    .nowrap{ white-space:nowrap; }
+
+    .hr{
+      border-top:1px solid #d9d9d9;
+      margin:14px 0;
+    }
+
+    /* Header */
+    .top{
+      width:100%;
+      border-collapse:collapse;
+    }
+    .top td{
+      vertical-align:top;
+    }
+    .brand{
+      font-weight:700;
+      letter-spacing:0.2px;
+    }
+    .factuurTitle{
+      font-weight:800;
+      font-size:16px;
+      letter-spacing:0.8px;
+      color:#b08b2e;
+    }
+    .metaLine{
+      margin-top:2px;
+      line-height:1.35;
+    }
+    .logo{
+      width:52px;
+      height:auto;
+      display:block;
+      margin:0 0 8px 0;
+    }
+
+    /* Address + total block */
+    .addrWrap{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:8px;
+    }
+    .addrWrap td{
+      vertical-align:top;
+      padding:0;
+    }
+    .addrBoxTitle{
+      font-weight:700;
+      color:#b08b2e;
+      margin-bottom:6px;
+    }
+    .totalBig{
+      font-size:18px;
+      font-weight:800;
+      text-align:right;
+      margin-top:2px;
+    }
+    .totalLabel{
+      font-size:9px;
+      letter-spacing:1.2px;
+      font-weight:800;
+      color:#b08b2e;
+      text-align:right;
+      margin-top:2px;
+    }
+
+    /* Items table */
+    .items{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:16px;
+    }
+    .items th{
+      background:#b08b2e;
+      color:#ffffff;
+      font-weight:700;
+      padding:9px 8px;
+      font-size:10px;
+      border:1px solid #b08b2e;
+    }
+    .items td{
+      padding:10px 8px;
+      border-bottom:1px solid #e6e6e6;
+      vertical-align:top;
+    }
+    .items .desc{
+      width:40%;
+    }
+    .items .qty{ width:8%; }
+    .items .unit{ width:14%; }
+    .items .sub{ width:14%; }
+    .items .vat{ width:12%; }
+    .items .tot{ width:12%; }
+
+    .descTitle{
+      font-weight:700;
+      margin-bottom:3px;
+    }
+
+    .priceOld{
+      text-decoration: line-through;
+      color:#8a8a8a;
+      font-size:10px;
+      margin-bottom:2px;
+    }
+    .discountLine{
+      color:#6b6b6b;
+      font-size:9px;
+      margin-top:2px;
+    }
+
+    /* Footer */
+    .footer{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:28px;
+    }
+    .footer td{
+      vertical-align:top;
+      padding-top:10px;
+    }
+    .footerTitle{
+      font-weight:700;
+      color:#b08b2e;
+      margin-bottom:6px;
+    }
+
+    /* Page break safety */
+    tr, td, th { page-break-inside: avoid; }
   </style>
 </head>
 <body>
-  <div class="header clearfix">
-    <div class="header-left">
-      <h2>{{ $bedrijf['naam'] }}</h2>
-      <div>{{ $bedrijf['adres'] }}</div>
-      <div>{{ $bedrijf['postcode'] }} {{ $bedrijf['plaats'] }}</div>
-      <div class="small mt-2">
-        KVK: {{ $bedrijf['kvk'] }}<br>
-        BTW: {{ $bedrijf['btw'] }}<br>
-        E-mail: {{ $bedrijf['email'] }}
-      </div>
-    </div>
-    <div class="header-right">
-      <h1>Factuur</h1>
-      <div>Factuurnummer: <strong>{{ $factuurnummer }}</strong></div>
-      <div>Datum: {{ $factuur->datum?->format('d-m-Y') }}</div>
-    </div>
-  </div>
+  @php
+    $btwPct = (float) ($btwPercentage ?? ($factuur->btw_percentage ?? 21));
+    $totaal = (float) ($totaalIncl ?? 0);
 
-  <div class="mt-4">
-    <h2>Factuur aan</h2>
-    <div>{{ $factuur->naam }}</div>
-    @if($factuur->adres)<div>{{ $factuur->adres }}</div>@endif
-    @if($factuur->postcode || $factuur->plaats)<div>{{ $factuur->postcode }} {{ $factuur->plaats }}</div>@endif
-    @if($factuur->email)<div>{{ $factuur->email }}</div>@endif
-  </div>
+    // Logo: verwacht bijv. $bedrijf['logo'] = public_path('images/logo.png') of volledige url
+    $logoSrc = $bedrijf['logo'] ?? null;
+  @endphp
 
-  <table class="mt-4">
+  <!-- TOP HEADER -->
+  <table class="top">
+    <tr>
+      <td style="width:60%;">
+        @if(!empty($logoSrc))
+          <img class="logo" src="{{ $logoSrc }}" alt="Logo">
+        @endif
+        <div class="brand">{{ $bedrijf['naam'] ?? '' }}</div>
+      </td>
+      <td class="right" style="width:40%;">
+        <div class="factuurTitle">FACTUUR</div>
+        <div class="metaLine muted small">Datum van publicatie: {{ $factuur->datum?->format('d/m/Y') }}</div>
+        <div class="metaLine muted small">Factuur#: <strong>#{{ $factuurnummer }}</strong></div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="hr"></div>
+
+  <!-- ADDRESSES + TOTAL -->
+  <table class="addrWrap">
+    <tr>
+      <td style="width:36%; padding-right:18px;">
+        <div class="addrBoxTitle">Factureringsgegevens</div>
+        <div style="font-weight:700;">{{ $factuur->naam }}</div>
+        @if($factuur->adres)<div>{{ $factuur->adres }}</div>@endif
+        @if($factuur->postcode || $factuur->plaats)<div>{{ $factuur->postcode }} {{ $factuur->plaats }}</div>@endif
+        <div>Netherlands</div>
+      </td>
+
+      <td style="width:36%; padding-right:18px;">
+        <div class="addrBoxTitle">Verzendgegevens</div>
+        <div style="font-weight:700;">{{ $factuur->naam }}</div>
+        @if($factuur->adres)<div>{{ $factuur->adres }}</div>@endif
+        @if($factuur->postcode || $factuur->plaats)<div>{{ $factuur->postcode }} {{ $factuur->plaats }}</div>@endif
+        <div>Netherlands</div>
+      </td>
+
+      <td style="width:28%;">
+        <div class="totalBig">&euro;{{ number_format($totaal, 2, ',', '.') }}</div>
+        <div class="totalLabel">TOTAAL</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ITEMS -->
+  <table class="items">
     <thead>
       <tr>
-        <th>Artikel</th>
-        <th class="text-right">Aantal</th>
-        <th class="text-right">Prijs (incl. btw)</th>
-        <th class="text-right">Totaal (incl. btw)</th>
+        <th class="desc" style="text-align:left;">Beschrijving</th>
+        <th class="qty right">Aantal<br>stuks</th>
+        <th class="unit right">Eenheidsprijs</th>
+        <th class="sub right">Subtotaal</th>
+        <th class="vat right">BTW<br><span class="tiny">(Inbegrepen)</span></th>
+        <th class="tot right">Totaal</th>
       </tr>
     </thead>
     <tbody>
       @foreach($factuur->regels as $r)
+        @php
+          $qty = (int) ($r->aantal ?? 0);
+          $unit = (float) ($r->prijs_incl ?? 0);
+          $lineTotal = (float) ($r->totaal_incl ?? ($unit * $qty));
+          $lineEx = $btwPct > 0 ? ($lineTotal / (1 + ($btwPct/100))) : $lineTotal;
+          $lineVat = $lineTotal - $lineEx;
+
+          // Optioneel als je het ooit toevoegt:
+          $sku = $r->sku ?? null;
+          $oldUnit = $r->prijs_orig_incl ?? null;        // bijv. oude prijs
+          $discountUnit = $r->korting_per_stuk ?? null;  // bijv. korting per stuk
+          $discountLine = $r->korting_totaal ?? null;    // bijv. korting totaal
+        @endphp
         <tr>
-          <td>{{ $r->artikel }}</td>
-          <td class="text-right">{{ $r->aantal }}</td>
-          <td class="text-right">&euro;{{ number_format($r->prijs_incl, 2, ',', '.') }}</td>
-          <td class="text-right">&euro;{{ number_format($r->totaal_incl, 2, ',', '.') }}</td>
+          <td class="desc">
+            <div class="descTitle">{{ $r->artikel }}</div>
+            @if(!empty($sku))
+              <div class="tiny muted">SKU: {{ $sku }}</div>
+            @endif
+          </td>
+
+          <td class="qty right nowrap">{{ $qty }}</td>
+
+          <td class="unit right nowrap">
+            @if(!empty($oldUnit))
+              <div class="priceOld">&euro;{{ number_format((float)$oldUnit, 2, ',', '.') }}</div>
+            @endif
+            <div>&euro;{{ number_format($unit, 2, ',', '.') }}</div>
+            @if(!empty($discountUnit))
+              <div class="discountLine">(Korting &euro;{{ number_format((float)$discountUnit, 2, ',', '.') }})</div>
+            @endif
+          </td>
+
+          <td class="sub right nowrap">
+            <div>&euro;{{ number_format($lineTotal, 2, ',', '.') }}</div>
+            @if(!empty($discountLine))
+              <div class="discountLine">(Korting &euro;{{ number_format((float)$discountLine, 2, ',', '.') }})</div>
+            @endif
+          </td>
+
+          <td class="vat right nowrap">&euro;{{ number_format($lineVat, 2, ',', '.') }}</td>
+          <td class="tot right nowrap">&euro;{{ number_format($lineTotal, 2, ',', '.') }}</td>
         </tr>
       @endforeach
     </tbody>
   </table>
 
-  <table class="mt-4" style="width: 50%; margin-left: auto;">
+  <!-- FOOTER -->
+  <table class="footer">
     <tr>
-      <td>Subtotaal (excl. btw)</td>
-      <td class="text-right">&euro;{{ number_format($subtotaalEx, 2, ',', '.') }}</td>
-    </tr>
-    <tr>
-      <td>BTW {{ $btwPercentage }}%</td>
-      <td class="text-right">&euro;{{ number_format($btwBedrag, 2, ',', '.') }}</td>
-    </tr>
-    <tr>
-      <th>Totaal (incl. btw)</th>
-      <th class="text-right">&euro;{{ number_format($totaalIncl, 2, ',', '.') }}</th>
+      <td style="width:60%;">
+        <div class="footerTitle">Bedrijf</div>
+        <div style="font-weight:700;">{{ $bedrijf['naam'] ?? '' }}</div>
+        @if(!empty($bedrijf['adres']))<div>{{ $bedrijf['adres'] }}</div>@endif
+        @if(!empty($bedrijf['postcode']) || !empty($bedrijf['plaats']))<div>{{ $bedrijf['postcode'] ?? '' }} {{ $bedrijf['plaats'] ?? '' }}</div>@endif
+        @if(!empty($bedrijf['kvk']))<div class="small">KVK: {{ $bedrijf['kvk'] }}</div>@endif
+        @if(!empty($bedrijf['btw']))<div class="small">BTW - {{ $bedrijf['btw'] }}</div>@endif
+        @if(!empty($bedrijf['iban']))<div class="small">IBAN: {{ $bedrijf['iban'] }}</div>@endif
+      </td>
+      <td style="width:40%;">
+        <div class="footerTitle">Contact</div>
+        @if(!empty($bedrijf['email']))<div>{{ $bedrijf['email'] }}</div>@endif
+        @if(!empty($bedrijf['website']))<div>{{ $bedrijf['website'] }}</div>@endif
+        @if(!empty($bedrijf['tel']))<div>{{ $bedrijf['tel'] }}</div>@endif
+      </td>
     </tr>
   </table>
 </body>
