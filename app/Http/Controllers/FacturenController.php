@@ -18,7 +18,6 @@ class FacturenController extends Controller
 
     public function create()
     {
-        // Pas aan als jouw tabel anders heet:
         $producten = \App\Models\Product::select('id', 'naam', 'prijs')->orderBy('naam')->get();
         return view('beheer.facturen.create', compact('producten'));
     }
@@ -34,15 +33,18 @@ class FacturenController extends Controller
             'plaats' => ['nullable', 'string', 'max:100'],
             'btw_percentage' => ['required', 'integer', 'min:0', 'max:100'],
 
+            // ✅ NIEUW
+            'verzendkosten_incl' => ['nullable', 'numeric', 'min:0'],
+
             'regels' => ['required', 'array', 'min:1'],
             'regels.*.product_id' => ['nullable', 'integer'],
             'regels.*.artikel' => ['required', 'string', 'max:255'],
             'regels.*.aantal' => ['required', 'integer', 'min:1'],
             'regels.*.prijs_incl' => ['required', 'numeric', 'min:0'],
         ]);
-        // Laravel array validation via dot + * is standaard. :contentReference[oaicite:3]{index=3}
 
-        $btwPercentage = (int)$data['btw_percentage'];
+        $btwPercentage = (int) $data['btw_percentage'];
+        $verzendkostenIncl = round((float) ($data['verzendkosten_incl'] ?? 0), 2);
 
         $factuur = new Factuur();
         $factuur->factuurnummer = $numbers->next('INV', 6);
@@ -55,31 +57,39 @@ class FacturenController extends Controller
         $factuur->plaats = $data['plaats'] ?? null;
         $factuur->btw_percentage = $btwPercentage;
 
+        // ✅ NIEUW
+        $factuur->verzendkosten_incl = $verzendkostenIncl;
+
         $factuur->save();
 
-        $totaalIncl = 0;
+        $totaalInclProducten = 0;
 
         foreach ($data['regels'] as $regel) {
-            $regelTotaal = round(((float)$regel['prijs_incl']) * (int)$regel['aantal'], 2);
-            $totaalIncl += $regelTotaal;
+            $regelTotaal = round(((float) $regel['prijs_incl']) * (int) $regel['aantal'], 2);
+            $totaalInclProducten += $regelTotaal;
 
             FactuurRegel::create([
                 'factuur_id' => $factuur->id,
                 'product_id' => $regel['product_id'] ?? null,
                 'artikel' => $regel['artikel'],
-                'aantal' => (int)$regel['aantal'],
-                'prijs_incl' => round((float)$regel['prijs_incl'], 2),
+                'aantal' => (int) $regel['aantal'],
+                'prijs_incl' => round((float) $regel['prijs_incl'], 2),
                 'totaal_incl' => $regelTotaal,
             ]);
         }
 
+        // Eindtotaal incl = producten + verzending
+        $totaalIncl = round($totaalInclProducten + $verzendkostenIncl, 2);
+
+        // BTW berekenen over totaal incl
         $subtotaalEx = round($totaalIncl / (1 + $btwPercentage / 100), 2);
         $btwBedrag   = round($totaalIncl - $subtotaalEx, 2);
 
         $factuur->update([
-            'subtotaal_ex' => $subtotaalEx,
-            'btw_bedrag' => $btwBedrag,
-            'totaal_incl' => round($totaalIncl, 2),
+            'subtotaal_ex'       => $subtotaalEx,
+            'btw_bedrag'         => $btwBedrag,
+            'totaal_incl'        => $totaalIncl,
+            'verzendkosten_incl' => $verzendkostenIncl,
         ]);
 
         return redirect()->route('facturen.factuur.download', $factuur);
@@ -114,11 +124,7 @@ class FacturenController extends Controller
 
     public function destroy(Factuur $factuur)
     {
-        // Als je foreign keys met cascade hebt, is dit al genoeg.
-        // Anders: eerst regels verwijderen.
         $factuur->load('regels');
-
-        // Veilig: eerst regels weg, dan factuur
         $factuur->regels()->delete();
         $factuur->delete();
 

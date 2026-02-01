@@ -12,7 +12,7 @@ class Factuur extends Model
     protected $fillable = [
         'factuurnummer','datum',
         'naam','email','adres','postcode','plaats',
-        'btw_percentage','subtotaal_ex','btw_bedrag','totaal_incl'
+        'btw_percentage','subtotaal_ex','btw_bedrag','totaal_incl','verzendkosten_incl'
     ];
 
     protected $casts = [
