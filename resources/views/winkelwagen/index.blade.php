@@ -1,6 +1,5 @@
 @extends('layouts.pages')
 @section('content')
-@include('partials.product-foto-url')
 <div class="p-2 h-[350px] md:h-auto">
     <div class="w-full h-full md:h-[350px] overflow-y-hidden rounded-3xl flex items-end relative bg-cover bg-center bg-[url(https://i.imgur.com/UA8Iztb.jpeg)]">
         <div class="w-full h-full absolute z-[1] bg-[#00000050]"></div>
@@ -28,10 +27,8 @@
                             <tr class="border-t border-gray-100">
                                 <td class="px-4 py-4">
                                     <div class="flex items-center gap-4">
-                                        @php $fotoUrl = $productFotoUrl($item['foto'] ?? null); @endphp
-
-                                        @if($fotoUrl)
-                                        <img src="{{ $fotoUrl }}" class="w-18 h-18 object-cover rounded" alt="{{ $item['naam'] }}">
+                                        @if(!empty($item['foto']))
+                                            <img src="{{ asset('storage/producten/' . $item['foto']) }}" class="w-18 h-18 object-cover rounded" alt="{{ $item['naam'] }}">
                                         @endif
                                         <div class="flex flex-col">
                                             <span class="text-[16px] font-medium max-w-[300px] leading-[1] mb-2">{{ $item['naam'] }}</span>

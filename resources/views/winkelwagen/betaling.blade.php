@@ -1,6 +1,5 @@
 @extends('layouts.pages')
 @section('content')
-@include('partials.product-foto-url')
 <div class="p-2 h-[350px] md:h-auto">
     <div class="w-full h-full md:h-[350px] overflow-y-hidden rounded-3xl flex items-end relative bg-cover bg-center bg-[url(https://i.imgur.com/UA8Iztb.jpeg)]">
         <div class="w-full h-full absolute z-[1] bg-[#00000050]"></div>
@@ -46,10 +45,8 @@
                         @foreach($cart as $item)
                             <li class="py-3 grid grid-cols-12 items-center gap-4">
                                 <div class="col-span-6 flex items-center gap-4">
-                                    @php $fotoUrl = $productFotoUrl($item['foto'] ?? null); @endphp
-
-                                    @if($fotoUrl)
-                                    <img src="{{ $fotoUrl }}" class="w-12 h-12 object-cover rounded" alt="{{ $item['naam'] }}">
+                                    @if($item['foto'])
+                                        <img src="{{ asset('storage/producten/' . $item['foto']) }}" class="w-12 h-12 object-cover rounded" alt="{{ $item['naam'] }}">
                                     @endif
                                     <span class="font-medium max-w-[200px]">{{ $item['naam'] }}</span>
                                 </div>
