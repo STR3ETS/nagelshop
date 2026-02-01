@@ -132,6 +132,7 @@ Route::middleware(['auth'])->prefix('beheer')->group(function () {
     Route::post('/facturen', [FacturenController::class, 'store'])->name('facturen.opslaan');
     Route::get('/facturen/{factuur}/inzien', [FacturenController::class, 'show'])->name('facturen.inzien');
     Route::get('/facturen/{factuur}/factuur-download', [FacturenController::class, 'pdf'])->name('facturen.factuur.download');
+    Route::delete('/facturen/{factuur}', [FacturenController::class, 'destroy'])->name('facturen.verwijderen');
 
     Route::get('/voorraad', [ProductenController::class, 'voorraad'])->name('beheer.voorraad');
     Route::post('/voorraad/bijwerken', [ProductenController::class, 'updateVoorraad'])->name('beheer.voorraad.bijwerken');

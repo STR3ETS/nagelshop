@@ -111,4 +111,17 @@ class FacturenController extends Controller
 
         return $pdf->download('factuur-' . $factuur->factuurnummer . '.pdf');
     }
+
+    public function destroy(Factuur $factuur)
+    {
+        // Als je foreign keys met cascade hebt, is dit al genoeg.
+        // Anders: eerst regels verwijderen.
+        $factuur->load('regels');
+
+        // Veilig: eerst regels weg, dan factuur
+        $factuur->regels()->delete();
+        $factuur->delete();
+
+        return redirect()->route('beheer.facturen')->with('success', 'Factuur verwijderd.');
+    }
 }

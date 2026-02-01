@@ -81,12 +81,21 @@
               </td>
 
               <td class="px-4 py-4 text-right align-middle">
-                <div class="flex justify-end items-center gap-[1rem]">
-                  <a href="{{ route('facturen.factuur.download', $factuur) }}"
-                     class="text-gray-500 hover:underline">
-                    PDF
-                  </a>
-                </div>
+              <div class="flex justify-end items-center gap-[1rem]">
+                <a href="{{ route('facturen.factuur.download', $factuur) }}"
+                  class="text-gray-500 hover:underline">
+                  PDF
+                </a>
+
+                <form method="POST" action="{{ route('facturen.verwijderen', $factuur) }}"
+                      onsubmit="return confirm('Weet je zeker dat je deze factuur wilt verwijderen?');">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="text-red-600 hover:underline cursor-pointer">
+                    Verwijderen
+                  </button>
+                </form>
+              </div>
               </td>
             </tr>
           @empty
