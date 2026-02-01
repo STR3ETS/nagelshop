@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Bestelling;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\InvoiceNumberService;
 
 class BestellingenController extends Controller
 {
