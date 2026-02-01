@@ -19,6 +19,7 @@ class Bestelling extends Model
         'totaalprijs',
         'track_trace',
         'status',
+        'factuurnummer',
         'levermethode',
     ];
 

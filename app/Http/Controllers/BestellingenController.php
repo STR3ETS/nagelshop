@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Bestelling;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\InvoiceNumberService;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 
 class BestellingenController extends Controller
 {
@@ -59,7 +61,7 @@ class BestellingenController extends Controller
     public function updateStatus(Request $request, Bestelling $bestelling)
     {
         $validated = $request->validate([
-            'status' => ['required', \Illuminate\Validation\Rule::in([
+            'status' => ['required', Rule::in([
                 'open', 'onderweg', 'opgehaald', 'afgerond'
             ])],
         ]);
@@ -70,7 +72,7 @@ class BestellingenController extends Controller
 
         return back()->with('success', 'Status succesvol bijgewerkt');
     }
-    
+
     public function updateTrackTrace(Request $request, Bestelling $bestelling)
     {
         $request->validate([
@@ -79,7 +81,7 @@ class BestellingenController extends Controller
 
         $update = ['track_trace' => $request->track_trace];
 
-        // Alleen auto-naar onderweg als hij nog 'nieuw' is
+        // Alleen auto-naar onderweg als hij nog 'open' is
         if (($bestelling->status ?? 'open') === 'open') {
             $update['status'] = 'onderweg';
         }
@@ -91,7 +93,12 @@ class BestellingenController extends Controller
 
     public function downloadFactuur(Bestelling $bestelling)
     {
-        // Bedrijfsgegevens – pas aan naar je eigen data / Instellingen-model
+        // Guard: als kolom nog niet bestaat, krijg je meteen duidelijke feedback
+        if (!Schema::hasColumn('bestellingen', 'factuurnummer')) {
+            abort(500, "Kolom 'factuurnummer' ontbreekt in tabel 'bestellingen'. Draai eerst je migratie.");
+        }
+
+        // Bedrijfsgegevens – eventueel later uit instellingen halen
         $bedrijf = [
             'naam'     => 'Deluxe Nail Shop',
             'adres'    => 'Lentemorgen 5 (Kamer 5.36)',
@@ -115,6 +122,12 @@ class BestellingenController extends Controller
 
             if (empty($locked->factuurnummer)) {
                 $locked->factuurnummer = app(InvoiceNumberService::class)->next('INV', 6); // INV-000001
+
+                // Optioneel: als je kolom factuur_datum hebt
+                if (Schema::hasColumn('bestellingen', 'factuur_datum')) {
+                    $locked->factuur_datum = now();
+                }
+
                 $locked->save();
             }
 
