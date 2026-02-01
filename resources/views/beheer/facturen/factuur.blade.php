@@ -175,7 +175,7 @@
   @php
     $btwPct = (float) ($btwPercentage ?? ($factuur->btw_percentage ?? 21));
 
-    // Logo: verwacht bijv. $bedrijf['logo'] = public_path('images/logo.png') of volledige url
+    // Logo
     $logoSrc = $bedrijf['logo'] ?? null;
 
     // helpers
@@ -184,11 +184,24 @@
       return number_format($v, 2, ',', '.');
     };
 
-    // optioneel (vallen terug naar 0 als je ze niet hebt)
-    $kortingBedrag = (float)($kortingBedrag ?? data_get($factuur, 'korting_bedrag') ?? data_get($factuur, 'korting') ?? 0);
-    $verzendKosten = (float)($verzendKosten ?? data_get($factuur, 'verzendkosten') ?? data_get($factuur, 'verzending') ?? data_get($factuur, 'shipping_cost') ?? 0);
+    // ✅ PAK DE JUISTE VELDEN UIT FACTUUR
+    // korting + verzending zoals we opslaan in jouw FacturenController/store:
+    $kortingBedrag = (float) (
+      $kortingBedrag
+      ?? data_get($factuur, 'korting_bedrag')
+      ?? 0
+    );
 
-    // default: betaald = totaal (zoals screenshot), tenzij je variabele/veld hebt
+    $kortingType = (string) (data_get($factuur, 'korting_type') ?? 'none');      // none|percent|amount
+    $kortingWaarde = (float) (data_get($factuur, 'korting_waarde') ?? 0);
+
+    $verzendKosten = (float) (
+      $verzendKosten
+      ?? data_get($factuur, 'verzendkosten_incl')
+      ?? 0
+    );
+
+    // default: betaald = totaal
     $betaaldDoorKlant = (float)($betaaldDoorKlant ?? data_get($factuur, 'betaald_bedrag') ?? data_get($factuur, 'paid_amount') ?? 0);
 
     // totals uit regels
@@ -206,7 +219,14 @@
       </td>
       <td class="right" style="width:40%;">
         <div class="factuurTitle">FACTUUR</div>
-        <div class="metaLine muted small">Datum van publicatie: {{ $factuur->datum?->format('d/m/Y') }}</div>
+        <div class="metaLine muted small">
+          Datum van publicatie:
+          @if(!empty($factuur->datum))
+            {{ \Carbon\Carbon::parse($factuur->datum)->format('d/m/Y') }}
+          @else
+            -
+          @endif
+        </div>
         <div class="metaLine muted small">Factuur#: <strong>#{{ $factuurnummer }}</strong></div>
       </td>
     </tr>
@@ -215,7 +235,7 @@
   <div class="hr"></div>
 
   @php
-    // items totaal berekenen vóór we grote totaal tonen (voor zekerheid)
+    // items totaal berekenen
     foreach(($factuur->regels ?? []) as $r){
       $qty = (int)($r->aantal ?? 0);
       $unit = (float)($r->prijs_incl ?? 0);
@@ -223,22 +243,34 @@
       $itemsTotaal += $lineTotal;
     }
 
-    // Subtotaal vóór korting = items na korting + korting (korting als positief bedrag)
-    $subtotaal = max(0, $itemsTotaal + $kortingBedrag);
-    $subtotaalNaKorting = max(0, $itemsTotaal);
+    // ✅ Subtotaal = producten (incl)
+    $subtotaal = max(0, $itemsTotaal);
 
-    // Totaal incl = items + verzending (of doorgegeven $totaalIncl)
-    $totaal = (float)($totaalIncl ?? ($subtotaalNaKorting + $verzendKosten));
+    // ✅ Subtotaal na korting = producten - korting (we tonen korting hier, totaal klopt alsnog met eindtotaal)
+    $subtotaalNaKorting = max(0, $subtotaal - $kortingBedrag);
 
-    // BTW inbegrepen over producten + verzending (of doorgegeven $btwBedrag)
+    // ✅ Eindtotaal incl = producten + verzending - korting
+    $totaalVoorKorting = max(0, $subtotaal + $verzendKosten);
+    $totaalCalc = max(0, $totaalVoorKorting - $kortingBedrag);
+
+    // Als controller 'totaalIncl' meegeeft, pak die (bron van waarheid)
+    $totaal = (float)($totaalIncl ?? data_get($factuur,'totaal_incl') ?? $totaalCalc);
+
+    // BTW inbegrepen over totaal (na korting)
     $btwIncl = (float)($btwBedrag ?? ($btwPct > 0 ? ($totaal - ($totaal / (1 + ($btwPct/100)))) : 0));
 
-    // Betaald/openstaand
+    // betaald/openstaand
     if($betaaldDoorKlant <= 0){
-      // default gedrag: zoals screenshot (alles betaald)
       $betaaldDoorKlant = $totaal;
     }
     $openstaand = max(0, $totaal - $betaaldDoorKlant);
+
+    $kortingLabelNote = '';
+    if($kortingType === 'percent' && $kortingWaarde > 0){
+      $kortingLabelNote = rtrim(rtrim(number_format($kortingWaarde, 2, ',', '.'), '0'), ',') . '%';
+    } elseif($kortingType === 'amount' && $kortingWaarde > 0){
+      $kortingLabelNote = '€' . $money($kortingWaarde);
+    }
   @endphp
 
   <!-- ADDRESSES + TOTAL -->
@@ -288,11 +320,10 @@
           $lineEx = $btwPct > 0 ? ($lineTotal / (1 + ($btwPct/100))) : $lineTotal;
           $lineVat = $lineTotal - $lineEx;
 
-          // Optioneel als je het ooit toevoegt:
           $sku = $r->sku ?? null;
-          $oldUnit = $r->prijs_orig_incl ?? null;        // bijv. oude prijs
-          $discountUnit = $r->korting_per_stuk ?? null;  // bijv. korting per stuk
-          $discountLine = $r->korting_totaal ?? null;    // bijv. korting totaal
+          $oldUnit = $r->prijs_orig_incl ?? null;
+          $discountUnit = $r->korting_per_stuk ?? null;
+          $discountLine = $r->korting_totaal ?? null;
         @endphp
         <tr>
           <td class="desc">
@@ -328,15 +359,21 @@
     </tbody>
   </table>
 
-  <!-- SUMMARY (DIT MISJE) -->
+  <!-- SUMMARY -->
   <table class="summary">
     <tr>
       <td class="label">Subtotaal</td>
       <td class="sep">:</td>
       <td class="amount">&euro;{{ $money($subtotaal) }}</td>
     </tr>
+
     <tr>
-      <td class="label">Korting</td>
+      <td class="label">
+        Korting
+        @if(!empty($kortingLabelNote))
+          <div class="note">({{ $kortingLabelNote }})</div>
+        @endif
+      </td>
       <td class="sep">:</td>
       <td class="amount">
         @if($kortingBedrag > 0)
@@ -346,16 +383,19 @@
         @endif
       </td>
     </tr>
+
     <tr>
       <td class="label">Subtotaal na korting</td>
       <td class="sep">:</td>
       <td class="amount">&euro;{{ $money($subtotaalNaKorting) }}</td>
     </tr>
+
     <tr>
       <td class="label">Verzending</td>
       <td class="sep">:</td>
       <td class="amount">&euro;{{ $money($verzendKosten) }}</td>
     </tr>
+
     <tr>
       <td class="label">
         BTW (Producten + Verzending)
@@ -364,16 +404,19 @@
       <td class="sep">:</td>
       <td class="amount">&euro;{{ $money($btwIncl) }}</td>
     </tr>
+
     <tr class="rowTotal">
       <td class="label">Totaal</td>
       <td class="sep">:</td>
       <td class="amount">&euro;{{ $money($totaal) }}</td>
     </tr>
+
     <tr>
       <td class="label">Betaald door klant</td>
       <td class="sep">:</td>
       <td class="amount">&euro;{{ $money($betaaldDoorKlant) }}</td>
     </tr>
+
     <tr>
       <td class="label">Openstaand</td>
       <td class="sep">:</td>

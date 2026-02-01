@@ -155,6 +155,8 @@ class FacturenController extends Controller
             'btwBedrag'     => $factuur->btw_bedrag,
             'totaalIncl'    => $factuur->totaal_incl,
             'factuurnummer' => $factuur->factuurnummer,
+            'kortingBedrag' => $factuur->korting_bedrag,
+            'verzendKosten' => $factuur->verzendkosten_incl,
         ]);
 
         return $pdf->download('factuur-' . $factuur->factuurnummer . '.pdf');
