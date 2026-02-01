@@ -136,7 +136,7 @@ $subUrl = function (string $naam) use ($sub) {
                 <div class="w-full h-auto py-[0.5rem] bg-[#b38867]/75 backdrop-blur border border-[#a0795c] rounded-3xl">
                     <div class="max-w-[1100px] mx-auto h-full flex items-center justify-center">
                         <p class="text-white font-regular text-sm flex flex-col md:flex-row items-center">
-                            Verzendkosten: Nederland €6,35 | België €9,50 <span class="text-xs p-[0.35rem] w-fit bg-[#947054] rounded-sm ml-4">Gratis verzending vanaf: NL 50,- / BE 75,-</span>
+                            Verzendkosten: Nederland €6,35 | België €12,35 <span class="text-xs p-[0.35rem] w-fit bg-[#947054] rounded-sm ml-4">Gratis verzending vanaf: NL 75,- / BE 100,-</span>
                         <p>
                     </div>
                 </div>
