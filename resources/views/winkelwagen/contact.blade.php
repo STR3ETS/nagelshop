@@ -101,7 +101,7 @@
                             >
                             Verzenden
                         </label>
-                        <label class="flex items-center gap-2 text-[14px]">
+                        <!-- <label class="flex items-center gap-2 text-[14px]">
                             <input
                                 type="radio"
                                 x-model="levermethode"
@@ -111,7 +111,7 @@
                                 class="accent-black"
                             >
                             Ophalen
-                        </label>
+                        </label> -->
                     </div>
                     @error('levermethode')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
