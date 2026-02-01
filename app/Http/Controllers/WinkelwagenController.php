@@ -8,11 +8,62 @@ use App\Models\Product;
 use App\Models\Bestelling;
 use App\Models\Kortingscode;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Mollie\Laravel\Facades\Mollie;
 use Illuminate\Validation\Rule;
 
 class WinkelwagenController extends Controller
 {
+    // -------------------------------
+    // Helpers: foto URL normaliseren (zoals je productenpagina)
+    // -------------------------------
+    private function productFotoUrl(?string $foto): ?string
+    {
+        if (empty($foto)) return null;
+
+        // Als het al een volledige URL is
+        if (Str::startsWith($foto, ['http://', 'https://'])) return $foto;
+
+        // Als het al een /storage pad is
+        if (Str::startsWith($foto, ['/storage/'])) return $foto;
+        if (Str::startsWith($foto, 'storage/')) return '/' . $foto;
+
+        // Normaliseer pad: soms 'producten/xxx.jpg', soms 'xxx.jpg'
+        $path = Str::startsWith($foto, 'producten/')
+            ? $foto
+            : 'producten/' . ltrim($foto, '/');
+
+        // Publieke URL via disk('public') => /storage/...
+        return Storage::disk('public')->url($path);
+    }
+
+    /**
+     * Zorg dat elk cart-item een geldige foto_url heeft.
+     * Extra robuust: foto opnieuw uit products table halen op basis van ID.
+     */
+    private function normalizeCart(array $cart): array
+    {
+        if (empty($cart)) return $cart;
+
+        $ids = array_keys($cart);
+
+        $producten = Product::whereIn('id', $ids)->get()->keyBy('id');
+
+        foreach ($cart as $id => $item) {
+            $product = $producten[$id] ?? null;
+
+            // Als product bestaat: pak altijd foto uit products table
+            if ($product) {
+                $cart[$id]['foto'] = $product->foto;
+            }
+
+            // Vul foto_url (of refresh)
+            $cart[$id]['foto_url'] = $this->productFotoUrl($cart[$id]['foto'] ?? null);
+        }
+
+        return $cart;
+    }
+
     // -------------------------------
     // WINKELWAGEN
     // -------------------------------
@@ -22,12 +73,17 @@ class WinkelwagenController extends Controller
 
         if (isset($cart[$product->id])) {
             $cart[$product->id]['aantal']++;
+
+            // Zorg dat foto_url altijd bestaat (ook bij oude sessies)
+            $cart[$product->id]['foto']     = $cart[$product->id]['foto'] ?? $product->foto;
+            $cart[$product->id]['foto_url'] = $cart[$product->id]['foto_url'] ?? $this->productFotoUrl($product->foto);
         } else {
             $cart[$product->id] = [
-                'naam'   => $product->naam,
-                'prijs'  => $product->prijs,
-                'aantal' => 1,
-                'foto'   => $product->foto,
+                'naam'     => $product->naam,
+                'prijs'    => $product->prijs,
+                'aantal'   => 1,
+                'foto'     => $product->foto,                      // uit products table
+                'foto_url' => $this->productFotoUrl($product->foto) // ✅ juiste URL voor checkout/winkelwagen
             ];
         }
 
@@ -39,6 +95,9 @@ class WinkelwagenController extends Controller
     public function index()
     {
         $cart = session()->get('cart', []);
+        $cart = $this->normalizeCart($cart);
+        session()->put('cart', $cart);
+
         return view('winkelwagen.index', compact('cart'));
     }
 
@@ -72,6 +131,9 @@ class WinkelwagenController extends Controller
     public function toonContactForm()
     {
         $cart = session()->get('cart', []);
+        $cart = $this->normalizeCart($cart);
+        session()->put('cart', $cart);
+
         $gegevens = session('checkout.gegevens', []);
 
         return view('winkelwagen.contact', compact('cart', 'gegevens'));
@@ -144,6 +206,9 @@ class WinkelwagenController extends Controller
     public function toonBetaling()
     {
         $cart = session()->get('cart', []);
+        $cart = $this->normalizeCart($cart);
+        session()->put('cart', $cart);
+
         $gegevens = session('checkout.gegevens', []);
 
         return view('winkelwagen.betaling', compact('cart', 'gegevens'));
@@ -349,8 +414,6 @@ class WinkelwagenController extends Controller
     {
         $payment = Mollie::api()->payments->get($request->id);
 
-        // Als je dit later wilt gebruiken, moet je eerst een bestelling record
-        // aanmaken vóór de betaling en hier opzoeken via payment_id.
         return response()->json(['status' => 'ok']);
     }
 

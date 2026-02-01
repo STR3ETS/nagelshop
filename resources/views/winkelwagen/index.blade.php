@@ -27,8 +27,8 @@
                             <tr class="border-t border-gray-100">
                                 <td class="px-4 py-4">
                                     <div class="flex items-center gap-4">
-                                        @if(!empty($item['foto']))
-                                            <img src="{{ asset('storage/producten/' . $item['foto']) }}" class="w-18 h-18 object-cover rounded" alt="{{ $item['naam'] }}">
+                                        @if(!empty($item['foto_url']))
+                                            <img src="{{ $item['foto_url'] }}" class="w-18 h-18 object-cover rounded" alt="{{ $item['naam'] }}">
                                         @endif
                                         <div class="flex flex-col">
                                             <span class="text-[16px] font-medium max-w-[300px] leading-[1] mb-2">{{ $item['naam'] }}</span>

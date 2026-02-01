@@ -45,8 +45,8 @@
                         @foreach($cart as $item)
                             <li class="py-3 grid grid-cols-12 items-center gap-4">
                                 <div class="col-span-6 flex items-center gap-4">
-                                    @if($item['foto'])
-                                        <img src="{{ asset('storage/producten/' . $item['foto']) }}" class="w-12 h-12 object-cover rounded" alt="{{ $item['naam'] }}">
+                                    @if(!empty($item['foto_url']))
+                                        <img src="{{ $item['foto_url'] }}" class="w-12 h-12 object-cover rounded" alt="{{ $item['naam'] }}">
                                     @endif
                                     <span class="font-medium max-w-[200px]">{{ $item['naam'] }}</span>
                                 </div>
