@@ -86,13 +86,6 @@
                      class="text-gray-500 hover:underline">
                     PDF
                   </a>
-
-                  @if(\Illuminate\Support\Facades\Route::has('facturen.inzien'))
-                    <a href="{{ route('facturen.inzien', $factuur) }}"
-                       class="text-orange-500 hover:underline">
-                      Inzien
-                    </a>
-                  @endif
                 </div>
               </td>
             </tr>
