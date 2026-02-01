@@ -52,7 +52,7 @@
                 // BE: 1234 (exact 4 cijfers)
                 $isBE = !$isNL && (bool) preg_match('/^\d{4}$/', $pc);
 
-                $tarief = $isBE ? 9.50 : 6.35; // default NL indien onherkenbaar
+                $tarief = $isBE ? 12.35 : 6.35; // default NL indien onherkenbaar
                 // Gratis boven drempel NA korting
                 if ($totaalNaKorting >= $gratisVerzendingDrempel) {
                     $verzendkosten = 0.0;

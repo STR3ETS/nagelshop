@@ -112,9 +112,9 @@
                         $isNL = $isNL || (!$isBE);
 
                         $tariefNL  = 6.35;
-                        $tariefBE  = 9.50;
-                        $drempelNL = 50.00;
-                        $drempelBE = 75.00;
+                        $tariefBE  = 12.35;
+                        $drempelNL = 75.00;
+                        $drempelBE = 100.00;
 
                         $tarief  = $isBE ? $tariefBE : $tariefNL;
                         $drempel = $isBE ? $drempelBE : $drempelNL;
