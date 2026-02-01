@@ -7,6 +7,7 @@ use App\Models\FactuurRegel;
 use App\Services\InvoiceNumberService;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Validation\Rule;
 
 class FacturenController extends Controller
 {
@@ -33,8 +34,12 @@ class FacturenController extends Controller
             'plaats' => ['nullable', 'string', 'max:100'],
             'btw_percentage' => ['required', 'integer', 'min:0', 'max:100'],
 
-            // ✅ NIEUW
+            // verzendkosten
             'verzendkosten_incl' => ['nullable', 'numeric', 'min:0'],
+
+            // ✅ korting
+            'korting_type' => ['nullable', 'string', Rule::in(['none', 'percent', 'amount'])],
+            'korting_waarde' => ['nullable', 'numeric', 'min:0'],
 
             'regels' => ['required', 'array', 'min:1'],
             'regels.*.product_id' => ['nullable', 'integer'],
@@ -45,6 +50,19 @@ class FacturenController extends Controller
 
         $btwPercentage = (int) $data['btw_percentage'];
         $verzendkostenIncl = round((float) ($data['verzendkosten_incl'] ?? 0), 2);
+
+        $kortingType = (string) ($data['korting_type'] ?? 'none');
+        $kortingWaarde = round((float) ($data['korting_waarde'] ?? 0), 2);
+
+        // percent extra begrenzen
+        if ($kortingType === 'percent') {
+            $kortingWaarde = max(0, min(100, $kortingWaarde));
+        } elseif ($kortingType === 'amount') {
+            $kortingWaarde = max(0, $kortingWaarde);
+        } else {
+            $kortingType = 'none';
+            $kortingWaarde = 0;
+        }
 
         $factuur = new Factuur();
         $factuur->factuurnummer = $numbers->next('INV', 6);
@@ -57,8 +75,12 @@ class FacturenController extends Controller
         $factuur->plaats = $data['plaats'] ?? null;
         $factuur->btw_percentage = $btwPercentage;
 
-        // ✅ NIEUW
         $factuur->verzendkosten_incl = $verzendkostenIncl;
+
+        // korting velden alvast opslaan
+        $factuur->korting_type = $kortingType;
+        $factuur->korting_waarde = $kortingWaarde;
+        $factuur->korting_bedrag = 0;
 
         $factuur->save();
 
@@ -78,10 +100,22 @@ class FacturenController extends Controller
             ]);
         }
 
-        // Eindtotaal incl = producten + verzending
-        $totaalIncl = round($totaalInclProducten + $verzendkostenIncl, 2);
+        // Totaal incl vóór korting = producten + verzending
+        $totaalVoorKorting = round($totaalInclProducten + $verzendkostenIncl, 2);
 
-        // BTW berekenen over totaal incl
+        // Korting bedrag berekenen (cap op totaal)
+        $kortingBedrag = 0.0;
+        if ($kortingType === 'percent') {
+            $kortingBedrag = round($totaalVoorKorting * ($kortingWaarde / 100), 2);
+        } elseif ($kortingType === 'amount') {
+            $kortingBedrag = round($kortingWaarde, 2);
+        }
+        $kortingBedrag = max(0, min($kortingBedrag, $totaalVoorKorting));
+
+        // Eindtotaal incl
+        $totaalIncl = round($totaalVoorKorting - $kortingBedrag, 2);
+
+        // BTW berekenen over totaal incl na korting
         $subtotaalEx = round($totaalIncl / (1 + $btwPercentage / 100), 2);
         $btwBedrag   = round($totaalIncl - $subtotaalEx, 2);
 
@@ -90,6 +124,10 @@ class FacturenController extends Controller
             'btw_bedrag'         => $btwBedrag,
             'totaal_incl'        => $totaalIncl,
             'verzendkosten_incl' => $verzendkostenIncl,
+
+            'korting_type'       => $kortingType,
+            'korting_waarde'     => $kortingWaarde,
+            'korting_bedrag'     => $kortingBedrag,
         ]);
 
         return redirect()->route('facturen.factuur.download', $factuur);

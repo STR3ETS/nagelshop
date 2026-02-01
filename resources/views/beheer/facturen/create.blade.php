@@ -38,7 +38,12 @@
     <div class="w-full bg-white p-[1.5rem] rounded-lg">
       <form method="POST"
             action="{{ route('facturen.opslaan') }}"
-            x-data='factuurForm(@json($producten), @json((float) old("verzendkosten_incl", 0)))'
+            x-data='factuurForm(
+              @json($producten),
+              @json((float) old("verzendkosten_incl", 0)),
+              @json(old("korting_type", "none")),
+              @json((float) old("korting_waarde", 0))
+            )'
             class="space-y-6">
         @csrf
 
@@ -57,7 +62,7 @@
             @error('btw_percentage') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
           </div>
 
-          {{-- ✅ NIEUW: verzendkosten --}}
+          {{-- Verzendkosten --}}
           <div>
             <label class="block text-sm font-medium mb-1">Verzendkosten (incl.)</label>
             <input
@@ -71,6 +76,42 @@
               placeholder="0,00"
             >
             @error('verzendkosten_incl') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+          </div>
+
+          {{-- ✅ KORTING --}}
+          <div>
+            <label class="block text-sm font-medium mb-1">Korting</label>
+            <div class="grid grid-cols-2 gap-3">
+              <select
+                name="korting_type"
+                x-model="kortingType"
+                class="w-full border border-gray-300 px-4 py-2 rounded-md"
+              >
+                <option value="none">Geen</option>
+                <option value="percent">%</option>
+                <option value="amount">€</option>
+              </select>
+
+              <input
+                name="korting_waarde"
+                type="number"
+                step="0.01"
+                min="0"
+                :max="kortingType === 'percent' ? 100 : null"
+                x-model.number="kortingWaarde"
+                :disabled="kortingType === 'none'"
+                class="w-full border border-gray-300 px-4 py-2 rounded-md disabled:opacity-50"
+                placeholder="0"
+              >
+            </div>
+
+            <p class="text-[12px] opacity-70 mt-1">
+              <span x-show="kortingType === 'percent'">Bij % is max 100.</span>
+              <span x-show="kortingType === 'amount'">Bedrag in euro's.</span>
+            </p>
+
+            @error('korting_type') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+            @error('korting_waarde') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
           </div>
 
           <div>
@@ -146,10 +187,7 @@
                       </template>
                     </select>
 
-                    {{-- Hidden: artikel = productnaam (zodat je huidige store-validatie blijft werken) --}}
                     <input type="hidden" :name="`regels[${i}][artikel]`" :value="r.artikel || ''">
-
-                    {{-- Hidden: prijs_incl (auto uit product, niet wijzigbaar) --}}
                     <input type="hidden" :name="`regels[${i}][prijs_incl]`" :value="numberForSubmit(r.prijs_incl)">
                   </td>
 
@@ -180,10 +218,10 @@
           </table>
 
           <div class="w-full flex justify-end mt-4">
-            <div class="min-w-[320px] bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div class="min-w-[360px] bg-gray-50 border border-gray-200 rounded-lg p-4">
               <div class="flex justify-between text-[15px]">
                 <span class="text-[#191919] opacity-80">Producten (incl)</span>
-                <span class="font-medium" x-text="formatMoney(totaalIncl())"></span>
+                <span class="font-medium" x-text="formatMoney(totaalInclProducten())"></span>
               </div>
 
               <div class="flex justify-between text-[15px] mt-1">
@@ -191,9 +229,16 @@
                 <span class="font-medium" x-text="formatMoney(verzendkostenInclSafe())"></span>
               </div>
 
+              <template x-if="kortingBedrag() > 0">
+                <div class="flex justify-between text-[15px] mt-1">
+                  <span class="text-[#191919] opacity-80">Korting</span>
+                  <span class="font-medium text-red-600" x-text="'− ' + formatMoney(kortingBedrag())"></span>
+                </div>
+              </template>
+
               <div class="flex justify-between text-[15px] mt-2 pt-2 border-t border-gray-200">
                 <span class="text-[#191919] opacity-80">Totaal (incl)</span>
-                <span class="font-medium" x-text="formatMoney(totaalInclMetVerzending())"></span>
+                <span class="font-medium" x-text="formatMoney(totaalInclEind())"></span>
               </div>
 
               <template x-if="hasInvalidRegels()">
@@ -222,7 +267,7 @@
 
 @verbatim
 <script>
-function factuurForm(producten, verzendkostenInit) {
+function factuurForm(producten, verzendkostenInit, kortingTypeInit, kortingWaardeInit) {
   const normalize = (p) => ({
     id: p.id,
     naam: p.naam,
@@ -233,6 +278,9 @@ function factuurForm(producten, verzendkostenInit) {
     producten: (producten || []).map(normalize),
 
     verzendkostenIncl: Number(verzendkostenInit || 0),
+
+    kortingType: kortingTypeInit || 'none',   // none|percent|amount
+    kortingWaarde: Number(kortingWaardeInit || 0),
 
     regels: [
       { key: Date.now() + '-' + Math.random(), product_id: '', artikel: '', aantal: 1, prijs_incl: 0 }
@@ -251,17 +299,13 @@ function factuurForm(producten, verzendkostenInit) {
       const r = this.regels[i];
       const p = this.producten.find(x => String(x.id) === String(r.product_id));
 
-      // Reset als leeg
       if (!p) {
         r.artikel = '';
         r.prijs_incl = 0;
         return;
       }
 
-      // Artikel = productnaam (niet bewerkbaar)
       r.artikel = p.naam;
-
-      // Prijs = productprijs (niet bewerkbaar)
       r.prijs_incl = Number(p.prijs || 0);
     },
 
@@ -269,7 +313,7 @@ function factuurForm(producten, verzendkostenInit) {
       return Number(r.prijs_incl || 0) * Number(r.aantal || 0);
     },
 
-    totaalIncl() {
+    totaalInclProducten() {
       return this.regels.reduce((sum, r) => sum + this.regelTotaal(r), 0);
     },
 
@@ -277,15 +321,40 @@ function factuurForm(producten, verzendkostenInit) {
       return Math.max(0, Number(this.verzendkostenIncl || 0));
     },
 
-    totaalInclMetVerzending() {
-      return this.totaalIncl() + this.verzendkostenInclSafe();
+    totaalInclVoorKorting() {
+      return this.totaalInclProducten() + this.verzendkostenInclSafe();
+    },
+
+    kortingBedrag() {
+      const base = this.totaalInclVoorKorting();
+      const type = (this.kortingType || 'none');
+      const val = Math.max(0, Number(this.kortingWaarde || 0));
+
+      let korting = 0;
+
+      if (type === 'percent') {
+        const pct = Math.min(100, val);
+        korting = base * (pct / 100);
+      } else if (type === 'amount') {
+        korting = val;
+      } else {
+        korting = 0;
+      }
+
+      // nooit negatief / nooit meer dan base
+      korting = Math.max(0, Math.min(korting, base));
+      return Number(korting.toFixed(2));
+    },
+
+    totaalInclEind() {
+      const total = this.totaalInclVoorKorting() - this.kortingBedrag();
+      return Math.max(0, Number(total.toFixed(2)));
     },
 
     hasInvalidRegels() {
       return this.regels.some(r => !r.product_id);
     },
 
-    // Zorg dat we altijd "12.34" posten (numeric validation)
     numberForSubmit(v) {
       const n = Number(v || 0);
       return n.toFixed(2);
