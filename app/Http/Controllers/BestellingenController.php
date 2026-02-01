@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bestelling;
-use App\Services\InvoiceNumberService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +12,11 @@ use Illuminate\Validation\Rule;
 
 class BestellingenController extends Controller
 {
+    private function makeFactuurnummerFromBestellingId(int $id): string
+    {
+        return 'INV-' . str_pad((string) $id, 6, '0', STR_PAD_LEFT);
+    }
+
     public function index()
     {
         $bestellingen = Bestelling::orderByRaw("
@@ -46,7 +50,6 @@ class BestellingenController extends Controller
 
         $validated = $request->validate($rules);
 
-        // Als ophalen: adresvelden leegmaken in DB (netjes)
         if ($levermethode === 'ophalen') {
             $validated['adres'] = null;
             $validated['postcode'] = null;
@@ -81,7 +84,6 @@ class BestellingenController extends Controller
 
         $update = ['track_trace' => $request->track_trace];
 
-        // Alleen auto-naar onderweg als hij nog 'open' is
         if (($bestelling->status ?? 'open') === 'open') {
             $update['status'] = 'onderweg';
         }
@@ -93,12 +95,10 @@ class BestellingenController extends Controller
 
     public function downloadFactuur(Bestelling $bestelling)
     {
-        // Guard: als kolom nog niet bestaat, krijg je meteen duidelijke feedback
         if (!Schema::hasColumn('bestellingen', 'factuurnummer')) {
             abort(500, "Kolom 'factuurnummer' ontbreekt in tabel 'bestellingen'. Draai eerst je migratie.");
         }
 
-        // Bedrijfsgegevens – eventueel later uit instellingen halen
         $bedrijf = [
             'naam'     => 'Deluxe Nail Shop',
             'adres'    => 'Lentemorgen 5 (Kamer 5.36)',
@@ -111,19 +111,17 @@ class BestellingenController extends Controller
 
         $btwPercentage = 21;
 
-        // Zorg dat relatie aanwezig is voor de PDF-view
         $bestelling->loadMissing('producten');
 
-        // ✅ Factuurnummer éénmalig toekennen + opslaan (race-condition safe)
+        // ✅ Factuurnummer = gebaseerd op bestelling->id (niet meer via service)
         $bestelling = DB::transaction(function () use ($bestelling) {
             $locked = Bestelling::whereKey($bestelling->getKey())
                 ->lockForUpdate()
                 ->firstOrFail();
 
             if (empty($locked->factuurnummer)) {
-                $locked->factuurnummer = app(InvoiceNumberService::class)->next('INV', 6); // INV-000001
+                $locked->factuurnummer = $this->makeFactuurnummerFromBestellingId((int) $locked->id);
 
-                // Optioneel: als je kolom factuur_datum hebt
                 if (Schema::hasColumn('bestellingen', 'factuur_datum')) {
                     $locked->factuur_datum = now();
                 }
@@ -134,7 +132,6 @@ class BestellingenController extends Controller
             return $locked->loadMissing('producten');
         });
 
-        // Uitgaande van totaalprijs incl. btw
         $totaalIncl  = (float) $bestelling->totaalprijs;
         $subtotaalEx = round($totaalIncl / (1 + $btwPercentage / 100), 2);
         $btwBedrag   = round($totaalIncl - $subtotaalEx, 2);

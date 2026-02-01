@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Factuur;
 use App\Models\FactuurRegel;
-use App\Services\InvoiceNumberService;
+use App\Models\Bestelling;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class FacturenController extends Controller
@@ -23,21 +25,30 @@ class FacturenController extends Controller
         return view('beheer.facturen.create', compact('producten'));
     }
 
-    public function store(Request $request, InvoiceNumberService $numbers)
+    private function makeFactuurnummerFromBestellingId(int $id): string
+    {
+        return 'INV-' . str_pad((string) $id, 6, '0', STR_PAD_LEFT);
+    }
+
+    public function store(Request $request)
     {
         $data = $request->validate([
             'datum' => ['required', 'date'],
+
             'naam' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
+            'telefoon' => ['nullable', 'string', 'max:20'],
+
             'adres' => ['nullable', 'string', 'max:255'],
             'postcode' => ['nullable', 'string', 'max:20'],
             'plaats' => ['nullable', 'string', 'max:100'],
+
             'btw_percentage' => ['required', 'integer', 'min:0', 'max:100'],
 
             // verzendkosten
             'verzendkosten_incl' => ['nullable', 'numeric', 'min:0'],
 
-            // ✅ korting
+            // korting
             'korting_type' => ['nullable', 'string', Rule::in(['none', 'percent', 'amount'])],
             'korting_waarde' => ['nullable', 'numeric', 'min:0'],
 
@@ -49,6 +60,7 @@ class FacturenController extends Controller
         ]);
 
         $btwPercentage = (int) $data['btw_percentage'];
+
         $verzendkostenIncl = round((float) ($data['verzendkosten_incl'] ?? 0), 2);
 
         $kortingType = (string) ($data['korting_type'] ?? 'none');
@@ -64,71 +76,138 @@ class FacturenController extends Controller
             $kortingWaarde = 0;
         }
 
-        $factuur = new Factuur();
-        $factuur->factuurnummer = $numbers->next('INV', 6);
-        $factuur->datum = $data['datum'];
+        // levermethode voor de "bestelling" die we aanmaken (simpel afgeleid)
+        $levermethode = (!empty($data['adres']) || !empty($data['postcode']) || !empty($data['plaats']))
+            ? 'verzenden'
+            : 'ophalen';
 
-        $factuur->naam = $data['naam'];
-        $factuur->email = $data['email'] ?? null;
-        $factuur->adres = $data['adres'] ?? null;
-        $factuur->postcode = $data['postcode'] ?? null;
-        $factuur->plaats = $data['plaats'] ?? null;
-        $factuur->btw_percentage = $btwPercentage;
+        // Alles in 1 transactie: bestelling -> factuur -> regels -> totalen
+        $factuur = DB::transaction(function () use ($data, $btwPercentage, $verzendkostenIncl, $kortingType, $kortingWaarde, $levermethode) {
 
-        $factuur->verzendkosten_incl = $verzendkostenIncl;
+            // 1) Maak een bestelling aan zodat we het ID kunnen gebruiken als teller
+            $bestelling = Bestelling::create([
+                'transactie_id' => null,
+                'naam'          => $data['naam'],
+                'email'         => $data['email'] ?? null,
+                'telefoon'      => $data['telefoon'] ?? '-', // safe als kolom niet nullable is
+                'levermethode'  => $levermethode,
 
-        // korting velden alvast opslaan
-        $factuur->korting_type = $kortingType;
-        $factuur->korting_waarde = $kortingWaarde;
-        $factuur->korting_bedrag = 0;
+                'adres'         => $levermethode === 'verzenden' ? ($data['adres'] ?? null) : null,
+                'postcode'      => $levermethode === 'verzenden' ? ($data['postcode'] ?? null) : null,
+                'plaats'        => $levermethode === 'verzenden' ? ($data['plaats'] ?? null) : null,
 
-        $factuur->save();
-
-        $totaalInclProducten = 0;
-
-        foreach ($data['regels'] as $regel) {
-            $regelTotaal = round(((float) $regel['prijs_incl']) * (int) $regel['aantal'], 2);
-            $totaalInclProducten += $regelTotaal;
-
-            FactuurRegel::create([
-                'factuur_id' => $factuur->id,
-                'product_id' => $regel['product_id'] ?? null,
-                'artikel' => $regel['artikel'],
-                'aantal' => (int) $regel['aantal'],
-                'prijs_incl' => round((float) $regel['prijs_incl'], 2),
-                'totaal_incl' => $regelTotaal,
+                'betaalmethode' => 'handmatig',
+                'totaalprijs'   => 0,          // vullen we straks
+                'status'        => 'afgerond',  // handmatig aangemaakte factuur = afgerond
             ]);
-        }
 
-        // Totaal incl vóór korting = producten + verzending
-        $totaalVoorKorting = round($totaalInclProducten + $verzendkostenIncl, 2);
+            $factuurnummer = $this->makeFactuurnummerFromBestellingId((int) $bestelling->id);
 
-        // Korting bedrag berekenen (cap op totaal)
-        $kortingBedrag = 0.0;
-        if ($kortingType === 'percent') {
-            $kortingBedrag = round($totaalVoorKorting * ($kortingWaarde / 100), 2);
-        } elseif ($kortingType === 'amount') {
-            $kortingBedrag = round($kortingWaarde, 2);
-        }
-        $kortingBedrag = max(0, min($kortingBedrag, $totaalVoorKorting));
+            // 2) Sla factuurnummer ook op op bestelling (als kolom bestaat)
+            if (Schema::hasColumn('bestellingen', 'factuurnummer')) {
+                $bestelling->factuurnummer = $factuurnummer;
+                $bestelling->save();
+            }
 
-        // Eindtotaal incl
-        $totaalIncl = round($totaalVoorKorting - $kortingBedrag, 2);
+            // 3) Maak factuur aan en koppel aan bestelling_id
+            $factuur = new Factuur();
+            $factuur->bestelling_id = $bestelling->id;
+            $factuur->factuurnummer = $factuurnummer;
 
-        // BTW berekenen over totaal incl na korting
-        $subtotaalEx = round($totaalIncl / (1 + $btwPercentage / 100), 2);
-        $btwBedrag   = round($totaalIncl - $subtotaalEx, 2);
+            $factuur->datum = $data['datum'];
 
-        $factuur->update([
-            'subtotaal_ex'       => $subtotaalEx,
-            'btw_bedrag'         => $btwBedrag,
-            'totaal_incl'        => $totaalIncl,
-            'verzendkosten_incl' => $verzendkostenIncl,
+            $factuur->naam = $data['naam'];
+            $factuur->email = $data['email'] ?? null;
+            $factuur->adres = $data['adres'] ?? null;
+            $factuur->postcode = $data['postcode'] ?? null;
+            $factuur->plaats = $data['plaats'] ?? null;
 
-            'korting_type'       => $kortingType,
-            'korting_waarde'     => $kortingWaarde,
-            'korting_bedrag'     => $kortingBedrag,
-        ]);
+            $factuur->btw_percentage = $btwPercentage;
+
+            $factuur->verzendkosten_incl = $verzendkostenIncl;
+
+            $factuur->korting_type = $kortingType;
+            $factuur->korting_waarde = $kortingWaarde;
+            $factuur->korting_bedrag = 0;
+
+            $factuur->save();
+
+            // 4) Regels + producten totaal
+            $totaalInclProducten = 0;
+            $product_data = []; // voor bestelling_product pivot
+
+            foreach ($data['regels'] as $regel) {
+                $regelTotaal = round(((float) $regel['prijs_incl']) * (int) $regel['aantal'], 2);
+                $totaalInclProducten += $regelTotaal;
+
+                FactuurRegel::create([
+                    'factuur_id' => $factuur->id,
+                    'product_id' => $regel['product_id'] ?? null,
+                    'artikel' => $regel['artikel'],
+                    'aantal' => (int) $regel['aantal'],
+                    'prijs_incl' => round((float) $regel['prijs_incl'], 2),
+                    'totaal_incl' => $regelTotaal,
+                ]);
+
+                // Koppel ook aan bestelling (alleen als product_id bestaat)
+                if (!empty($regel['product_id'])) {
+                    $pid = (int) $regel['product_id'];
+                    $qty = (int) $regel['aantal'];
+
+                    // Als hetzelfde product meerdere regels heeft: optellen
+                    if (!isset($product_data[$pid])) {
+                        $product_data[$pid] = ['aantal' => 0];
+                    }
+                    $product_data[$pid]['aantal'] += $qty;
+                }
+            }
+
+            // Sync producten op bestelling (optioneel maar handig)
+            if (!empty($product_data)) {
+                $bestelling->producten()->sync($product_data);
+
+                // Als je óók voorraad wilt verlagen bij handmatige facturen,
+                // kun je dit hier doen (nu bewust niet automatisch).
+            }
+
+            // 5) Totaal incl vóór korting = producten + verzending
+            $totaalVoorKorting = round($totaalInclProducten + $verzendkostenIncl, 2);
+
+            // 6) Korting bedrag berekenen (cap op totaal)
+            $kortingBedrag = 0.0;
+            if ($kortingType === 'percent') {
+                $kortingBedrag = round($totaalVoorKorting * ($kortingWaarde / 100), 2);
+            } elseif ($kortingType === 'amount') {
+                $kortingBedrag = round($kortingWaarde, 2);
+            }
+            $kortingBedrag = max(0, min($kortingBedrag, $totaalVoorKorting));
+
+            // 7) Eindtotaal incl
+            $totaalIncl = round($totaalVoorKorting - $kortingBedrag, 2);
+
+            // 8) BTW over totaal incl na korting
+            $subtotaalEx = round($totaalIncl / (1 + $btwPercentage / 100), 2);
+            $btwBedrag   = round($totaalIncl - $subtotaalEx, 2);
+
+            // 9) Update factuur totalen
+            $factuur->update([
+                'subtotaal_ex'       => $subtotaalEx,
+                'btw_bedrag'         => $btwBedrag,
+                'totaal_incl'        => $totaalIncl,
+                'verzendkosten_incl' => $verzendkostenIncl,
+
+                'korting_type'       => $kortingType,
+                'korting_waarde'     => $kortingWaarde,
+                'korting_bedrag'     => $kortingBedrag,
+            ]);
+
+            // 10) Update bestelling totaalprijs (zodat bestellingen + facturen gelijk lopen)
+            $bestelling->update([
+                'totaalprijs' => $totaalIncl,
+            ]);
+
+            return $factuur;
+        });
 
         return redirect()->route('facturen.factuur.download', $factuur);
     }
@@ -155,8 +234,10 @@ class FacturenController extends Controller
             'btwBedrag'     => $factuur->btw_bedrag,
             'totaalIncl'    => $factuur->totaal_incl,
             'factuurnummer' => $factuur->factuurnummer,
-            'kortingBedrag' => $factuur->korting_bedrag,
-            'verzendKosten' => $factuur->verzendkosten_incl,
+
+            // ✅ Deze twee zijn nu 1-op-1 de DB velden
+            'kortingBedrag' => (float) ($factuur->korting_bedrag ?? 0),
+            'verzendKosten' => (float) ($factuur->verzendkosten_incl ?? 0),
         ]);
 
         return $pdf->download('factuur-' . $factuur->factuurnummer . '.pdf');
@@ -165,7 +246,19 @@ class FacturenController extends Controller
     public function destroy(Factuur $factuur)
     {
         $factuur->load('regels');
+
+        // verwijder regels + factuur
         $factuur->regels()->delete();
+
+        // als deze factuur een “manual bestelling” heeft, ruim die ook op
+        if (!empty($factuur->bestelling_id)) {
+            $bestelling = Bestelling::find($factuur->bestelling_id);
+            if ($bestelling && empty($bestelling->transactie_id) && ($bestelling->betaalmethode ?? '') === 'handmatig') {
+                $bestelling->producten()->detach();
+                $bestelling->delete();
+            }
+        }
+
         $factuur->delete();
 
         return redirect()->route('beheer.facturen')->with('success', 'Factuur verwijderd.');
