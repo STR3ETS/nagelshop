@@ -12,11 +12,6 @@ use Illuminate\Validation\Rule;
 
 class BestellingenController extends Controller
 {
-    private function makeFactuurnummerFromBestellingId(int $id): string
-    {
-        return 'INV-' . str_pad((string) $id, 6, '0', STR_PAD_LEFT);
-    }
-
     public function index()
     {
         $bestellingen = Bestelling::orderByRaw("
@@ -64,14 +59,10 @@ class BestellingenController extends Controller
     public function updateStatus(Request $request, Bestelling $bestelling)
     {
         $validated = $request->validate([
-            'status' => ['required', Rule::in([
-                'open', 'onderweg', 'opgehaald', 'afgerond'
-            ])],
+            'status' => ['required', Rule::in(['open', 'onderweg', 'opgehaald', 'afgerond'])],
         ]);
 
-        $bestelling->update([
-            'status' => $validated['status'],
-        ]);
+        $bestelling->update(['status' => $validated['status']]);
 
         return back()->with('success', 'Status succesvol bijgewerkt');
     }
@@ -91,6 +82,11 @@ class BestellingenController extends Controller
         $bestelling->update($update);
 
         return back()->with('success', 'Track & Trace code succesvol toegevoegd');
+    }
+
+    private function makeFactuurnummerFromBestellingId(int $id): string
+    {
+        return 'INV-' . str_pad((string) $id, 6, '0', STR_PAD_LEFT);
     }
 
     public function downloadFactuur(Bestelling $bestelling)
@@ -113,7 +109,7 @@ class BestellingenController extends Controller
 
         $bestelling->loadMissing('producten');
 
-        // ✅ Factuurnummer = gebaseerd op bestelling->id (niet meer via service)
+        // ✅ Factuurnummer = gebaseerd op bestelling.id (altijd gelijk systeem)
         $bestelling = DB::transaction(function () use ($bestelling) {
             $locked = Bestelling::whereKey($bestelling->getKey())
                 ->lockForUpdate()

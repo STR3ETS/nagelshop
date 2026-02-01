@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bestelling;
 use App\Models\Factuur;
 use App\Models\FactuurRegel;
-use App\Models\Bestelling;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +31,18 @@ class FacturenController extends Controller
         return 'INV-' . str_pad((string) $id, 6, '0', STR_PAD_LEFT);
     }
 
+    private function bestellingIdFromFactuurnummer(?string $factuurnummer): ?int
+    {
+        if (!$factuurnummer) return null;
+
+        // verwacht: INV-000009
+        if (preg_match('/^INV-(\d{6})$/', $factuurnummer, $m)) {
+            return (int) ltrim($m[1], '0'); // "000009" -> 9
+        }
+
+        return null;
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -46,7 +58,7 @@ class FacturenController extends Controller
 
             'btw_percentage' => ['required', 'integer', 'min:0', 'max:100'],
 
-            // verzendkosten
+            // verzendkosten (incl)
             'verzendkosten_incl' => ['nullable', 'numeric', 'min:0'],
 
             // korting
@@ -61,7 +73,6 @@ class FacturenController extends Controller
         ]);
 
         $btwPercentage = (int) $data['btw_percentage'];
-
         $verzendkostenIncl = round((float) ($data['verzendkosten_incl'] ?? 0), 2);
 
         $kortingType = (string) ($data['korting_type'] ?? 'none');
@@ -76,51 +87,44 @@ class FacturenController extends Controller
             $kortingWaarde = 0;
         }
 
-        // levermethode afleiden
+        // “levermethode” afleiden: als adres ingevuld => verzenden, anders ophalen
         $levermethode = (!empty($data['adres']) || !empty($data['postcode']) || !empty($data['plaats']))
             ? 'verzenden'
             : 'ophalen';
 
         $factuur = DB::transaction(function () use ($data, $btwPercentage, $verzendkostenIncl, $kortingType, $kortingWaarde, $levermethode) {
 
-            // ✅ FIX: transactie_id mag niet null → unieke placeholder
-            $manualTransactieId = 'HANDMATIG-' . (string) Str::uuid();
-
-            // 1) Bestelling aanmaken (zodat ID doorloopt)
+            // 1) Bestelling aanmaken (ID is onze teller)
             $bestelling = new Bestelling();
-            $bestelling->transactie_id = $manualTransactieId;
-            $bestelling->naam          = $data['naam'];
-            $bestelling->email         = $data['email'] ?? null;
+            $bestelling->transactie_id = 'HANDMATIG-' . (string) Str::uuid(); // ✅ NOT NULL fix
+            $bestelling->naam = $data['naam'];
+            $bestelling->email = $data['email'] ?? null;
 
-            // Als kolom bestaat / niet nullable is: zet iets veiligs
             if (Schema::hasColumn('bestellingen', 'telefoon')) {
                 $bestelling->telefoon = $data['telefoon'] ?? '-';
             }
 
-            $bestelling->levermethode  = $levermethode;
-            $bestelling->adres         = $levermethode === 'verzenden' ? ($data['adres'] ?? null) : null;
-            $bestelling->postcode      = $levermethode === 'verzenden' ? ($data['postcode'] ?? null) : null;
-            $bestelling->plaats        = $levermethode === 'verzenden' ? ($data['plaats'] ?? null) : null;
+            $bestelling->levermethode = $levermethode;
+            $bestelling->adres = $levermethode === 'verzenden' ? ($data['adres'] ?? null) : null;
+            $bestelling->postcode = $levermethode === 'verzenden' ? ($data['postcode'] ?? null) : null;
+            $bestelling->plaats = $levermethode === 'verzenden' ? ($data['plaats'] ?? null) : null;
 
             $bestelling->betaalmethode = 'handmatig';
-            $bestelling->totaalprijs   = 0;         // vullen we later
-            $bestelling->status        = 'afgerond';
+            $bestelling->totaalprijs = 0;
+            $bestelling->status = 'afgerond';
             $bestelling->save();
 
-            // 2) Factuurnummer = INV + bestelling->id (jouw wens)
+            // 2) Factuurnummer = op basis van bestellingen.id
             $factuurnummer = $this->makeFactuurnummerFromBestellingId((int) $bestelling->id);
 
-            // 3) opslaan op bestelling (als kolom bestaat)
             if (Schema::hasColumn('bestellingen', 'factuurnummer')) {
                 $bestelling->factuurnummer = $factuurnummer;
                 $bestelling->save();
             }
 
-            // 4) Factuur maken + koppelen
+            // 3) Factuur record maken (GEEN bestelling_id kolom nodig)
             $factuur = new Factuur();
-            $factuur->bestelling_id = $bestelling->id;
             $factuur->factuurnummer = $factuurnummer;
-
             $factuur->datum = $data['datum'];
 
             $factuur->naam = $data['naam'];
@@ -138,9 +142,8 @@ class FacturenController extends Controller
 
             $factuur->save();
 
-            // 5) Regels + pivot data voor bestelling
+            // 4) Regels opslaan
             $totaalInclProducten = 0.0;
-            $product_data = [];
 
             foreach ($data['regels'] as $regel) {
                 $regelTotaal = round(((float) $regel['prijs_incl']) * (int) $regel['aantal'], 2);
@@ -154,23 +157,9 @@ class FacturenController extends Controller
                     'prijs_incl' => round((float) $regel['prijs_incl'], 2),
                     'totaal_incl' => $regelTotaal,
                 ]);
-
-                if (!empty($regel['product_id'])) {
-                    $pid = (int) $regel['product_id'];
-                    $qty = (int) $regel['aantal'];
-
-                    if (!isset($product_data[$pid])) {
-                        $product_data[$pid] = ['aantal' => 0];
-                    }
-                    $product_data[$pid]['aantal'] += $qty;
-                }
             }
 
-            if (!empty($product_data)) {
-                $bestelling->producten()->sync($product_data);
-            }
-
-            // 6) Totalen
+            // 5) Totalen
             $totaalVoorKorting = round($totaalInclProducten + $verzendkostenIncl, 2);
 
             $kortingBedrag = 0.0;
@@ -183,18 +172,20 @@ class FacturenController extends Controller
 
             $totaalIncl = round($totaalVoorKorting - $kortingBedrag, 2);
 
-            $subtotaalEx = round($totaalIncl / (1 + $btwPercentage / 100), 2);
-            $btwBedrag   = round($totaalIncl - $subtotaalEx, 2);
+            $subtotaalEx = ($btwPercentage > 0)
+                ? round($totaalIncl / (1 + $btwPercentage / 100), 2)
+                : round($totaalIncl, 2);
+
+            $btwBedrag = round($totaalIncl - $subtotaalEx, 2);
 
             $factuur->update([
-                'subtotaal_ex'       => $subtotaalEx,
-                'btw_bedrag'         => $btwBedrag,
-                'totaal_incl'        => $totaalIncl,
-
+                'subtotaal_ex' => $subtotaalEx,
+                'btw_bedrag' => $btwBedrag,
+                'totaal_incl' => $totaalIncl,
                 'verzendkosten_incl' => $verzendkostenIncl,
-                'korting_type'       => $kortingType,
-                'korting_waarde'     => $kortingWaarde,
-                'korting_bedrag'     => $kortingBedrag,
+                'korting_type' => $kortingType,
+                'korting_waarde' => $kortingWaarde,
+                'korting_bedrag' => $kortingBedrag,
             ]);
 
             $bestelling->update([
@@ -230,6 +221,7 @@ class FacturenController extends Controller
             'totaalIncl'    => $factuur->totaal_incl,
             'factuurnummer' => $factuur->factuurnummer,
 
+            // ✅ hiermee pakt je PDF altijd de juiste velden
             'kortingBedrag' => (float) ($factuur->korting_bedrag ?? 0),
             'verzendKosten' => (float) ($factuur->verzendkosten_incl ?? 0),
         ]);
@@ -239,25 +231,29 @@ class FacturenController extends Controller
 
     public function destroy(Factuur $factuur)
     {
+        $factuurnummer = $factuur->factuurnummer;
+
         $factuur->load('regels');
-
         $factuur->regels()->delete();
+        $factuur->delete();
 
-        // ✅ manual bestelling ook opruimen (nu mét transactie_id placeholder)
-        if (!empty($factuur->bestelling_id)) {
-            $bestelling = Bestelling::find($factuur->bestelling_id);
+        // ✅ handmatige bestelling ook opruimen op basis van factuurnummer -> id
+        $bestellingId = $this->bestellingIdFromFactuurnummer($factuurnummer);
+
+        if ($bestellingId) {
+            $b = Bestelling::find($bestellingId);
 
             if (
-                $bestelling
-                && (($bestelling->betaalmethode ?? '') === 'handmatig')
-                && str_starts_with((string) ($bestelling->transactie_id ?? ''), 'HANDMATIG-')
+                $b
+                && (($b->betaalmethode ?? '') === 'handmatig')
+                && str_starts_with((string) ($b->transactie_id ?? ''), 'HANDMATIG-')
             ) {
-                $bestelling->producten()->detach();
-                $bestelling->delete();
+                if (method_exists($b, 'producten')) {
+                    $b->producten()->detach();
+                }
+                $b->delete();
             }
         }
-
-        $factuur->delete();
 
         return redirect()->route('beheer.facturen')->with('success', 'Factuur verwijderd.');
     }
