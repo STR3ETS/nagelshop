@@ -126,7 +126,7 @@ $subUrl = function (string $naam) use ($sub) {
                     <li class="font-bold text-lg mb-1">Werkmateriaal</li>
                     <li><a href="{{ $subUrl('Top Nail Forms') }}" class="font-medium py-2 text-sm">Top Nail Forms</a></li>
                     <li><a href="{{ $subUrl('Gel Tips') }}" class="font-medium py-2 text-sm">Gel Tips</a></li>
-                    <li><a href="{{ $subUrl('Penselen') }}" class="font-medium py-2 text-sm">Penselen</a></li>
+                    <li><a href="{{ $subUrl('Penselen/Tools') }}" class="font-medium py-2 text-sm">Penselen/Tools</a></li>
                     <li><a href="{{ $subUrl('Schort') }}" class="font-medium py-2 text-sm">Schort</a></li>
                 </ul>
             </div>
@@ -255,7 +255,7 @@ $subUrl = function (string $naam) use ($sub) {
                                 <ul class="min-w-[240px] rounded-xl border border-gray-200 bg-white shadow-lg p-2">
                                 <li><a href="{{ $subUrl('Top Nail Forms') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Top Nail Forms</a></li>
                                 <li><a href="{{ $subUrl('Gel Tips') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Gel Tips</a></li>
-                                <li><a href="{{ $subUrl('Penselen') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Penselen</a></li>
+                                <li><a href="{{ $subUrl('Penselen/Tools') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Penselen/Tools</a></li>
                                 <li><a href="{{ $subUrl('Schort') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Schort</a></li>
                                 </ul>
                             </div>
