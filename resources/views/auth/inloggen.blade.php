@@ -1,4 +1,8 @@
 @extends('layouts.pages')
+
+@section('title', 'Inloggen — Deluxe Nail Shop')
+@section('meta_robots', 'noindex, nofollow')
+
 @section('content')
 <div class="p-2 h-[350px] md:h-auto">
     <div class="w-full h-full md:h-[350px] overflow-y-hidden rounded-3xl flex items-end relative bg-cover bg-center bg-[url(https://i.imgur.com/UA8Iztb.jpeg)]">

@@ -1,4 +1,20 @@
 @extends('layouts.pages')
+
+@section('title', 'Deluxe Nail Shop — Professionele nagelproducten online bestellen')
+@section('meta_description', 'Bestel professionele nagelproducten bij Deluxe Nail Shop. Gel, gelpolish, nail art, werkmateriaal en meer. Gratis verzending vanaf €75 in Nederland.')
+@section('canonical', url('/'))
+
+@push('head')
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'WebSite',
+    'name' => 'Deluxe Nail Shop',
+    'url' => url('/'),
+], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!}
+</script>
+@endpush
+
 @section('content')
 
 @php

@@ -1,6 +1,14 @@
 @extends('layouts.pages')
 
-@section('title', ($product->naam ?? 'Product') . ' - Product')
+@section('title', ($product->naam ?? 'Product') . ' kopen — Deluxe Nail Shop')
+@section('meta_description', Str::limit(strip_tags($product->beschrijving ?? ''), 155, '...') ?: ($product->naam . ' bestel je bij Deluxe Nail Shop. Gratis verzending vanaf €75.'))
+@section('canonical', route('producten.show', ['product' => $product->id, 'slug' => Str::slug($product->naam)]))
+@section('og_type', 'product')
+@section('og_title', ($product->naam ?? 'Product') . ' — Deluxe Nail Shop')
+@section('og_description', Str::limit(strip_tags($product->beschrijving ?? ''), 155, '...') ?: ($product->naam . ' bestel je bij Deluxe Nail Shop.'))
+@if(!empty($product->foto))
+@section('og_image', Storage::disk('public')->url(Str::startsWith($product->foto, 'producten/') ? $product->foto : 'producten/' . $product->foto))
+@endif
 
 @section('content')
 @php
@@ -116,9 +124,6 @@
 @endsection
 
 @push('head')
-  {{-- Canonical --}}
-  <link rel="canonical" href="{{ $canonicalUrl }}" />
-
   {{-- JSON-LD Product schema --}}
   <script type="application/ld+json">
   {!! json_encode([

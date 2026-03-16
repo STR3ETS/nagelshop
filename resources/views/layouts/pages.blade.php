@@ -21,7 +21,22 @@ $subUrl = function (string $naam) use ($sub) {
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>@yield('title')</title>
+        <title>@yield('title', 'Deluxe Nail Shop — Professionele nagelproducten')</title>
+        <meta name="description" content="@yield('meta_description', 'Deluxe Nail Shop — Professionele nagelproducten zoals gel, gelpolish, nail art en werkmateriaal. Gratis verzending vanaf €75.')">
+        <meta name="robots" content="@yield('meta_robots', 'index, follow')">
+        <link rel="canonical" href="@yield('canonical', url()->current())" />
+
+        {{-- Open Graph --}}
+        <meta property="og:type" content="@yield('og_type', 'website')">
+        <meta property="og:title" content="@yield('og_title', 'Deluxe Nail Shop — Professionele nagelproducten')">
+        <meta property="og:description" content="@yield('og_description', 'Professionele nagelproducten zoals gel, gelpolish, nail art en werkmateriaal. Gratis verzending vanaf €75.')">
+        <meta property="og:url" content="@yield('canonical', url()->current())">
+        <meta property="og:site_name" content="Deluxe Nail Shop">
+        @hasSection('og_image')
+        <meta property="og:image" content="@yield('og_image')">
+        @endif
+
+        @stack('head')
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -531,5 +546,6 @@ $subUrl = function (string $naam) use ($sub) {
                 window.addEventListener('scroll', onScroll, { passive: true });
             })();
         </script>
+    @stack('scripts')
     </body>
 </html>

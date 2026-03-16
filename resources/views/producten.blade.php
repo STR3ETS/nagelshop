@@ -1,5 +1,9 @@
 @extends('layouts.pages')
 
+@section('title', 'Producten — Deluxe Nail Shop')
+@section('meta_description', 'Bekijk ons volledige assortiment professionele nagelproducten. Gel, gelpolish, base coat, nail art, werkmateriaal en meer bij Deluxe Nail Shop.')
+@section('canonical', route('producten.index'))
+
 @section('content')
 <style>[x-cloak]{ display:none !important; }</style>
 
