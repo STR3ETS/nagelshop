@@ -129,19 +129,50 @@ class BestellingenController extends Controller
         });
 
         $totaalIncl  = (float) $bestelling->totaalprijs;
+        $factuurnummer = $bestelling->factuurnummer;
+        $levermethode = $bestelling->levermethode ?? 'verzenden';
+
+        // Producten subtotaal (incl. btw)
+        $productenTotaal = $bestelling->producten->sum(fn($p) => (float) $p->prijs * (int) $p->pivot->aantal);
+
+        // Verzendkosten berekenen (zelfde logica als checkout)
+        $verzendKosten = 0.00;
+
+        if ($levermethode === 'ophalen') {
+            $verzendKosten = 0.00;
+        } elseif (!empty($bestelling->postcode)) {
+            $pc = strtoupper(trim($bestelling->postcode));
+
+            $isNL = (bool) preg_match('/^\d{4}\s?[A-Z]{2}$/', $pc);
+            $isBE = !$isNL && (bool) preg_match('/^\d{4}$/', $pc);
+            $isNL = $isNL || (!$isBE);
+
+            $tariefNL  = 6.35;
+            $tariefBE  = 12.35;
+            $drempelNL = 75.00;
+            $drempelBE = 100.00;
+
+            $tarief  = $isBE ? $tariefBE : $tariefNL;
+            $drempel = $isBE ? $drempelBE : $drempelNL;
+
+            $verzendKosten = $productenTotaal >= $drempel ? 0.00 : $tarief;
+        }
+
+        // BTW over het totaal
         $subtotaalEx = round($totaalIncl / (1 + $btwPercentage / 100), 2);
         $btwBedrag   = round($totaalIncl - $subtotaalEx, 2);
 
-        $factuurnummer = $bestelling->factuurnummer;
-
         $pdf = Pdf::loadView('beheer.bestellingen.factuur', [
-            'bestelling'    => $bestelling,
-            'bedrijf'       => $bedrijf,
-            'btwPercentage' => $btwPercentage,
-            'subtotaalEx'   => $subtotaalEx,
-            'btwBedrag'     => $btwBedrag,
-            'totaalIncl'    => $totaalIncl,
-            'factuurnummer' => $factuurnummer,
+            'bestelling'      => $bestelling,
+            'bedrijf'         => $bedrijf,
+            'btwPercentage'   => $btwPercentage,
+            'subtotaalEx'     => $subtotaalEx,
+            'btwBedrag'       => $btwBedrag,
+            'totaalIncl'      => $totaalIncl,
+            'factuurnummer'   => $factuurnummer,
+            'verzendKosten'   => $verzendKosten,
+            'productenTotaal' => $productenTotaal,
+            'levermethode'    => $levermethode,
         ]);
 
         return $pdf->download('factuur-' . $factuurnummer . '.pdf');

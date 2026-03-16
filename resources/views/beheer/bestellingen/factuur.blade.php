@@ -174,23 +174,25 @@
       return number_format($v, 2, ',', '.');
     };
 
-    // optioneel (vallen terug naar 0 als je ze niet hebt)
-    $kortingBedrag = (float)($kortingBedrag ?? data_get($bestelling, 'korting_bedrag') ?? data_get($bestelling, 'korting') ?? 0);
-    $verzendKosten = (float)($verzendKosten ?? data_get($bestelling, 'verzendkosten') ?? data_get($bestelling, 'verzending') ?? data_get($bestelling, 'shipping_cost') ?? 0);
+    $levermethode = $levermethode ?? ($bestelling->levermethode ?? 'verzenden');
+    $verzendKosten = (float)($verzendKosten ?? 0);
+    $kortingBedrag = (float)($kortingBedrag ?? 0);
 
-    $betaaldDoorKlant = (float)($betaaldDoorKlant ?? data_get($bestelling, 'betaald_bedrag') ?? data_get($bestelling, 'paid_amount') ?? 0);
+    $betaaldDoorKlant = (float)($betaaldDoorKlant ?? data_get($bestelling, 'betaald_bedrag') ?? 0);
 
-    $itemsTotaal = 0.0;
-    foreach(($bestelling->producten ?? []) as $item){
-      $qty = (int)($item->pivot->aantal ?? 0);
-      $unit = (float)($item->prijs ?? 0);
-      $itemsTotaal += ($unit * $qty);
+    // Producten subtotaal
+    $itemsTotaal = (float)($productenTotaal ?? 0);
+    if ($itemsTotaal <= 0) {
+      foreach(($bestelling->producten ?? []) as $item){
+        $qty = (int)($item->pivot->aantal ?? 0);
+        $unit = (float)($item->prijs ?? 0);
+        $itemsTotaal += ($unit * $qty);
+      }
     }
 
-    $subtotaal = max(0, $itemsTotaal + $kortingBedrag);
-    $subtotaalNaKorting = max(0, $itemsTotaal);
+    $subtotaal = max(0, $itemsTotaal);
 
-    $totaal = (float)($totaalIncl ?? ($subtotaalNaKorting + $verzendKosten));
+    $totaal = (float)($totaalIncl ?? ($subtotaal + $verzendKosten));
     $btwIncl = (float)($btwBedrag ?? ($btwPct > 0 ? ($totaal - ($totaal / (1 + ($btwPct/100)))) : 0));
 
     if($betaaldDoorKlant <= 0){
@@ -227,17 +229,26 @@
       <td style="width:36%; padding-right:18px;">
         <div class="addrBoxTitle">Factureringsgegevens</div>
         <div style="font-weight:700;">{{ $bestelling->naam }}</div>
-        <div>{{ $bestelling->adres }}</div>
-        <div>{{ $bestelling->postcode }} {{ $bestelling->plaats }}</div>
-        <div>Netherlands</div>
+        @if($levermethode === 'verzenden')
+          @if($bestelling->adres)<div>{{ $bestelling->adres }}</div>@endif
+          @if($bestelling->postcode || $bestelling->plaats)<div>{{ $bestelling->postcode }} {{ $bestelling->plaats }}</div>@endif
+          <div>Netherlands</div>
+        @else
+          <div class="muted">Ophalen</div>
+        @endif
       </td>
 
       <td style="width:36%; padding-right:18px;">
-        <div class="addrBoxTitle">Verzendgegevens</div>
-        <div style="font-weight:700;">{{ $bestelling->naam }}</div>
-        <div>{{ $bestelling->adres }}</div>
-        <div>{{ $bestelling->postcode }} {{ $bestelling->plaats }}</div>
-        <div>Netherlands</div>
+        <div class="addrBoxTitle">{{ $levermethode === 'ophalen' ? 'Levermethode' : 'Verzendgegevens' }}</div>
+        @if($levermethode === 'ophalen')
+          <div style="font-weight:700;">Ophalen</div>
+          <div class="muted small">Geen verzending — wordt opgehaald</div>
+        @else
+          <div style="font-weight:700;">{{ $bestelling->naam }}</div>
+          @if($bestelling->adres)<div>{{ $bestelling->adres }}</div>@endif
+          @if($bestelling->postcode || $bestelling->plaats)<div>{{ $bestelling->postcode }} {{ $bestelling->plaats }}</div>@endif
+          <div>Netherlands</div>
+        @endif
       </td>
 
       <td style="width:28%;">
@@ -310,52 +321,51 @@
     </tbody>
   </table>
 
-  <!-- SUMMARY (DIT MISJE) -->
+  <!-- SUMMARY -->
   <table class="summary">
     <tr>
-      <td class="label">Subtotaal</td>
+      <td class="label">Subtotaal producten</td>
       <td class="sep">:</td>
       <td class="amount">&euro;{{ $money($subtotaal) }}</td>
     </tr>
+
     <tr>
-      <td class="label">Korting</td>
+      <td class="label">
+        {{ $levermethode === 'ophalen' ? 'Levering (ophalen)' : 'Verzending' }}
+      </td>
       <td class="sep">:</td>
       <td class="amount">
-        @if($kortingBedrag > 0)
-          -&euro;{{ $money($kortingBedrag) }}
+        @if($levermethode === 'ophalen')
+          Gratis
+        @elseif($verzendKosten == 0)
+          Gratis
         @else
-          &euro;{{ $money(0) }}
+          &euro;{{ $money($verzendKosten) }}
         @endif
       </td>
     </tr>
-    <tr>
-      <td class="label">Subtotaal na korting</td>
-      <td class="sep">:</td>
-      <td class="amount">&euro;{{ $money($subtotaalNaKorting) }}</td>
-    </tr>
-    <tr>
-      <td class="label">Verzending</td>
-      <td class="sep">:</td>
-      <td class="amount">&euro;{{ $money($verzendKosten) }}</td>
-    </tr>
+
     <tr>
       <td class="label">
-        BTW (Producten + Verzending)
+        BTW{{ $levermethode === 'verzenden' && $verzendKosten > 0 ? ' (Producten + Verzending)' : '' }}
         <div class="note">(Inbegrepen)</div>
       </td>
       <td class="sep">:</td>
       <td class="amount">&euro;{{ $money($btwIncl) }}</td>
     </tr>
+
     <tr class="rowTotal">
       <td class="label">Totaal</td>
       <td class="sep">:</td>
       <td class="amount">&euro;{{ $money($totaal) }}</td>
     </tr>
+
     <tr>
       <td class="label">Betaald door klant</td>
       <td class="sep">:</td>
       <td class="amount">&euro;{{ $money($betaaldDoorKlant) }}</td>
     </tr>
+
     <tr>
       <td class="label">Openstaand</td>
       <td class="sep">:</td>
