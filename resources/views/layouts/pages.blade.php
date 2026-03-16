@@ -20,6 +20,7 @@ $subUrl = function (string $naam) use ($sub) {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
 
         <title>@yield('title', 'Deluxe Nail Shop — Professionele nagelproducten')</title>
         <meta name="description" content="@yield('meta_description', 'Deluxe Nail Shop — Professionele nagelproducten zoals gel, gelpolish, nail art en werkmateriaal. Gratis verzending vanaf €75.')">
