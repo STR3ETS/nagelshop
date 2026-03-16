@@ -11,7 +11,7 @@
     '@type' => 'FAQPage',
     'mainEntity' => [
         ['@type' => 'Question', 'name' => 'Hoe plaats ik een bestelling?', 'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kies je favoriete producten, voeg ze toe aan je winkelmandje en reken veilig af via iDEAL, creditcard, PayPal, Bancontact of KBC/CBC.']],
-        ['@type' => 'Question', 'name' => 'Wat zijn de verzendkosten?', 'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Binnen Nederland: €6,35 (gratis vanaf €75). België: €12,35 (gratis vanaf €100). We versturen met PostNL.']],
+        ['@type' => 'Question', 'name' => 'Wat zijn de verzendkosten?', 'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Binnen Nederland: €7,45 (gratis vanaf €75). België: €12,35 (gratis vanaf €100). We versturen met PostNL.']],
         ['@type' => 'Question', 'name' => 'Kan ik mijn bestelling nog wijzigen of annuleren?', 'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Dat kan zolang je bestelling nog niet is verzonden. Stuur ons binnen 2 uur na je bestelling een berichtje via de e-mail.']],
     ],
 ], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT) !!}
@@ -59,7 +59,7 @@
                         </div>
                         <div class="mb-3">
                             <p class="opacity-80 text-sm text-[#191919] font-semibold">Wat zijn de verzendkosten?</p>
-                            <p class="opacity-80 text-sm text-[#191919]">Binnen Nederland: €6,35 (gratis vanaf €75). België: €12,35 (gratis vanaf €100). We versturen met PostNL.</p>
+                            <p class="opacity-80 text-sm text-[#191919]">Binnen Nederland: €7,45 (gratis vanaf €75). België: €12,35 (gratis vanaf €100). We versturen met PostNL.</p>
                         </div>
                     </div>
                 </li>

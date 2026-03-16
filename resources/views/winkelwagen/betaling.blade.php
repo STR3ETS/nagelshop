@@ -115,7 +115,7 @@
                         // fallback NL
                         $isNL = $isNL || (!$isBE);
 
-                        $tariefNL  = 6.35;
+                        $tariefNL  = 7.45;
                         $tariefBE  = 12.35;
                         $drempelNL = 75.00;
                         $drempelBE = 100.00;

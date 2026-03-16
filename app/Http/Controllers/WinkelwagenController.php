@@ -279,7 +279,7 @@ class WinkelwagenController extends Controller
             $isNL = (bool) preg_match('/^\d{4}\s?[A-Z]{2}$/', $pc);
             $isBE = !$isNL && (bool) preg_match('/^\d{4}$/', $pc);
 
-            $tariefNL  = 6.35;
+            $tariefNL  = 7.45;
             $tariefBE  = 12.35;
             $drempelNL = 75.00;
             $drempelBE = 100.00;
@@ -449,7 +449,7 @@ class WinkelwagenController extends Controller
             $isNL = (bool) preg_match('/^\d{4}\s?[A-Z]{2}$/', $pc);
             $isBE = !$isNL && (bool) preg_match('/^\d{4}$/', $pc);
 
-            $tariefNL  = 6.35;
+            $tariefNL  = 7.45;
             $tariefBE  = 12.35;
             $drempelNL = 75.00;
             $drempelBE = 100.00;

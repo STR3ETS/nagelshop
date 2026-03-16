@@ -147,7 +147,7 @@ class BestellingenController extends Controller
             $isBE = !$isNL && (bool) preg_match('/^\d{4}$/', $pc);
             $isNL = $isNL || (!$isBE);
 
-            $tariefNL  = 6.35;
+            $tariefNL  = 7.45;
             $tariefBE  = 12.35;
             $drempelNL = 75.00;
             $drempelBE = 100.00;
