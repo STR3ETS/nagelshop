@@ -41,11 +41,14 @@
             $totaalExcl = $totaalNaKorting / 1.21;
             $btw = $totaalNaKorting - $totaalExcl;
 
-            // 3) Bezorging alleen tonen/berekenen als adres + postcode + plaats aanwezig
+            // 3) Bezorging: ophalen = gratis, verzenden = berekenen
+            $levermethode = $gegevens['levermethode'] ?? 'verzenden';
             $adresOk = !empty($gegevens['adres'] ?? null) && !empty($gegevens['postcode'] ?? null) && !empty($gegevens['plaats'] ?? null);
 
             $verzendkosten = null; // null = niet tonen
-            if ($adresOk) {
+            if ($levermethode === 'ophalen') {
+                $verzendkosten = 0.0;
+            } elseif ($adresOk) {
                 $pc = strtoupper(trim($gegevens['postcode']));
                 // NL: 1234 AB (spatie optioneel)
                 $isNL = (bool) preg_match('/^\d{4}\s?[A-Z]{2}$/', $pc);
@@ -101,7 +104,7 @@
                             >
                             Verzenden
                         </label>
-                        <!-- <label class="flex items-center gap-2 text-[14px]">
+                        <label class="flex items-center gap-2 text-[14px]">
                             <input
                                 type="radio"
                                 x-model="levermethode"
@@ -111,7 +114,7 @@
                                 class="accent-black"
                             >
                             Ophalen
-                        </label> -->
+                        </label>
                     </div>
                     @error('levermethode')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -224,9 +227,15 @@
                         @endif
                     </div>
 
-                    {{-- Bezorging (optioneel, indien adres OK) --}}
-                    @if(!is_null($verzendkosten))
-                        <div class="flex justify-between mb-2 text-[15px] mt-2">
+                    {{-- Levermethode --}}
+                    <div class="flex justify-between mb-2 text-[15px] mt-2">
+                        <span>Levermethode</span>
+                        <span>{{ $levermethode === 'ophalen' ? 'Ophalen' : 'Verzenden' }}</span>
+                    </div>
+
+                    {{-- Bezorging (alleen bij verzenden en als adres bekend) --}}
+                    @if($levermethode === 'verzenden' && !is_null($verzendkosten))
+                        <div class="flex justify-between mb-2 text-[15px]">
                             <span>Bezorging</span>
                             <span>
                                 @if($verzendkosten == 0)
@@ -249,8 +258,12 @@
                         Waarvan BTW 21%: &euro;{{ number_format($btw, 2, ',', '.') }}
                     </p>
 
-                    {{-- Voortgang gratis verzending (op basis van bedrag vóór korting) --}}
-                    @if ($totaalNaKorting < $gratisVerzendingDrempel)
+                    {{-- Voortgang gratis verzending (alleen bij verzenden) --}}
+                    @if ($levermethode === 'ophalen')
+                        <div class="bg-[#b38867]/10 text-[#b38867] text-sm px-3 py-2 rounded-md my-4">
+                            Je haalt je bestelling op — geen verzendkosten!
+                        </div>
+                    @elseif ($totaalNaKorting < $gratisVerzendingDrempel)
                         <div class="bg-[#b38867]/10 text-[#b38867] text-sm px-3 py-2 rounded-md my-4">
                             Besteed nog <span class="font-medium">{{ number_format($nogTeGaan, 2, ',', '.') }}</span><br>om gratis verzending te krijgen!
                             <div class="flex flex-col justify-end gap-[0.5rem] mt-2">
