@@ -94,7 +94,7 @@
                         @endphp
                         @foreach($__prefill as $__s)
                             <option value="{{ $__s->id }}" {{ $__oldSub == $__s->id ? 'selected' : '' }}>
-                                {{ $__s->naam }}
+                                {{ $__s->naam === 'Penselen' ? 'Penselen/Tools' : $__s->naam }}
                             </option>
                         @endforeach
                     </select>
@@ -184,7 +184,7 @@
         for (const s of data) {
           const opt = document.createElement('option');
           opt.value = s.id;
-          opt.textContent = s.naam;
+          opt.textContent = s.naam === 'Penselen' ? 'Penselen/Tools' : s.naam;
           if (selectedId && String(selectedId) === String(s.id)) opt.selected = true;
           sub.appendChild(opt);
         }
