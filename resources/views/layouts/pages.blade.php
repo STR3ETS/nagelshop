@@ -121,6 +121,7 @@ $subUrl = function (string $naam) use ($sub) {
                     <li><a href="{{ $subUrl('Metalic Gel') }}" class="font-medium py-2 text-sm">Metalic Gel</a></li>
                     <li><a href="{{ $subUrl('Gypsum') }}" class="font-medium py-2 text-sm">Gypsum</a></li>
                     <li><a href="{{ $subUrl('Ombre Spray') }}" class="font-medium py-2 text-sm">Ombre Spray</a></li>
+                    <li><a href="{{ $subUrl('Chrome Poeder') }}" class="font-medium py-2 text-sm">Chrome Poeder</a></li>
                 </ul>
                 <ul class="text-black">
                     <li class="font-bold text-lg mb-1">Werkmateriaal</li>
@@ -242,6 +243,7 @@ $subUrl = function (string $naam) use ($sub) {
                                 <li><a href="{{ $subUrl('Metalic Gel') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Metalic Gel</a></li>
                                 <li><a href="{{ $subUrl('Gypsum') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Gypsum</a></li>
                                 <li><a href="{{ $subUrl('Ombre Spray') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Ombre Spray</a></li>
+                                <li><a href="{{ $subUrl('Chrome Poeder') }}" class="block px-3 py-2 text-[14px] hover:bg-gray-50 rounded-lg">Chrome Poeder</a></li>
                                 </ul>
                             </div>
                         </li>

@@ -38,6 +38,7 @@ class SubcategorySeeder extends Seeder
                 'Metalic Gel',
                 'Gypsum',
                 'Ombre Spray',
+                'Chrome Poeder',
             ],
             'Werkmateriaal' => [
                 'Top Nail Forms',
