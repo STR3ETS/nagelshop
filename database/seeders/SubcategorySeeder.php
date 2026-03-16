@@ -42,7 +42,7 @@ class SubcategorySeeder extends Seeder
             'Werkmateriaal' => [
                 'Top Nail Forms',
                 'Gel Tips',
-                'Penselen/Tools',
+                'Penselen',
                 'Schort',
             ],
         ];
