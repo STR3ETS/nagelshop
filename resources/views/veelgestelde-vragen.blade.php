@@ -155,7 +155,7 @@
                         </div>
                         <div class="mb-3">
                             <p class="opacity-80 text-sm text-[#191919] font-semibold">Hebben jullie ook een fysieke winkel?</p>
-                            <p class="opacity-80 text-sm text-[#191919]">Ja! We zijn gevestigd aan Lentemorgen 5, kamer 5.36, 6903 CT Zevenaar. We staan voor je klaar!</p>
+                            <p class="opacity-80 text-sm text-[#191919]">Ja! We zijn gevestigd aan Thorbeckestraat 3, 6904 BS Zevenaar. We staan voor je klaar!</p>
                         </div>
                     </div>
                 </li>

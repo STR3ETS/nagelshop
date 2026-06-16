@@ -420,9 +420,8 @@ $subUrl = function (string $naam) use ($sub) {
                         <h4 class="text-[#fff] font-semibold text-xl mb-3">Contact</h4>
                         <ul class="space-y-4 text-sm text-[#fff]">
                             <div class="space-y-2">
-                                <li>Lentemorgen 5</li>
-                                <li>6903CT Zevenaar</li>
-                                <li>Kamer 5.36</li>
+                                <li>Thorbeckestraat 3</li>
+                                <li>6904BS Zevenaar</li>
                             </div>
                             <div class="space-y-2">
                                 <li>Email: <a href="mailto:info@deluxenailshop.nl" class="hover:underline">info@deluxenailshop.nl</a></li>

@@ -204,8 +204,8 @@ class FacturenController extends Controller
 
         $bedrijf = [
             'naam'     => 'Deluxe Nail Shop',
-            'adres'    => 'Lentemorgen 5 (Kamer 5.36)',
-            'postcode' => '6903 CT',
+            'adres'    => 'Thorbeckestraat 3',
+            'postcode' => '6904 BS',
             'plaats'   => 'Zevenaar',
             'kvk'      => '84373466',
             'btw'      => 'NL003954592B82',
